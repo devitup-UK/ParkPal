@@ -28,17 +28,17 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)/ParkPal.API/ParkPal.API.sln'
+    projects: '$(Build.SourcesDirectory)/ParkPal.API.sln'
     
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
     arguments: '-c Release --os linux'
-    projects: '$(Build.SourcesDirectory)/ParkPal.API/ParkPal.API.sln'
+    projects: '$(Build.SourcesDirectory)/ParkPal.API.sln'
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.API/bin/Release/net6.0/linux-x64/'
+    SourceFolder: '$(Build.SourcesDirectory)/bin/Release/net6.0/linux-x64/'
     Contents: '**'
     TargetFolder: '/staging/'
     OverWrite: true
