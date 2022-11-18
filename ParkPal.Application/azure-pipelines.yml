@@ -20,7 +20,7 @@ steps:
   displayName: 'Install NPM'
 
 - script: |
-    npm --prefix $(Build.SourcesDirectory)/ParkPal.Applicaition run build
+    npm --prefix $(Build.SourcesDirectory)/ParkPal.Application run build
   displayName: 'npm build'
 
 - task: CopyFiles@2
