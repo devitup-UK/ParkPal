@@ -3,28 +3,29 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-trigger:
-  paths:
-    include:
-    - ./*
-
 pool:
   name: 'Linux Pool'
 
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '10.x'
+    versionSpec: '12.x'
   displayName: 'Install Node.js'
 
+
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: '$(Build.SourcesDirectory)/ParkPal.Application'
+  displayName: 'Install NPM'
+
 - script: |
-    npm --prefix $(Build.SourcesDirectory) install
-    npm --prefix $(Build.SourcesDirectory) run build
-  displayName: 'npm install and build'
+    npm --prefix $(Build.SourcesDirectory)/ParkPal.Application run build
+  displayName: 'npm build'
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: 'dist/**'
     TargetFolder: '/staging/'
     OverWrite: true
@@ -32,28 +33,28 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: 'resources/**'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.AppIcons'
+    Contents: '**'
     TargetFolder: '/staging/'
     OverWrite: true
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: '\package.json'
     TargetFolder: '/staging/'
     OverWrite: true
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/App/'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: '\capacitor.config.ts'
     TargetFolder: '/staging/'
     OverWrite: true
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/App/'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: '\ionic.config.json'
     TargetFolder: '/staging/'
     OverWrite: true
