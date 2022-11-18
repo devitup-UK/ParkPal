@@ -12,11 +12,6 @@ steps:
     versionSpec: '12.x'
   displayName: 'Install Node.js'
 
-- task: Npm@1
-  inputs:
-    customCommand: 'install rxjs'
-    workingDir: '$(Build.SourcesDirectory)/ParkPal.Application'
-  displayName: 'Install RXJS'
 
 - task: Npm@1
   inputs:
@@ -24,11 +19,9 @@ steps:
     workingDir: '$(Build.SourcesDirectory)/ParkPal.Application'
   displayName: 'Install NPM'
 
-- task: Npm@1
-  inputs:
-    customCommand: 'build'
-    workingDir: '$(Build.SourcesDirectory)/ParkPal.Application'
-  displayName: 'Build NPM'
+- script: |
+    npm --prefix $(Build.SourcesDirectory)/ParkPal.Applicaition run build
+  displayName: 'npm build'
 
 - task: CopyFiles@2
   inputs:
