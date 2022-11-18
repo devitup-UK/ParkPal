@@ -9,7 +9,7 @@ pool:
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '10.x'
+    versionSpec: '12.x'
   displayName: 'Install Node.js'
 
 - script: |
@@ -19,7 +19,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: 'dist/**'
     TargetFolder: '/staging/'
     OverWrite: true
@@ -27,28 +27,28 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: 'resources/**'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.AppIcons'
+    Contents: '**'
     TargetFolder: '/staging/'
     OverWrite: true
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: '\package.json'
     TargetFolder: '/staging/'
     OverWrite: true
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/App/'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: '\capacitor.config.ts'
     TargetFolder: '/staging/'
     OverWrite: true
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/App/'
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Application'
     Contents: '\ionic.config.json'
     TargetFolder: '/staging/'
     OverWrite: true
