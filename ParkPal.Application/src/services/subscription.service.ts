@@ -3,7 +3,7 @@ import { authHeader } from '../helpers/authHeaders.helper';
 import SaveSubscriptionRequest from "@/models/api/requests/subscription/SaveSubscriptionRequest";
 
 const instance = axios.create({
-    baseURL: 'http://192.168.1.96:5002/subscription/',
+    baseURL: 'https://api-dev.parkpal.co.uk/subscription/',
     timeout: 10000
 });
 

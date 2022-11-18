@@ -8,7 +8,7 @@ import TimerWithAttraction from "@/models/api/TimerWithAttraction";
 import GetNotificationsRequest from "@/models/api/requests/notification/GetNotificationsRequest";
 
 const instance = axios.create({
-    baseURL: 'http://192.168.1.96:5002/notification/',
+    baseURL: 'https://api-dev.parkpal.co.uk/notification/',
     timeout: 10000
 });
 
