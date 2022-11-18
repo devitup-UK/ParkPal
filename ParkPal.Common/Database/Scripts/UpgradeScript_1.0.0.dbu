@@ -1,0 +1,115 @@
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'Device' )
+BEGIN
+EXECUTE('CREATE SCHEMA [Device]')
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables t JOIN sys.schemas s ON (t.schema_id = s.schema_id) WHERE s.name = 'Device' AND t.name = 'Token')
+BEGIN
+CREATE TABLE [Device].[Token] (
+    [TokenId] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [Value] NVARCHAR(1000) NOT NULL UNIQUE
+    )
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'Notification' )
+BEGIN
+EXECUTE('CREATE SCHEMA [Notification]')
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables t JOIN sys.schemas s ON (t.schema_id = s.schema_id) WHERE s.name = 'Notification' AND t.name = 'Subscription')
+BEGIN
+CREATE TABLE [Notification].[Subscription] (
+    [SubscriptionId] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [TokenId] INT NOT NULL FOREIGN KEY REFERENCES [Device].[Token]([TokenId]),
+    [PlayerId] NVARCHAR(1000) NOT NULL,
+    CONSTRAINT [Token_Player] UNIQUE NONCLUSTERED
+(
+    [TokenId], [PlayerId]
+               )
+    )
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables t JOIN sys.schemas s ON (t.schema_id = s.schema_id) WHERE s.name = 'Notification' AND t.name = 'CriteriaType')
+BEGIN
+CREATE TABLE [Notification].[CriteriaType] (
+    [CriteriaTypeId] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [Name] NVARCHAR(1000) NOT NULL
+    )
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM [Notification].[CriteriaType] WHERE [CriteriaTypeId] = 1)
+BEGIN
+    SET IDENTITY_INSERT [Notification].[CriteriaType] ON
+
+    INSERT INTO [Notification].[CriteriaType] ([CriteriaTypeId], [Name]) VALUES (1, 'Less Than')
+
+    SET IDENTITY_INSERT [Notification].[CriteriaType] OFF
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM [Notification].[CriteriaType] WHERE [CriteriaTypeId] = 2)
+BEGIN
+    SET IDENTITY_INSERT [Notification].[CriteriaType] ON
+
+    INSERT INTO [Notification].[CriteriaType] ([CriteriaTypeId], [Name]) VALUES (2, 'More Than')
+
+    SET IDENTITY_INSERT [Notification].[CriteriaType] OFF
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM [Notification].[CriteriaType] WHERE [CriteriaTypeId] = 3)
+BEGIN
+    SET IDENTITY_INSERT [Notification].[CriteriaType] ON
+
+    INSERT INTO [Notification].[CriteriaType] ([CriteriaTypeId], [Name]) VALUES (3, 'Equal To')
+
+    SET IDENTITY_INSERT [Notification].[CriteriaType] OFF
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables t JOIN sys.schemas s ON (t.schema_id = s.schema_id) WHERE s.name = 'Notification' AND t.name = 'AttractionTimer')
+BEGIN
+CREATE TABLE [Notification].[AttractionTimer] (
+    [AttractionTimerId] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [MinuteInterval] INT NOT NULL DEFAULT(5),
+    [AttractionId] NVARCHAR(1000) NOT NULL,
+    [CriteriaType] INT NOT NULL FOREIGN KEY REFERENCES [Notification].[CriteriaType]([CriteriaTypeId]),
+    [WaitTime] INT NOT NULL DEFAULT(20),
+    [Enabled] BIT NOT NULL DEFAULT(1),
+    [SubscriptionId] INT NOT NULL FOREIGN KEY REFERENCES [Notification].[Subscription]([SubscriptionId]),
+    )
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'Log' )
+BEGIN
+    EXECUTE('CREATE SCHEMA [Log]')
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.tables t JOIN sys.schemas s ON (t.schema_id = s.schema_id) WHERE s.name = 'Log' AND t.name = 'Item')
+BEGIN
+    CREATE TABLE [Log].[Item] (
+        [ItemId] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        [LogLevel] VARCHAR(100) NOT NULL,
+        [EventId] INT NULL,
+        [EventName] VARCHAR(1000) NULL,
+        [Message] VARCHAR(2000) NOT NULL,
+        [ThreadId] INT NOT NULL,
+        [HostName] VARCHAR(1000) NULL,
+        [ApplicationName] VARCHAR(1000) NULL,
+        [ExceptionMessage] NVARCHAR(MAX) NULL,
+        [ExceptionStackTrace] NVARCHAR(MAX) NULL,
+        [ExceptionSource] NVARCHAR(MAX) NULL,
+        [Modified] DATETIME2 NOT NULL DEFAULT GETDATE(),
+        [Created] DATETIME2 NOT NULL DEFAULT GETDATE()
+        )
+END
+GO
+
+

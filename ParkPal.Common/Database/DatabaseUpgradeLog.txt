@@ -1,0 +1,17 @@
+This file is used to dictate the latest database version updates
+and what the database has been updated for.
+================================================================
+Database Version: 1.0.1
+Updated By: Tom Alderson
+----------------------------------------------------------------
+Changes in Database from this version:
+----------------------------------------------------------------
+1. Added ParkId to AttractionTimer.
+================================================================
+Database Version: 1.0.0
+Updated By: Tom Alderson
+----------------------------------------------------------------
+Changes in Database from this version:
+----------------------------------------------------------------
+1. Added initial database design.
+================================================================

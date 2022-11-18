@@ -1,0 +1,30 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3633423f_002Dc5de_002D49a4_002D9650_002Dcc871a7d55a3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;And&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;NUnit3x::7AF7C948-9E04-457F-9B97-C699B69F8945::net6.0::ParkPal.Tests.ServiceTests.ServiceTests.SendBasicPushNotification&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+    &lt;Project Location="/Users/tom/Git/DevItUp/ParkPal/ParkPal.Tests" Presentation="&amp;lt;ParkPal.Tests&amp;gt;" /&gt;
+    &lt;Namespace&gt;ParkPal.Tests.ServiceTests&lt;/Namespace&gt;
+  &lt;/And&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3c1bdf9f_002Dba29_002D4fff_002Da671_002D1a65bf79c950/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;And&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;NUnit3x::7AF7C948-9E04-457F-9B97-C699B69F8945::net6.0::ParkPal.Tests.ServiceTests.ServiceTests.SendBasicPushNotification&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+    &lt;Project Location="/Users/tom/Git/DevItUp/ParkPal/ParkPal.Tests" Presentation="&amp;lt;ParkPal.Tests&amp;gt;" /&gt;
+    &lt;Namespace&gt;ParkPal.Tests.ServiceTests&lt;/Namespace&gt;
+  &lt;/And&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=71172304_002D9bbb_002D4b18_002D8bba_002Db25e8c7eeb95/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;And&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;NUnit3x::7AF7C948-9E04-457F-9B97-C699B69F8945::net6.0::ParkPal.Tests.ServiceTests.ServiceTests.SendBasicPushNotification&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+    &lt;Project Location="/Users/tom/Git/DevItUp/ParkPal/ParkPal.Tests" Presentation="&amp;lt;ParkPal.Tests&amp;gt;" /&gt;
+    &lt;Namespace&gt;ParkPal.Tests.ServiceTests&lt;/Namespace&gt;
+  &lt;/And&gt;
+&lt;/SessionState&gt;</s:String>
+	
+	</wpf:ResourceDictionary>

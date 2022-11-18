@@ -1,0 +1,5 @@
+IF COL_LENGTH('Notification.AttractionTimer','ParkId') IS NULL
+BEGIN
+ALTER TABLE [Notification].[AttractionTimer] ADD [ParkId] NVARCHAR(1000) NOT NULL
+END
+GO
