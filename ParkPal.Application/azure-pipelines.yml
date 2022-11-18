@@ -13,8 +13,8 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    npm --prefix $(Build.SourcesDirectory) install
-    npm --prefix $(Build.SourcesDirectory) run build
+    npm --prefix $(Build.SourcesDirectory)/ParkPal.Application install
+    npm --prefix $(Build.SourcesDirectory)/ParkPal.Application run build
   displayName: 'npm install and build'
 
 - task: CopyFiles@2
