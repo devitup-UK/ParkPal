@@ -36,7 +36,7 @@
             <IonLabel>Why should I use ParkPal?</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Answer to go here.
+            ParkPal can assist you while you enjoy your time at your favourite theme park by helping you to get notified if your favourite attraction meets your wait time expectations. You can setup wait time notifications that will notify you when the wait time of your chosen attraction is <strong>more than</strong>, <strong>less than</strong> or <strong>equal to</strong> your desired wait time.
           </div>
         </IonAccordion>
         <IonAccordion>
@@ -44,7 +44,7 @@
             <IonLabel>Does ParkPal need an Internet connection?</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Answer to go here.
+            Yes, ParkPal relies on fetching data from all theme parks that you have wait time notifications enabled for and relies on server communications to display available destinations, parks and wait times. You do not need constant internet connection to receive notifications, these happen in the background.
           </div>
         </IonAccordion>
         <IonAccordion>
@@ -52,7 +52,7 @@
             <IonLabel>My favourite destination is missing!</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Answer to go here.
+            We are so sorry that we don't have your favourite destination, feel free to drop us a message to <strong>support@parkpal.co.uk</strong> to let us know and we will do our best to get it added to the list.
           </div>
         </IonAccordion>
         <IonAccordion>
@@ -60,7 +60,7 @@
             <IonLabel>Why do you have advertisements?</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Answer to go here.
+            To send you notifications about wait times, we need servers and servers cost to run, advertisements help us by sustaining the server costs and development costs to keep ParkPal running. Any advertisement revenue earned is also poured into improving the ParkPal application.
           </div>
         </IonAccordion>
         <IonAccordion>
@@ -68,7 +68,7 @@
             <IonLabel>Why should I subscribe to ParkPal+?</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Answer to go here.
+            ParkPal+ offers you the ability to use the application with no advertisements, set less than wait time notifications below 35 minutes, removes any limits on the amount of notifications you can have at one time, offers you the ability to theme your ParkPal experience in anyway you like. You can access all features without ParkPal+ except custom theming by watching advertisements.
           </div>
         </IonAccordion>
         <IonAccordion>
@@ -76,15 +76,15 @@
             <IonLabel>Are there future plans for ParkPal?</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Answer to go here.
+            We aim to release bi-weekly updates to the ParkPal application if improvements are reported and need to be fixed, we are always happy to hear improvements to the application and welcome criticism on anything we can fix or add to the application. In a nutshell, we fully expect ParkPal to keep growing for the foreseeable future.
           </div>
         </IonAccordion>
         <IonAccordion>
           <IonItem slot="header" lines="full" class="faq-item" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
-            <IonLabel>I have an idea for that can improve ParkPal!</IonLabel>
+            <IonLabel>I have an idea that can improve ParkPal!</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Answer to go here.
+            Submit your idea to <strong>ideas@parkpal.co.uk</strong> and we will certainly have a look and if it sounds promising, we will work our hardest to get it implemented as soon as we can.
           </div>
         </IonAccordion>
       </IonAccordionGroup>
