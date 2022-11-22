@@ -19,6 +19,7 @@ public class Destination
                 case "e8d0207f-da8a-4048-bec8-117aa946b2c2":
                     return "Paris, France";
                 case "9fc68f1c-3f5e-4f09-89f2-aab2cf1a0741":
+                case "bfc89fd6-314d-44b4-b89e-df1a89cf991e":
                     return "Los Angeles, California";
             }
             return null;
