@@ -28,6 +28,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used for Advertising purposes by Google to serve advertisements based upon location if permissions are granted to do so.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>To target specific users to earn revenue in the application.</string>
 	<key>SKAdNetworkItems</key>
