@@ -18,6 +18,8 @@ public class Destination
                     return "Florida, United States";
                 case "e8d0207f-da8a-4048-bec8-117aa946b2c2":
                     return "Paris, France";
+                case "9fc68f1c-3f5e-4f09-89f2-aab2cf1a0741":
+                    return "Los Angeles, California";
             }
             return null;
         }

@@ -175,9 +175,15 @@ export default defineComponent({
     },
     // Not implemented yet.
     backToParks() {
+      if(this.activeDestination.parks.length > 1) {
         this.$router.push({
           name: 'parks'
         })
+      }else{
+        this.$router.push({
+          name: 'destinations'
+        })
+      }
     },
 
     filterAttractions() {

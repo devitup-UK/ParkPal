@@ -68,6 +68,7 @@ export default defineComponent({
 
           transformedDestination.checkImageExists().then(exists => {
             if(exists) {
+              console.log('An image exists', transformedDestination);
               this.destinations.push(transformedDestination);
             }
           })

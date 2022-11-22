@@ -97,9 +97,15 @@ export default defineComponent({
     navigateToParksOrAttractions(destination: Destination) {
       this.$store.dispatch('setActiveDestination', destination);
 
-      if(destination.parks?.length) {
+      if(destination.parks?.length > 1) {
         this.$router.push({
           name: 'parks'
+        });
+      }else{
+        this.$store.dispatch('setActivePark', destination.parks[0]);
+
+        this.$router.push({
+          name: 'waitTimes'
         });
       }
     }

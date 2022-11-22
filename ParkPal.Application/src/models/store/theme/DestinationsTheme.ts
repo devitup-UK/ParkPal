@@ -1,7 +1,7 @@
 export default class DestinationsTheme {
     text = '#b7b7b7';
-    title = '#FFFFFF';
-    location = '#FFFFFF';
+    title = '#000000';
+    location = '#000000';
     buttonBackground = '#F2F2F2';
     buttonText = '#6E6E6E';
 
@@ -17,16 +17,16 @@ export default class DestinationsTheme {
 
     setLightTheme() {
         this.text = '#b7b7b7';
-        this.title = '#FFFFFF';
-        this.location = '#FFFFFF';
+        this.title = '#000000';
+        this.location = '#000000';
         this.buttonBackground = '#F2F2F2';
         this.buttonText = '#6E6E6E';
     }
 
     setDarkTheme() {
         this.text = '#b7b7b7';
-        this.title = '#FFFFFF';
-        this.location = '#FFFFFF';
+        this.title = '#000000';
+        this.location = '#000000';
         this.buttonBackground = '#3f3f3f';
         this.buttonText = '#F2F2F2';
     }
