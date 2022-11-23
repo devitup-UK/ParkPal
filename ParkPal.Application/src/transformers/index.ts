@@ -5,7 +5,7 @@ import Park from "@/models/api/Park";
 import Attraction from "@/models/api/Attraction";
 
 function transformApiDestinationArrayToInternalDestinationArray(destinations: Array<Destination>) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const transformedDestinations: Array<Destination> = [];
 
         // Transform our destination from the API to an internal one.
@@ -46,14 +46,13 @@ function transformApiParksArrayToInternalParksArray(parks: Array<Park>) {
 }
 
 function transformApiAttractionsArrayToInternalAttractionsArray(attractions: Array<Attraction>): Promise<Array<Attraction>> {
-    return new Promise((resolve, reject) =>  {
+    return new Promise((resolve) =>  {
         const transformedAttractions: Array<Attraction> = [];
 
         // Transform our destination from the API to an internal one.
         attractions.forEach((attraction: Attraction) => {
             const attractionToAdd = new Attraction(attraction);
             attractionToAdd.checkImageExists().then((exists) => {
-                console.log('did it work?');
                 attractionToAdd.hidden = !exists;
             })
             transformedAttractions.push(attractionToAdd);

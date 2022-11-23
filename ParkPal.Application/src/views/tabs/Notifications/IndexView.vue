@@ -126,7 +126,10 @@ export default defineComponent({
     },
     filterNotifications() {
       this.$router.push({
-        name: 'notificationFilters'
+        name: 'notificationFilters',
+        params: {
+          transition: 'slide-right'
+        }
       })
     },
   }

@@ -1,4 +1,3 @@
-import OneSignal from 'onesignal-cordova-plugin';
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -25,7 +24,7 @@ import {
     faPlus,
     faAt,
     faWallet,
-    faPaintRoller, faPaintBrush
+    faPaintRoller
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faMapMarkerAlt,

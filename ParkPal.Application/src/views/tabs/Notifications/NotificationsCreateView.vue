@@ -88,14 +88,8 @@ import Alert from '@/components/Alert.vue';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {mapState} from "vuex";
 import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
-import {AdMob, RewardAdPluginEvents, RewardAdOptions, AdLoadInfo, AdMobRewardItem} from "@capacitor-community/admob";
-import {RootState} from "@/store/types";
-import Settings from "@/models/store/Settings";
-import Attraction from "@/models/api/Attraction";
-import Park from "@/models/api/Park";
-import Destination from "@/models/api/Destination";
-import {hideBannerAdvertisement, resumeBannerAdvertisement, showRewardAdvertisement} from "@/events/advertisements.bus";
-import {openAppNotificationSettings, requestNotificationPermissions} from "@/handlers/notifications.handler";
+import {hideBannerAdvertisement, resumeBannerAdvertisement, showRewardAdvertisement} from "@/handlers/advertisements.handler";
+import {openAppNotificationSettings} from "@/handlers/notifications.handler";
 
 export default defineComponent({
   name: "NotificationsCreateView",
@@ -151,7 +145,7 @@ export default defineComponent({
 
     async watchAd() {
       // console.log('Show advertisement.');
-      showRewardAdvertisement().then((rewardItem) => {
+      showRewardAdvertisement().then(() => {
         this.adWatched = true;
         this.setupWaitTimes();
       });
@@ -163,13 +157,19 @@ export default defineComponent({
 
     navigateToSubscriptions() {
       this.$router.push({
-        name: 'notifications'
+        name: 'notifications',
+        params: {
+          transition: 'slide-right'
+        }
       })
     },
 
     backToWaitTimes() {
       this.$router.push({
-        name: 'waitTimes'
+        name: 'waitTimes',
+        params: {
+          transition: 'slide-left'
+        }
       })
 
     },
@@ -197,9 +197,9 @@ export default defineComponent({
       }
 
       // Then check if the criteria is set to LessThan.
-      if(this.criteria == 1 && this.attraction.waitTime) {
-        this.waitTimeOptions = this.waitTimeOptions.filter(a => a.value < this.attraction.waitTime);
-      }
+      // if(this.criteria === 1 && this.attraction.waitTime) {
+      //   this.waitTimeOptions = this.waitTimeOptions.filter(a => a.value < this.attraction.waitTime);
+      // }
 
       if(!this.settings.parkPalPlus) {
         if(!this.adWatched) {

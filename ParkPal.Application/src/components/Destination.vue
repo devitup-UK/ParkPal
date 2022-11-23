@@ -99,13 +99,19 @@ export default defineComponent({
 
       if(destination.parks?.length > 1) {
         this.$router.push({
-          name: 'parks'
+          name: 'parks',
+          params: {
+            transition: 'slide-right'
+          }
         });
       }else{
         this.$store.dispatch('setActivePark', destination.parks[0]);
 
         this.$router.push({
-          name: 'waitTimes'
+          name: 'waitTimes',
+          params: {
+            transition: 'slide-right'
+          }
         });
       }
     }

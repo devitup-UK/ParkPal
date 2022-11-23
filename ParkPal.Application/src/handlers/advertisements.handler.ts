@@ -1,15 +1,10 @@
-import {Vue} from "vue-class-component";
 import {
     AdMob,
-    BannerAdOptions,
     BannerAdPosition,
     BannerAdSize,
-    RewardAdOptions,
-    RewardAdPluginEvents
+    RewardAdOptions
 } from "@capacitor-community/admob";
 import store from '@/store';
-
-// export const bus = new Vue();
 
 export function initialiseAdvertisements() {
     if(store.state.isApp) {
@@ -17,7 +12,7 @@ export function initialiseAdvertisements() {
             requestTrackingAuthorization: false,
             initializeForTesting: true,
             testingDevices: ['6B7DE437-F8B2-455D-901B-B637520D19EB']
-        })
+        }).then()
     }
 }
 
@@ -37,7 +32,7 @@ export function showBannerAdvertisement(parkPalPlus: boolean) {
                     isTesting: true
                 }
 
-                AdMob.showBanner(bannerOptions);
+                AdMob.showBanner(bannerOptions).then();
             }, 200)
         }
     }
@@ -45,20 +40,20 @@ export function showBannerAdvertisement(parkPalPlus: boolean) {
 
 export function hideBannerAdvertisement() {
     if(store.state.isApp) {
-        AdMob.hideBanner();
+        AdMob.hideBanner().then();
     }
 }
 
 export function resumeBannerAdvertisement(parkPalPlus: boolean) {
     if(store.state.isApp) {
         if(!parkPalPlus) {
-            AdMob.resumeBanner();
+            AdMob.resumeBanner().then();
         }
     }
 }
 
 export function showRewardAdvertisement() {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
         if(store.state.isApp) {
             const options: RewardAdOptions = {
                 adId: 'ca-app-pub-1263240325581067/4493109970',

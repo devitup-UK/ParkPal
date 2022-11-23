@@ -95,8 +95,6 @@ import {
   IonTitle,
   IonButton,
   IonButtons,
-  actionSheetController,
-  ActionSheetButton,
   IonRefresher,
   IonRefresherContent, RefresherCustomEvent
 } from "@ionic/vue";
@@ -109,7 +107,6 @@ import AttractionComponent from "@/components/Attraction.vue";
 import Park from "@/models/api/Park";
 import Loader from "@/components/Loader.vue";
 import Attraction from "@/models/api/Attraction";
-import AlertComponent from "@/components/Alert.vue";
 import ConnectionError from "@/components/ConnectionError.vue";
 
 export default defineComponent({
@@ -168,8 +165,7 @@ export default defineComponent({
           this.loading = false;
           event?.target?.complete();
         })
-      }).catch((error: AxiosError) => {
-            console.log(error);
+      }).catch(() => {
             this.$store.dispatch('setServerError', true);
           });
     },
@@ -177,18 +173,27 @@ export default defineComponent({
     backToParks() {
       if(this.activeDestination.parks.length > 1) {
         this.$router.push({
-          name: 'parks'
+          name: 'parks',
+          params: {
+            transition: 'slide-left'
+          }
         })
       }else{
         this.$router.push({
-          name: 'destinations'
+          name: 'destinations',
+          params: {
+            transition: 'slide-left'
+          }
         })
       }
     },
 
     filterAttractions() {
       this.$router.push({
-        name: 'waitTimeFilters'
+        name: 'waitTimeFilters',
+        params: {
+          transition: 'slide-right'
+        }
       })
     },
 

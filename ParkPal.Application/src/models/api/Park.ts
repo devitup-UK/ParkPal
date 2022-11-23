@@ -23,14 +23,11 @@ export default class Park {
     }
 
     checkImageExists() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if(this.image) {
-                // console.log('Image', this.image);
-                axios.get('/img/' + this.image).then((response) => {
-                    // console.log('Response', response);
+                axios.get('/img/' + this.image).then(() => {
                     resolve(true);
-                }).catch((error) => {
-                    // console.log('Error', error);
+                }).catch(() => {
                     resolve(false);
                 });
             }else{

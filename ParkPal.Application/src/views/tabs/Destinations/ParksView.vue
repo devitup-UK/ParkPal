@@ -117,20 +117,26 @@ export default defineComponent({
 
             this.$store.dispatch('setServerError', false);
           })
-          .catch((error) => {
+          .catch(() => {
             this.$store.dispatch('setServerError', true);
           });
     },
     backToDestinations() {
       this.$router.push({
-        name: 'destinations'
+        name: 'destinations',
+        params: {
+          transition: 'slide-left'
+        }
       })
     },
     navigateToWaitTimes(park: Park) {
       this.$store.dispatch('setActivePark', park);
 
       this.$router.push({
-        name: 'waitTimes'
+        name: 'waitTimes',
+        params: {
+          transition: 'slide-right'
+        }
       })
     }
   },

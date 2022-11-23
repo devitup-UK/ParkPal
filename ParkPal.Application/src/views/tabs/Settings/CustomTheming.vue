@@ -284,14 +284,10 @@ ion-item::part(detail-icon) {
 
 <script>
 import { defineComponent } from "vue";
-import AttractionComponent from "../../../components/Attraction.vue";
-import {mapGetters, mapState} from "vuex";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonLabel, IonItem, IonGrid, IonRow, IonCol, IonModal, IonToggle } from "@ionic/vue";
+import {mapState} from "vuex";
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonLabel, IonItem, IonRow, IonCol } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import ParkPalPlus from "@/components/Settings/ParkPalPlus.vue";
-import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/events/advertisements.bus";
 import Theme from "@/models/store/theme/Theme";
-import InputColorPicker from 'vue-native-color-picker/src/components/InputColorPicker.vue';
 
 
 export default defineComponent({
@@ -305,16 +301,11 @@ export default defineComponent({
     IonTitle,
     IonItem,
     IonList,
-    // IonToggle,
     IonButtons,
     IonButton,
-
-    // IonGrid,
     IonCol,
     IonRow,
-    // AttractionComponent,
-    FontAwesomeIcon,
-    // InputColorPicker
+    FontAwesomeIcon
   },
   computed: {
     ...mapState(['settings'])
@@ -342,7 +333,10 @@ export default defineComponent({
     },
     backToSettings() {
       this.$router.push({
-        name: 'settings'
+        name: 'settings',
+        params: {
+          transition: 'slide-left'
+        }
       })
     }
   }

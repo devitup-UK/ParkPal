@@ -3,7 +3,7 @@ import Theme from "@/models/store/theme/Theme";
 export default class Settings {
     apiToken?: string;
     hiddenDestinations: Array<string> = [];
-    parkPalPlus?: boolean = false;
+    parkPalPlus = false;
     favourites: Array<string> = [];
     theme: Theme = new Theme();
 

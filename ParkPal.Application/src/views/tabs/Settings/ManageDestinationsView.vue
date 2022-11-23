@@ -51,13 +51,11 @@ ion-item::part(detail-icon) {
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import AttractionComponent from "../../../components/Attraction.vue";
-import {mapGetters, mapState} from "vuex";
+import {mapState} from "vuex";
 import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonItem, IonLabel, IonToggle } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
-import Attraction from "@/models/api/Attraction";
 import Destination from "@/models/api/Destination";
 import Loader from "@/components/Loader.vue";
 
@@ -75,7 +73,6 @@ export default defineComponent({
     IonItem,
     IonToggle,
     IonLabel,
-    // AttractionComponent,
     FontAwesomeIcon,
     Loader
   },
@@ -109,7 +106,10 @@ export default defineComponent({
     // Methods to go here.
     backToSettings() {
       this.$router.push({
-        name: 'settings'
+        name: 'settings',
+        params: {
+          transition: 'slide-left'
+        }
       })
     },
 

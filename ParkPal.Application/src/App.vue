@@ -2,7 +2,11 @@
 <!--  <nav>-->
   <IonApp>
     <div class="content" :class="{ 'content--ads': !this.settings.parkPalPlus && this.isApp }">
-      <RouterView></RouterView>
+      <RouterView v-slot="{ Component, route }">
+        <transition :name="route.params.transition">
+          <component :is="Component" />
+        </transition>
+      </RouterView>
     </div>
     <div class="tabs" ref="tabs">
       <IonTabBar :style="'background:' + settings.theme.navigation.background + ' !important; border-color: ' + settings.theme.navigation.border + ' !important;'">
@@ -25,7 +29,6 @@
         </IonTabButton>
       </IonTabBar>
     </div>
-<!--    <Advertisements></Advertisements>-->
   </IonApp>
 </template>
 
@@ -47,6 +50,15 @@
 
 ion-label {
   margin-top: 6px;
+}
+
+.ion-page {
+  height: 100%;
+  width: 100%;
+  top: unset !important;
+  right: unset !important;
+  bottom: unset !important;
+  left: unset !important;
 }
 
 .tab-selected {
@@ -83,6 +95,48 @@ ion-label {
 ion-content {
   --background: transparent !important;
 }
+
+
+.slide-right-enter-active,
+.slide-right-leave-active,
+.slide-left-enter-active,
+.slide-left-leave-active{
+  transition: all 0.15s ease-out;
+}
+
+.slide-right-enter-to {
+  position: absolute;
+  right: 0 !important;
+}
+.slide-right-enter-from {
+  position: absolute;
+  right: -100% !important;
+}
+.slide-right-leave-to {
+  position: absolute;
+  left: -100% !important;
+}
+.slide-right-leave-from {
+  position: absolute;
+  left: 0 !important;
+}
+
+.slide-left-enter-to {
+  position: absolute;
+  left: 0 !important;
+}
+.slide-left-enter-from {
+  position: absolute;
+  left: -100% !important;
+}
+.slide-left-leave-to {
+  position: absolute;
+  right: -100% !important;
+}
+.slide-left-leave-from {
+  position: absolute;
+  right: 0 !important;
+}
 </style>
 
 <script lang="ts">
@@ -94,8 +148,7 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {mapState} from 'vuex';
 import {tokenService} from "@/services/token.service";
 import {RouterView} from "vue-router";
-// import Advertisements from '@/components/Advertisements.vue';
-import {hideBannerAdvertisement, initialiseAdvertisements, showBannerAdvertisement} from '@/events/advertisements.bus';
+import {hideBannerAdvertisement, initialiseAdvertisements, showBannerAdvertisement} from '@/handlers/advertisements.handler';
 import {
   requestNotificationPermissions,
   saveSubscriptionToDatabase,
@@ -103,10 +156,7 @@ import {
 } from "@/handlers/notifications.handler";
 import {App} from '@capacitor/app';
 import {StatusBar, Style} from "@capacitor/status-bar";
-import OneSignal from "onesignal-cordova-plugin";
-import store from "@/store";
-import {IAPProduct, InAppPurchase2} from "@ionic-native/in-app-purchase-2";
-import parkpalplusHandler from "@/handlers/parkpalplus.handler";
+import parkpalplusHandler from "@/handlers/parkpalPlus.handler";
 import {CapacitorPurchases, Package, PurchaserInfo} from "@capgo/capacitor-purchases";
 
 
@@ -153,7 +203,7 @@ export default defineComponent({
   // We need to check if our local storage has our Settings before, this is where all of our data is stored even after the app has been force closed.
   beforeMount() {
 
-    this.$store.dispatch('configureSettings');
+    this.$store.dispatch('configureStorage');
 
 
     // First we need to check if we have an API token set in our settings, this would have come from our localStorage if this is a returning user.
@@ -169,20 +219,15 @@ export default defineComponent({
 
       // Setup OneSignal with all of our details, this could be a first ever launch of our app or a user opening the app after closing it.
       setupOneSignal().then(() => {
-        console.log('One Signal has been setup.');
         // OneSignal setup complete and verified.
         requestNotificationPermissions().then(() => {
-          console.log('Notifications permissions have been accepted.');
           // We have received word that they have accepted permissions, we will now save the OneSignal subscription to the database.
           saveSubscriptionToDatabase().then(() => {
-            console.log('Subscription saved to database.');
             this.$store.dispatch('setNotificationsEnabled', true);
           }).catch(() => {
-            console.log('Error saving subscription token to database.');
             this.$store.dispatch('setNotificationsEnabled', false);
           });
         }).catch(() => {
-          console.log('Notifications permissions have been declined.');
           this.$store.dispatch('setNotificationsEnabled', false);
         })
       });
@@ -203,37 +248,21 @@ export default defineComponent({
         console.log('App has been resumed, checking the users permissions in case they have changed.');
         PushNotifications.checkPermissions().then((permissions) => {
           if(permissions.receive == 'granted') {
-            console.log('Permissions have been granted.');
             setupOneSignal().then(() => {
-              console.log('One Signal has been setup after app has been resumed.');
               saveSubscriptionToDatabase().then(() => {
-                console.log('Subscription saved to the database after app has been resumed.');
                 this.$store.dispatch('setNotificationsEnabled', true);
               }).catch(() => {
-                console.log('Saving subscription to the database has failed after app has been resumed.');
                 this.$store.dispatch('setNotificationsEnabled', false);
               });
             });
           }else{
-            console.log('Permissions have been disabled or are still disabled from original denial after app has been resumed.');
             this.$store.dispatch('setNotificationsEnabled', false);
           }
         })
       })
 
-
-      PushNotifications.addListener('pushNotificationReceived', notification => {
-        console.log('Push notification received: ', notification);
-      });
-
       // Initialise our advertisements right at the start of the application.
       initialiseAdvertisements();
-
-      // Initialise our store and find out if the Apple ID has already subscribed.
-      // parkpalplusHandler.initialisePurchases().then((products: {[p: string]: IAPProduct}) => {
-      //   // this.products = products;
-      //   this.$store.dispatch('setProducts', products);
-      // });
 
       parkpalplusHandler.getProducts().then((products: Array<Package>) => {
         this.$store.dispatch('setProducts', products);
@@ -247,10 +276,6 @@ export default defineComponent({
         }
         this.$store.dispatch('setParkPalPlus', hasParkPalPlus);
       });
-
-      CapacitorPurchases.addListener('purchasesUpdate', (data: { purchases: Package; purchaserInfo: PurchaserInfo; }) => {
-        console.log('Purchase update', data);
-      })
 
       StatusBar.setStyle({
         style: Style.Light

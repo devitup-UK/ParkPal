@@ -87,12 +87,11 @@ ion-item::part(detail-icon) {
 
 <script>
 import { defineComponent } from "vue";
-import AttractionComponent from "../../../components/Attraction.vue";
-import {mapGetters, mapState} from "vuex";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonLabel, IonItem, IonGrid, IonRow, IonCol, IonModal, IonToggle } from "@ionic/vue";
+import {mapState} from "vuex";
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonList, IonLabel, IonItem, IonModal, IonToggle } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import ParkPalPlus from "@/components/Settings/ParkPalPlus.vue";
-import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/events/advertisements.bus";
+import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
 
 export default defineComponent({
   name: "SettingsIndexView",
@@ -109,11 +108,6 @@ export default defineComponent({
     IonToggle,
     IonModal,
     ParkPalPlus,
-
-    // IonGrid,
-    // IonCol,
-    // IonRow
-    // AttractionComponent,
     FontAwesomeIcon
   },
   computed: {
@@ -150,7 +144,10 @@ export default defineComponent({
     // Methods to go here.
     navigate(route) {
       this.$router.push({
-        name: route
+        name: route,
+        params: {
+          transition: 'slide-right'
+        }
       })
     },
     closeModal() {

@@ -1,5 +1,5 @@
 export default class DestinationsTheme {
-    text = '#b7b7b7';
+    text = '#000000';
     title = '#000000';
     location = '#000000';
     buttonBackground = '#F2F2F2';
@@ -16,7 +16,7 @@ export default class DestinationsTheme {
     }
 
     setLightTheme() {
-        this.text = '#b7b7b7';
+        this.text = '#000000';
         this.title = '#000000';
         this.location = '#000000';
         this.buttonBackground = '#F2F2F2';
@@ -24,7 +24,7 @@ export default class DestinationsTheme {
     }
 
     setDarkTheme() {
-        this.text = '#b7b7b7';
+        this.text = '#000000';
         this.title = '#000000';
         this.location = '#000000';
         this.buttonBackground = '#3f3f3f';

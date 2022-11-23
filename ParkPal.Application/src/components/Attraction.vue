@@ -5,7 +5,7 @@
       <li class="feature feature--favourite ion-margin-bottom" @click.stop="favourite(attraction.attractionId)">
         <FontAwesomeIcon icon="heart" size="2x" fixed-width></FontAwesomeIcon>
       </li>
-      <li class="feature feature--notification" :class="{ 'feature--has-notification': this.notificationIds.includes(attraction.attractionId) }" @click.stop="configureNotification(attraction, park)" v-if="settings.parkPalPlus || (!settings.parkPalPlus && notificationIds.length < 3) || notificationIds.includes(attraction.attractionId)">
+      <li class="feature feature--notification" :class="{ 'feature--has-notification': this.notificationIds.includes(attraction.attractionId) }" @click.stop="configureNotification(attraction, park)" v-if="(settings.parkPalPlus || (!settings.parkPalPlus && notificationIds.length < 3) || notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create')">
         <FontAwesomeIcon icon="clock" size="2x" fixed-width></FontAwesomeIcon>
       </li>
     </ul>
@@ -43,9 +43,7 @@ import Park from "@/models/api/Park";
 import {AttractionStatus} from "@/models/enums/AttractionStatus";
 import TimerWithAttraction from "@/models/api/TimerWithAttraction";
 import {NotificationCriteria} from "@/models/enums/NotificationCriteria";
-import AttractionTimer from "@/models/api/AttractionTimer";
-import {AdMob, BannerAdPosition, BannerAdSize} from "@capacitor-community/admob";
-import {hideBannerAdvertisement, resumeBannerAdvertisement, showBannerAdvertisement} from "@/events/advertisements.bus";
+import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
 
 export default defineComponent({
   name: "AttractionComponent",
@@ -92,7 +90,8 @@ export default defineComponent({
             this.$router.push({
               name: 'notificationsCreate',
               params: {
-                destinationId: this.destinationId
+                destinationId: this.destinationId,
+                transition: 'slide-right'
               }
             })
 
@@ -111,7 +110,8 @@ export default defineComponent({
             this.$router.push({
               name: 'notificationsEdit',
               params: {
-                attractionTimerId: this.notifications.filter((a: TimerWithAttraction) => a.timer?.attractionId == attraction.attractionId)[0].timer.attractionTimerId
+                attractionTimerId: this.notifications.filter((a: TimerWithAttraction) => a.timer?.attractionId == attraction.attractionId)[0].timer.attractionTimerId,
+                transition: 'slide-right'
               }
             })
 

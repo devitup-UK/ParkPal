@@ -6,12 +6,11 @@ import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import destinationTransformer from '../transformers';
 import Settings from "@/models/store/Settings";
-import {settingsService} from "@/services/settings.service";
+import {storageService} from "@/services/storage.service";
 import WaitTimeFilter from "@/models/store/WaitTimeFilter";
 import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
 import {notificationService} from "@/services/notification.service";
 import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
-import EnableDisableNotificationRequest from "@/models/api/requests/notification/EnableDisableNotificationRequest";
 import transformers from '../transformers';
 import TimerWithAttraction from "@/models/api/TimerWithAttraction";
 import Destination from "@/models/api/Destination";
@@ -29,7 +28,6 @@ const store: StoreOptions<RootState> = {
     activeDestination: null,
     activePark: null,
     settings: new Settings(),
-    // Store the filters here, we can apply them when they come back from the API.
     filters: {
       waitTimeFilter: new WaitTimeFilter(),
       notificationsFilter: new NotificationsFilter()
@@ -73,6 +71,7 @@ const store: StoreOptions<RootState> = {
     },
     setSettings(state, settings: Settings) {
       state.settings = settings;
+      storageService.storeSettingsInLocalStorage(state.settings);
     },
     addFavourite(state, id: string) {
       state.settings.favourites.push(id);
@@ -131,22 +130,22 @@ const store: StoreOptions<RootState> = {
     setDarkMode(state) {
       state.settings.theme.darkMode = true;
       state.settings.theme.setDarkTheme();
-      settingsService.storeSettingsInLocalStorage(state.settings);
+      storageService.storeSettingsInLocalStorage(state.settings);
     },
     setLightMode(state) {
       state.settings.theme.darkMode = false;
       state.settings.theme.setLightTheme();
-      settingsService.storeSettingsInLocalStorage(state.settings);
+      storageService.storeSettingsInLocalStorage(state.settings);
     },
     setTheme(state, theme: Theme) {
       state.settings.theme = theme;
-      settingsService.storeSettingsInLocalStorage(state.settings);
+      storageService.storeSettingsInLocalStorage(state.settings);
     }
   },
   actions: {
-    getDestinations({ commit, dispatch }, forceRefresh = false) {
+    getDestinations({ commit }, forceRefresh = false) {
       commit('setServerError', false);
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         if(forceRefresh) {
           themeparkService.getDestinations().then(
               (response: AxiosResponse<Array<Destination>>) => {
@@ -154,48 +153,52 @@ const store: StoreOptions<RootState> = {
                   commit('setServerError', false);
                   commit("setDestinations", destinations);
                   resolve(destinations);
-
                 });
-
-                })
-              .catch((error) => {
+              })
+              .catch(() => {
                 commit('setServerError', true);
-                // reject(error.response)
               });
         }
       })
     },
-    configureSettings({ commit, dispatch }) {
-      const settings: Settings = settingsService.getSettingsFromLocalStorage();
+    configureStorage({ commit }) {
+      // This function sets up our store using Local Storage.
+      // Settings
+      const settings: Settings = storageService.getSettingsFromLocalStorage();
       commit('setSettings', settings);
-      settingsService.storeSettingsInLocalStorage(settings);
+
+      // ActiveDestination
+      const activeDestination: Destination = storageService.getActiveDestinationFromLocalStorage();
+      commit('setActiveDestination', activeDestination);
+
+      // ActivePark
+      const activePark: Park = storageService.getActiveParkFromLocalStorage();
+      commit('setActivePark', activePark);
     },
-    overwriteSettings({commit, dispatch}, settings: Settings) {
+    overwriteSettings({commit}, settings: Settings) {
       commit('setSettings', settings);
-      settingsService.storeSettingsInLocalStorage(settings);
+      storageService.storeSettingsInLocalStorage(settings);
     },
-    reSaveSettings({commit, dispatch}) {
-      settingsService.storeSettingsInLocalStorage(this.state.settings);
+    reSaveSettings({state}) {
+      storageService.storeSettingsInLocalStorage(state.settings);
     },
-    addFavourite({commit, dispatch}, id: string) {
+    addFavourite({commit, state}, id: string) {
       commit('addFavourite', id);
-      settingsService.storeSettingsInLocalStorage(this.state.settings);
+      storageService.storeSettingsInLocalStorage(state.settings);
     },
-    removeFavourite({commit, dispatch}, id: string) {
+    removeFavourite({commit, state}, id: string) {
       commit('removeFavourite', id);
-      settingsService.storeSettingsInLocalStorage(this.state.settings);
+      storageService.storeSettingsInLocalStorage(state.settings);
     },
-    addNotification({commit, dispatch, state}, notificationToCreate: CreateNotificationRequest) {
-      // Call our API to create a notification.
-      notificationService.createNotification(notificationToCreate).then(attractionTimer => {
+    addNotification({dispatch, state}, notificationToCreate: CreateNotificationRequest) {
+      notificationService.createNotification(notificationToCreate).then(() => {
         dispatch('getAllNotifications', {
           filters: state.filters.notificationsFilter,
           favouriteAttractionIds: state.settings.favourites
         })
       });
     },
-    editNotification({commit, dispatch, state}, request: EditNotificationRequest) {
-      // Call our API to create a notification.
+    editNotification({dispatch, state}, request: EditNotificationRequest) {
       notificationService.editNotification(request).then(() => {
         dispatch('getAllNotifications', {
           filters: state.filters.notificationsFilter,
@@ -203,8 +206,7 @@ const store: StoreOptions<RootState> = {
         })
       });
     },
-    deleteNotification({commit, dispatch, state}, attractionTimerId: number) {
-      // Call our API to delete the notification.
+    deleteNotification({dispatch, state}, attractionTimerId: number) {
       notificationService.deleteNotification(attractionTimerId).then(deleted => {
         if(deleted) {
           dispatch('getAllNotifications', {
@@ -214,49 +216,50 @@ const store: StoreOptions<RootState> = {
         }
       });
     },
-    getAllNotifications({ commit, dispatch }, request: GetNotificationsRequest) {
-      // Call the API to get all the notifications.
+    getAllNotifications({ commit }, request: GetNotificationsRequest) {
       commit('setServerError', false);
       notificationService.getAllNotifications(request).then(timers => {
         const transformedTimers = transformers.transformApiTimerWithAttractionArrayToInternalTimerWithAttractionArray(timers);
         commit('setNotifications', transformedTimers);
-      }).catch((error) => {
+      }).catch(() => {
         commit('setServerError', true);
       })
     },
-    setToken({commit, dispatch}, token: string) {
+    setToken({commit}, token: string) {
       commit('setToken', token);
     },
-    setActiveDestination({commit, dispatch}, destination: Destination) {
+    setActiveDestination({commit}, destination: Destination) {
       commit('setActiveDestination', destination);
+      storageService.storeActiveDestinationInLocalStorage(destination);
     },
-    setActivePark({commit, dispatch}, park: Park) {
+    setActivePark({commit}, park: Park) {
       commit('setActivePark', park);
+      storageService.storeActiveParkInLocalStorage(park);
     },
-    setNotificationsFilter({commit, dispatch}, filters: NotificationsFilter) {
+    setNotificationsFilter({commit}, filters: NotificationsFilter) {
       commit('setNotificationsFilter', filters);
     },
-    toggleDestination({commit, dispatch, state}, destinationId: string) {
+    toggleDestination({commit, state}, destinationId: string) {
       commit('toggleDestination', destinationId);
-      settingsService.storeSettingsInLocalStorage(state.settings);
+      storageService.storeSettingsInLocalStorage(state.settings);
     },
-    setNotificationsEnabled({commit, dispatch}, notificationsEnabled: boolean) {
+    setNotificationsEnabled({commit}, notificationsEnabled: boolean) {
       commit('setNotificationsEnabled', notificationsEnabled);
     },
-    setParkPalPlus({commit, dispatch}, value: boolean) {
+    setParkPalPlus({commit}, value: boolean) {
       commit('setParkPalPlus', value);
-      settingsService.storeSettingsInLocalStorage(this.state.settings);
+      storageService.storeSettingsInLocalStorage(this.state.settings);
     },
-    setServerError({commit, dispatch}, value: boolean) {
+    setServerError({commit}, value: boolean) {
       commit('setServerError', value);
     },
-    setProducts({commit, dispatch}, products: {[p: string]: IAPProduct}) {
+    setProducts({commit}, products: {[p: string]: IAPProduct}) {
       commit('setProducts', products);
 
       let owned = false;
 
       // Now we have all the products, we can check if any are owned/subscribed.
-      for (const [key, value] of Object.entries(products)) {
+      for (const value of Object.values(products)) {
         if(!owned) {
           owned = value.owned;
         }
@@ -264,15 +267,15 @@ const store: StoreOptions<RootState> = {
 
       commit('setParkPalPlus', owned);
 
-      settingsService.storeSettingsInLocalStorage(this.state.settings);
+      storageService.storeSettingsInLocalStorage(this.state.settings);
     },
-    setDarkMode({commit, dispatch}) {
+    setDarkMode({commit}) {
       commit('setDarkMode');
     },
-    setLightMode({commit, dispatch}) {
+    setLightMode({commit}) {
       commit('setLightMode');
     },
-    setTheme({commit, dispatch}, theme: Theme) {
+    setTheme({commit}, theme: Theme) {
       commit('setTheme', theme);
     }
 

@@ -3,8 +3,8 @@ import Park from "@/models/api/Park";
 
 
 export default class NotificationHoldingArea {
-    attraction?: Attraction = new Attraction();
-    park?: Park = new Park();
+    attraction: Attraction = new Attraction();
+    park: Park = new Park();
 
     constructor(data: Pick<NotificationHoldingArea, "attraction" | "park"> | null = null) {
         if(data != null) {

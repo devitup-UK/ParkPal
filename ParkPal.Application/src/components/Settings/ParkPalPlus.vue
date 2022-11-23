@@ -1,29 +1,26 @@
 <template>
   <IonContent :style="`background:${settings.theme.background} !important;`">
     <div class="parkpal-plus-card">
-      <div class="parkpal-plus-card__header" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
+      <div class="parkpal-plus-card__header" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">
         <strong>Low Wait Time Notifications</strong>
       </div>
       <div class="parkpal-plus-card__content parkpal-plus-card__content--video">
         <div class="video-background">
-          <img src="@/assets/premium-notifications.gif">
-          <img src="@/assets/notification-example.svg" class="video-background__notification">
+          <img src="@/assets/premium-notifications.gif" alt="Premium Notifications">
         </div>
       </div>
-      <div class="parkpal-plus-card__footer" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
+      <div class="parkpal-plus-card__footer" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">
         <p>Enjoy wait time notifications below 20 minutes when you subscribe to ParkPal+.</p>
       </div>
     </div>
     <div class="parkpal-plus-card">
-      <div class="parkpal-plus-card__header" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
+      <div class="parkpal-plus-card__header" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">
         <strong>Unlimited Notifications</strong>
       </div>
       <div class="parkpal-plus-card__content">
-<!--        <div class="video-background">-->
-          <img src="@/assets/unlimited-notifications.svg" class="video-background__notification">
-<!--        </div>-->
+          <img src="@/assets/unlimited-notifications.svg" class="video-background__notification" alt="Unlimited Notifications">
       </div>
-      <div class="parkpal-plus-card__footer" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
+      <div class="parkpal-plus-card__footer" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">
         <p>With ParkPal+ you can enjoy an unlimited amount of notifications, without ParkPal+ you can may only have three.</p>
       </div>
     </div>
@@ -32,7 +29,7 @@
         <strong>No Ads</strong>
       </div>
       <div class="parkpal-plus-card__content">
-        <img src="@/assets/no-ads.svg">
+        <img src="@/assets/no-ads.svg" alt="No Advertisements">
       </div>
       <div class="parkpal-plus-card__footer" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
         <p>With ParkPal+ say goodbye to Advertisements, no more banners to block your screen space.</p>
@@ -43,14 +40,14 @@
         <strong>Custom Colour Themes</strong>
       </div>
       <div class="parkpal-plus-card__content">
-        <img src="@/assets/custom-theme.svg">
+        <img src="@/assets/custom-theme.svg" alt="Custom Theming">
       </div>
       <div class="parkpal-plus-card__footer" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
         <p>Take personalisation to the next level by being able to set your own custom app theme.</p>
       </div>
     </div>
     <div class="parkpal-plus-purchase" :style="'background: ' + settings.theme.header.background + ' !important;'" v-if="product != null && !settings.parkPalPlus">
-      <p class="parkpal-plus-purchase__cost" :style="'color: ' + settings.theme.header.text + ' !important;'" v-if="!loading">{{ product.product.priceString }} per {{ product.product.subscriptionPeriod.unit == 2 ? 'month' : 'year' }}</p>
+      <p class="parkpal-plus-purchase__cost" :style="'color: ' + settings.theme.header.text + ' !important;'" v-if="!loading">{{ product.product.priceString }} per {{ product.product.subscriptionPeriod.unit === 2 ? 'month' : 'year' }}</p>
       <div class="parkpal-plus-purchase__button" v-if="!loading">
         <IonButton expand="block" @click="purchase" color="transparent" :style="`color: ${settings.theme.actionButtonText} !important; background: ${settings.theme.actionButtonBackground} !important; border-radius: 8px;`">Purchase</IonButton>
       </div>
@@ -71,19 +68,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonButton,
-  IonButtons,
   IonContent,
-  IonItem,
-  IonLabel,
   alertController
 } from "@ionic/vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import {IAPProduct, InAppPurchase2} from "@ionic-native/in-app-purchase-2";
-import parkpalplusHandler from "@/handlers/parkpalplus.handler";
+import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
 import {mapState} from "vuex";
 import {Package} from "@capgo/capacitor-purchases";
 import LoaderComponent from "@/components/Loader.vue";
@@ -133,7 +122,7 @@ export default defineComponent({
     async restorePurchase() {
       this.loading = true;
 
-      parkpalplusHandler.restorePurchases().then(async (isSubscribed) => {
+      parkpalPlusHandler.restorePurchases().then(async (isSubscribed) => {
         if(isSubscribed) {
           await store.dispatch('setParkPalPlus', true);
 
@@ -163,7 +152,7 @@ export default defineComponent({
     purchase() {
       if(this.product) {
         this.loading = true;
-        parkpalplusHandler.purchaseProduct(this.product).then(() => {
+        parkpalPlusHandler.purchaseProduct(this.product).then(() => {
           this.loading = false;
         }).catch(() => {
           this.loading = false;

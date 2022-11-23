@@ -3,7 +3,7 @@
     <IonHeader :style="'background: ' + settings.theme.header.background + ' !important;'">
       <IonToolbar color="transparent" :style="'background: ' + settings.theme.header.background + ' !important;'">
         <IonButtons slot="start">
-          <IonButton @click="backToPreviousPage()">
+          <IonButton @click="backToPreviousPage">
             <FontAwesomeIcon icon="arrow-left" :color="settings.theme.header.icons" fixed-width></FontAwesomeIcon>
           </IonButton>
         </IonButtons>
@@ -66,7 +66,7 @@
   </IonPage>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import {
   IonContent,
@@ -86,16 +86,15 @@ import AttractionComponent from '@/components/Attraction.vue';
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {mapState} from "vuex";
-import {WaitTimeFilterType} from "@/models/enums/WaitTimeFilterType";
-import {WaitTimeFilterSort} from "@/models/enums/WaitTimeFilterSort";
-import WaitTimeFilter from "@/models/store/WaitTimeFilter";
-import {NotificationCriteria} from "@/models/enums/NotificationCriteria";
-import AttractionTimer from "@/models/api/AttractionTimer";
-import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
 import EditNotificationRequest from "@/models/api/requests/notification/EditNotificationRequest";
-import {hideBannerAdvertisement, resumeBannerAdvertisement, showRewardAdvertisement} from "@/events/advertisements.bus";
+import {hideBannerAdvertisement, resumeBannerAdvertisement, showRewardAdvertisement} from "@/handlers/advertisements.handler";
 import {openAppNotificationSettings} from "@/handlers/notifications.handler";
 import Alert from '@/components/Alert.vue';
+import TimerWithAttraction from "@/models/api/TimerWithAttraction";
+import {RootState} from "@/store/types";
+import Attraction from "@/models/api/Attraction";
+import Settings from "@/models/store/Settings";
+import Park from "@/models/api/Park";
 
 export default defineComponent({
   name: "NotificationsEditView",
@@ -117,13 +116,23 @@ export default defineComponent({
     IonSelectOption
   },
   computed: mapState({
-    notificationsEnabled: state => state.notificationsEnabled,
-    settings: state => state.settings,
-    notifications: state => state.notifications,
-    attraction: state => state.notificationHoldingArea.attraction,
-    park: state => state.notificationHoldingArea.park
+    notificationsEnabled(state: RootState): boolean {
+      return state.notificationsEnabled;
+    },
+    settings(state: RootState): Settings {
+     return state.settings;
+    },
+    notifications(state: RootState): Array<TimerWithAttraction> {
+     return state.notifications;
+    },
+    attraction(state: RootState): Attraction | undefined {
+      return state.notificationHoldingArea?.attraction;
+    },
+    park(state: RootState): Park | undefined {
+      return state.notificationHoldingArea?.park;
+    }
   }),
-  data() {
+  data(): { definitions: { criteria: Array<{ value: string | number, label: string }> }, notification: TimerWithAttraction, criteria: number, waitTime: number, adWatched: boolean, waitTimeOptions: Array<{ value: number, text: string }> } {
     return {
       definitions: {
         criteria: [
@@ -141,7 +150,7 @@ export default defineComponent({
           },
         ]
       },
-      notification: new AttractionTimer(),
+      notification: new TimerWithAttraction(),
       criteria: 1,
       waitTime: 35,
       adWatched: false,
@@ -151,15 +160,21 @@ export default defineComponent({
   methods: {
 
     backToPreviousPage() {
-      this.$router.push({
-        path: this.$router.options.history.state['back'].toString(),
-        replaceUrl: true
-      })
+      if(this.$router.options.history.state['back']) {
+        const backRoute = this.$router.getRoutes().find(a => a.path == this.$router.options.history.state['back']);
+        if(backRoute) {
+          this.$router.push({
+            name: backRoute.name,
+            params: {
+              transition: 'slide-left'
+            }
+          })
+        }
+      }
     },
 
     async watchAd() {
-      // console.log('Show advertisement.');
-      showRewardAdvertisement().then((rewardItem) => {
+      showRewardAdvertisement().then(() => {
         this.adWatched = true;
         this.setupWaitTimes();
       });
@@ -187,13 +202,8 @@ export default defineComponent({
       while (this.waitTimeOptions[this.waitTimeOptions.length - 1].value < 180) {
         this.waitTimeOptions.push({
           text: (this.waitTimeOptions[this.waitTimeOptions.length - 1].value + 5).toString(),
-          value: this.waitTimeOptions[this.waitTimeOptions.length - 1].value + 5
+          value: (this.waitTimeOptions[this.waitTimeOptions.length - 1].value) + 5
         })
-      }
-
-      // Then check if the criteria is set to LessThan.
-      if(this.criteria == 1 && this.attraction.waitTime) {
-        this.waitTimeOptions = this.waitTimeOptions.filter(a => a.value < this.attraction.waitTime);
       }
 
       if(!this.settings.parkPalPlus) {
@@ -208,11 +218,14 @@ export default defineComponent({
 
       hideBannerAdvertisement();
 
+      const selectedIndex = this.waitTimeOptions.findIndex(a => a.value == this.waitTime);
+
       const picker = await pickerController.create({
         columns: [
           {
             name: 'waitTime',
-            options: this.waitTimeOptions
+            options: this.waitTimeOptions,
+            selectedIndex
           },
         ],
         buttons: [
@@ -237,7 +250,7 @@ export default defineComponent({
 
     editNotification() {
       let notificationToEdit = new EditNotificationRequest({
-        attractionTimerId: this.notification.timer.attractionTimerId,
+        attractionTimerId: this.notification.timer?.attractionTimerId,
         criteriaType: this.criteria,
         waitTime: this.waitTime
       });
@@ -249,9 +262,21 @@ export default defineComponent({
   },
   beforeMount() {
     // Set the notification for the view.
-    this.notification = this.notifications.filter(a => a.timer.attractionTimerId == this.$route.params.attractionTimerId)[0];
-    this.criteria = this.notification.timer.criteriaType;
-    this.waitTime = this.notification.timer.waitTime;
+    if(this.notifications.length) {
+      let attractionTimerId = ((this.$route.params.attractionTimerId as unknown) as number);
+      if(attractionTimerId) {
+        this.notification = this.notifications.filter(a => a.timer?.attractionTimerId == attractionTimerId)[0];
+        if (this.notification.timer) {
+          if(this.notification.timer.criteriaType) {
+            this.criteria = this.notification.timer.criteriaType;
+          }
+
+          if(this.notification.timer.waitTime) {
+            this.waitTime = this.notification.timer.waitTime;
+          }
+        }
+      }
+    }
   },
   beforeUnmount() {
     this.$store.commit('clearNotificationHoldingArea');

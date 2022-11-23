@@ -134,8 +134,7 @@ ion-item::part(detail-icon) {
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import AttractionComponent from "../../../components/Attraction.vue";
-import {mapGetters, mapState} from "vuex";
+import {mapState} from "vuex";
 import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonItem, IonLabel, IonAccordionGroup, IonAccordion } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
@@ -154,7 +153,6 @@ export default defineComponent({
     IonLabel,
     IonAccordion,
     IonAccordionGroup,
-    // AttractionComponent,
     FontAwesomeIcon
   },
   computed: {
@@ -167,7 +165,10 @@ export default defineComponent({
     // Methods to go here.
     backToSettings() {
       this.$router.push({
-        name: 'settings'
+        name: 'settings',
+        params: {
+          transition: 'slide-left'
+        }
       })
     }
   }

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import { RouteRecordRaw } from 'vue-router';
 
 import SettingsIndexView from '../views/tabs/Settings/IndexView.vue';
 import SettingsManageDestinationsView from '../views/tabs/Settings/ManageDestinationsView.vue';
@@ -15,9 +15,6 @@ import IndexView from '../views/tabs/Destinations/IndexView.vue';
 import ParksView from '../views/tabs/Destinations/ParksView.vue';
 import WaitTimesView from "@/views/tabs/Destinations/WaitTimesView.vue";
 import WaitTimesFilterView from "@/views/tabs/Destinations/WaitTimesFilterView.vue";
-
-import store from "../store";
-import middlewarePipeline from './middlewarePipeline';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -90,24 +87,5 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
-
-router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  if (!to.meta.middleware) {
-    return next();
-  }
-  const middleware: any = to.meta.middleware;
-
-  const context = {
-    to,
-    from,
-    next,
-    store,
-  };
-
-  return middleware[0]({
-    ...context,
-    next: middlewarePipeline(context, middleware, 1),
-  });
-});
 
 export default router

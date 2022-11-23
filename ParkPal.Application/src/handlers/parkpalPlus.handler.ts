@@ -7,7 +7,7 @@ import store from "@/store";
 function setDebugLogLevel(enabled = true) {
     CapacitorPurchases.setDebugLogsEnabled({
         enabled
-    });
+    }).then();
 }
 
 function initialisePurchases() {
@@ -17,7 +17,7 @@ function initialisePurchases() {
 }
 
 function getProducts(): PromiseLike<Array<Package>> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const products: Array<Package> = [];
 
         CapacitorPurchases.getOfferings().then((response) => {
@@ -40,13 +40,10 @@ function purchaseProduct(product: Package) {
             identifier: product.identifier,
             offeringIdentifier: product.offeringIdentifier
         }).then((purchaserInfo) => {
-                console.log('Purchased Product', purchaserInfo);
                 resolve(purchaserInfo);
-                store.dispatch('setParkPalPlus', true);
+                store.dispatch('setParkPalPlus', true).then();
             },
-            ({error, userCancelled}) => {
-                // Error making purchase
-                console.error('Error purchasing product', error);
+            ({error}) => {
                 reject(error);
             }
         );
@@ -54,7 +51,7 @@ function purchaseProduct(product: Package) {
 }
 
 function restorePurchases(): PromiseLike<boolean> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         CapacitorPurchases.restoreTransactions().then((response: { purchaserInfo: PurchaserInfo }) => {
             if(response.purchaserInfo.activeSubscriptions.length) {
                 resolve(true);

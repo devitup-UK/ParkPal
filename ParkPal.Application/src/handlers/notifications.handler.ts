@@ -1,17 +1,10 @@
 import OneSignal from "onesignal-cordova-plugin";
 import {subscriptionService} from "@/services/subscription.service";
 import {IOSSettings, NativeSettings} from 'capacitor-native-settings';
-import store from "@/store";
 
 export async function setupOneSignal() {
-    return new Promise((resolve, reject) => {
-        // NOTE: Update the setAppId value below with your OneSignal AppId.
+    return new Promise((resolve) => {
         OneSignal.setAppId("9260f4f6-44b4-4dfa-b67b-a52d9a86a7f3");
-        OneSignal.setNotificationOpenedHandler(function(jsonData) {
-            // This is what happens when someone clicks a notification.
-            console.log('notificationOpenedCallback: ' + JSON.stringify(jsonData));
-        });
-
         resolve(true);
     })
 }
@@ -31,11 +24,11 @@ export async function requestNotificationPermissions() {
 }
 
 export async function saveSubscriptionToDatabase() {
-    // The user has accepted, so now we can send our player Id to our backend.
+    // The user has accepted, so now we can send our playerId to our backend.
     return new Promise((resolve,reject) => {
         OneSignal.getDeviceState((state) => {
             if(state.userId) {
-                // Send a request to save the player Id in the database for the user with this token.
+                // Send a request to save the playerId in the database for the user with this token.
                 subscriptionService.save({ playerId: state.userId}).then((response) => {
                     resolve(response);
                 });
