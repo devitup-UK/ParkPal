@@ -7,6 +7,14 @@
           <component :is="Component" />
         </transition>
       </RouterView>
+      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp">
+        <div class="ph-item">
+            <div class="ph-row">
+              <div class="ph-col-12"></div>
+              <div class="ph-col-6"></div>
+            </div>
+        </div>
+      </div>
     </div>
     <div class="tabs" ref="tabs">
       <IonTabBar :style="'background:' + settings.theme.navigation.background + ' !important; border-color: ' + settings.theme.navigation.border + ' !important;'">
@@ -33,6 +41,12 @@
 </template>
 
 <style lang="scss">
+@import "~placeholder-loading/src/scss/placeholder-loading";
+
+.ph-row {
+  flex-direction: inherit;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -136,6 +150,24 @@ ion-content {
 .slide-left-leave-from {
   position: absolute;
   right: 0 !important;
+}
+
+.advertisement-placeholder {
+  position: absolute;
+  width: 100%;
+  bottom: -60px;
+  height: 60px;
+  background: #FFF;
+
+  .ph-item {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+
+    .ph-row {
+      margin: 0;
+    }
+  }
 }
 </style>
 

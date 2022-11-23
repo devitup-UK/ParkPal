@@ -41,11 +41,13 @@
     "cordova-plugin-screen-orientation": "^3.0.2",
     "core-js": "^3.8.3",
     "onesignal-cordova-plugin": "^3.2.0",
+    "placeholder-loading": "^0.6.0",
     "rxjs": "^7.5.7",
     "sort-array": "^4.1.5",
     "swiper": "^8.4.4",
     "vue": "^3.2.13",
     "vue-class-component": "^8.0.0-0",
+    "vue-content-loader": "^2.0.1",
     "vue-native-color-picker": "^1.2.0",
     "vue-router": "^4.0.13",
     "vuex": "^4.0.0"
