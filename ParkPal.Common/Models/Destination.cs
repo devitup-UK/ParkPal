@@ -21,6 +21,10 @@ public class Destination
                 case "9fc68f1c-3f5e-4f09-89f2-aab2cf1a0741":
                 case "bfc89fd6-314d-44b4-b89e-df1a89cf991e":
                     return "Los Angeles, California";
+                case "818f544a-38db-4255-b5db-6bf2cb39b7b3":
+                    return "Chertsey, England";
+                case "8e6bf2ae-77ac-403d-8e10-d7cd9b6c05d7":
+                    return "Stoke-on-Trent, England";
             }
             return null;
         }

@@ -58,6 +58,27 @@ public class Attraction
                     case "2aedc657-1ee2-4545-a1ce-14753f28cc66":
                     case "0de1413a-73ee-46cf-af2e-c491cc7c7d3b":
                     case "faaa8be9-cc1e-4535-ac20-04a535654bd0":
+                    case "55fce6df-2745-4b4c-a746-051ec7dfd4fe":
+                    case "c7db2518-a570-4635-92c2-0a14a2740bea":
+                    case "8f3e4f73-9b7b-4eb2-875f-be66d5a832a6":
+                    case "4964b907-cafc-4c23-b2fc-3d715c27bc88":
+                    case "a1230e20-ae5e-4ede-9fa5-978c3cdde022":
+                    case "882e587a-c7b1-4773-94eb-05f8b07bdf30":
+                    case "a919e776-ec15-4feb-8f5b-74c8149146a4":
+                    case "5caebcc6-9c45-4905-ac18-3b13f4403dcd":
+                    case "37529c4a-2630-49df-b10a-6460d4a1d398":
+                    case "ce52687e-e239-439e-a0bf-816b5492a437":
+                    case "e9dcbb30-4bbd-4c92-95a7-d6c3285f9208":
+                    case "4727cd56-3284-4998-bdf1-0c163a15bedd":
+                    case "c1c1691b-dc99-4f0b-9ad7-04b93411b5f1":
+                    case "ebfbd3c7-fc0c-4144-ac75-64f2a27d7235":
+                    case "284b388e-c6ae-41a9-a62f-fd333266d501":
+                    case "986b4e0d-fbd2-4c3a-b1eb-45cf34714037":
+                    case "5f152452-1919-4f65-bd51-0a9fae0bc253":
+                    case "5eab87dd-679b-4ee4-9904-86dd2570b76a":
+                    case "09c67f19-ea51-4cea-bb9a-2628cb150aa3":
+                    case "5de36d89-2c66-423a-84fa-a8b391f18a8c":
+                    case "b84351ed-7cb8-47e9-b53d-3226e3523e5f":
                         return true;
                 }
             }
