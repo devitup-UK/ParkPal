@@ -15,6 +15,7 @@ public class Destination
             {
                 case "e957da41-3552-4cf6-b636-5babc5cbc4e5":
                 case "89db5d43-c434-4097-b71f-f6869f495a22":
+                case "7a4adf8d-8c3f-4300-b277-19707e4f8e12":
                     return "Florida, United States";
                 case "e8d0207f-da8a-4048-bec8-117aa946b2c2":
                     return "Paris, France";

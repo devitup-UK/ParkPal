@@ -30,7 +30,7 @@
           <ul class="attractions" v-if="waitTimeSearch.length && searchAttractions.filter(a => !a.hidden).length">
             <AttractionComponent v-for="attraction in searchAttractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
           </ul>
-          <div class="no-wait-times" v-else>
+          <div class="no-wait-times" v-if="waitTimeSearch.length && !searchAttractions.filter(a => !a.hidden).length">
             <div class="no-wait-times__image">
               <img src="@/assets/no-wait-times.svg">
             </div>
@@ -186,10 +186,10 @@ export default defineComponent({
               this.attractions = this.attractions.filter(a => a.attractionId != transformedAttraction.attractionId);
             }
           })
-
-          this.loading = false;
-          event?.target?.complete();
         })
+
+        this.loading = false;
+        event?.target?.complete();
       }).catch(() => {
             this.$store.dispatch('setServerError', true);
           });
