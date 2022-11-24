@@ -1,45 +1,39 @@
-// import {IAPProduct, InAppPurchase2} from "@ionic-native/in-app-purchase-2";
-// import {Purchases, PurchasesOfferings} from '@awesome-cordova-plugins/purchases';
+import {Purchases, PurchasesOfferings} from '@awesome-cordova-plugins/purchases';
 
-import {CapacitorPurchases, Package, PurchaserInfo} from '@capgo/capacitor-purchases';
 import store from "@/store";
+import {CustomerInfo, PurchasesPackage} from "cordova-plugin-purchases";
 
 function setDebugLogLevel(enabled = true) {
-    CapacitorPurchases.setDebugLogsEnabled({
-        enabled
-    }).then();
+    Purchases.setDebugLogsEnabled(true);
 }
 
 function initialisePurchases() {
-    return CapacitorPurchases.setup({
+    Purchases.configureWith({
         apiKey: 'appl_JepMvmLMlmTIhyDKESvccQiEIpz'
-    });
+    })
 }
 
-function getProducts(): PromiseLike<Array<Package>> {
+function getProducts(): PromiseLike<Array<PurchasesPackage>> {
     return new Promise((resolve) => {
-        const products: Array<Package> = [];
+        Purchases.getOfferings().then((response) => {
+            const products: Array<PurchasesPackage> = [];
 
-        CapacitorPurchases.getOfferings().then((response) => {
-            if (response.offerings.current?.monthly) {
-                products.push(response.offerings.current?.monthly);
+            if (response.current?.monthly) {
+                products.push(response.current?.monthly);
             }
 
-            if (response.offerings.current?.annual) {
-                products.push(response.offerings.current?.annual);
+            if (response.current?.annual) {
+                products.push(response.current?.annual);
             }
+
+            resolve(products);
         });
-
-        resolve(products);
     });
 }
 
-function purchaseProduct(product: Package) {
+function purchaseProduct(product: PurchasesPackage) {
     return new Promise((resolve, reject) => {
-        CapacitorPurchases.purchasePackage({
-            identifier: product.identifier,
-            offeringIdentifier: product.offeringIdentifier
-        }).then((purchaserInfo) => {
+        Purchases.purchasePackage(product).then((purchaserInfo) => {
                 resolve(purchaserInfo);
                 store.dispatch('setParkPalPlus', true).then();
             },
@@ -52,8 +46,8 @@ function purchaseProduct(product: Package) {
 
 function restorePurchases(): PromiseLike<boolean> {
     return new Promise((resolve) => {
-        CapacitorPurchases.restoreTransactions().then((response: { purchaserInfo: PurchaserInfo }) => {
-            if(response.purchaserInfo.activeSubscriptions.length) {
+        Purchases.restorePurchases().then((response: CustomerInfo) => {
+            if(response.activeSubscriptions.length) {
                 resolve(true);
             }else{
                 resolve(false);

@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="parkpal-plus-purchase" :style="'background: ' + settings.theme.header.background + ' !important;'" v-if="product != null && !settings.parkPalPlus">
-      <p class="parkpal-plus-purchase__cost" :style="'color: ' + settings.theme.header.text + ' !important;'" v-if="!loading">{{ product.product.priceString }} per {{ product.product.subscriptionPeriod.unit === 2 ? 'month' : 'year' }}</p>
+      <p class="parkpal-plus-purchase__cost" :style="'color: ' + settings.theme.header.text + ' !important;'" v-if="!loading">{{ product.product.priceString }} per {{ product.packageType === 'MONTHLY' ? 'month' : 'year' }}</p>
       <div class="parkpal-plus-purchase__button" v-if="!loading">
         <IonButton expand="block" @click="purchase" color="transparent" :style="`color: ${settings.theme.actionButtonText} !important; background: ${settings.theme.actionButtonBackground} !important; border-radius: 8px;`">Purchase</IonButton>
       </div>
@@ -77,6 +77,7 @@ import {mapState} from "vuex";
 import {Package} from "@capgo/capacitor-purchases";
 import LoaderComponent from "@/components/Loader.vue";
 import store from "@/store";
+import {PurchasesPackage} from "cordova-plugin-purchases";
 
 export default defineComponent({
   name: "ParkPalPlus",
@@ -99,7 +100,7 @@ export default defineComponent({
     },
     ...mapState(['products', 'settings'])
   },
-  data() : { product: Package | null, loading: boolean } {
+  data() : { product: PurchasesPackage | null, loading: boolean } {
     return {
       product: null,
       loading: false
@@ -107,15 +108,17 @@ export default defineComponent({
   },
   beforeMount() {
     // Get the monthly product.
-    this.product = this.products.find((a: Package) => a.product.identifier == "parkpalplus_monthly");
+    console.log('ParkPalPlus Products', this.products);
+    this.product = this.products.find((a: PurchasesPackage) => a.product.identifier == "parkpalplus_monthly");
+    console.log('ParkPalPlus Product', this.product);
   },
   methods: {
     changeProduct() {
       if(this.product) {
         if(this.product.product.identifier == "parkpalplus_monthly") {
-          this.product = this.products.find((a: Package) => a.product.identifier == "parkpalplus_yearly");
+          this.product = this.products.find((a: PurchasesPackage) => a.product.identifier == "parkpalplus_yearly");
         }else{
-          this.product = this.products.find((a: Package) => a.product.identifier == "parkpalplus_monthly");
+          this.product = this.products.find((a: PurchasesPackage) => a.product.identifier == "parkpalplus_monthly");
         }
       }
     },

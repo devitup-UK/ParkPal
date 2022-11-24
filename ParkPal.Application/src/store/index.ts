@@ -21,6 +21,7 @@ import Park from "@/models/api/Park";
 import {IAPProduct} from "@ionic-native/in-app-purchase-2";
 import {Package} from "@capgo/capacitor-purchases";
 import Theme from "@/models/store/theme/Theme";
+import {PurchasesPackage} from "cordova-plugin-purchases";
 
 const store: StoreOptions<RootState> = {
   state: {
@@ -124,7 +125,7 @@ const store: StoreOptions<RootState> = {
     setServerError(state, value: boolean) {
       state.serverError = value;
     },
-    setProducts(state, products: Array<Package>) {
+    setProducts(state, products: Array<PurchasesPackage>) {
       state.products = products;
     },
     setDarkMode(state) {
@@ -253,21 +254,8 @@ const store: StoreOptions<RootState> = {
     setServerError({commit}, value: boolean) {
       commit('setServerError', value);
     },
-    setProducts({commit}, products: {[p: string]: IAPProduct}) {
+    setProducts({commit}, products: Array<PurchasesPackage>) {
       commit('setProducts', products);
-
-      let owned = false;
-
-      // Now we have all the products, we can check if any are owned/subscribed.
-      for (const value of Object.values(products)) {
-        if(!owned) {
-          owned = value.owned;
-        }
-      }
-
-      commit('setParkPalPlus', owned);
-
-      storageService.storeSettingsInLocalStorage(this.state.settings);
     },
     setDarkMode({commit}) {
       commit('setDarkMode');

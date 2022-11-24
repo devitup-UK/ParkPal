@@ -5,7 +5,7 @@ import TimerWithAttraction from "@/models/api/TimerWithAttraction";
 import Destination from "@/models/api/Destination";
 import NotificationsFilter from "@/models/store/NotificationsFilter";
 import Park from "@/models/api/Park";
-import {Package} from "@capgo/capacitor-purchases";
+import {PurchasesPackage} from "cordova-plugin-purchases";
 
 export interface RootState {
     destinations: Array<Destination>;
@@ -22,5 +22,5 @@ export interface RootState {
     notificationsEnabled: boolean;
     notifications: Array<TimerWithAttraction>;
     serverError: boolean;
-    products: Array<Package>;
+    products: Array<PurchasesPackage>;
 }
