@@ -79,6 +79,11 @@ public class Attraction
                     case "09c67f19-ea51-4cea-bb9a-2628cb150aa3":
                     case "5de36d89-2c66-423a-84fa-a8b391f18a8c":
                     case "b84351ed-7cb8-47e9-b53d-3226e3523e5f":
+                    case "5c2fa68e-05f7-4ffc-ad21-89575328c4ba":
+                    case "207d3ec6-ebe0-4240-8dbc-e87f305654f9":
+                    case "34315274-ca4d-4aba-bc8d-a4f1b3de51f0":
+                    case "a531cfa9-411e-485f-9c0c-9b1920f89f72":
+                    case "08ce8f03-1391-43ba-9326-970134159fc7":
                         return true;
                 }
             }

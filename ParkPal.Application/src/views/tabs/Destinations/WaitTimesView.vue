@@ -22,9 +22,26 @@
       <ConnectionError v-if="serverError" @retry="getAttractions"></ConnectionError>
       <Loader v-if="loading">Fetching Wait Times...</Loader>
       <template v-else>
-        <ul class="attractions" v-if="attractions.filter(a => !a.hidden).length">
-          <AttractionComponent v-for="attraction in attractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
-        </ul>
+        <IonSearchbar placeholder="Search" debounce="600" @ionChange="searchInAttractions" v-model="waitTimeSearch"></IonSearchbar>
+        <template v-if="attractions.filter(a => !a.hidden).length">
+          <ul class="attractions" v-if="!waitTimeSearch.length">
+            <AttractionComponent v-for="attraction in attractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
+          </ul>
+          <ul class="attractions" v-if="waitTimeSearch.length && searchAttractions.filter(a => !a.hidden).length">
+            <AttractionComponent v-for="attraction in searchAttractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
+          </ul>
+          <div class="no-wait-times" v-else>
+            <div class="no-wait-times__image">
+              <img src="@/assets/no-wait-times.svg">
+            </div>
+            <p :style="'color: ' + settings.theme.text + ' !important;'">There are no attractions that match your search criteria, please change your search term and try again.</p>
+            <div class="filter-button">
+              <IonButton expand="full" @click="waitTimeSearch = ''" color="transparent" :style="`color: ${settings.theme.resetButtonText} !important; background: ${settings.theme.resetButtonBackground} !important;`">
+                RESET SEARCH
+              </IonButton>
+            </div>
+          </div>
+        </template>
         <div class="no-wait-times" v-else>
           <div class="no-wait-times__image">
             <img src="@/assets/no-wait-times.svg">
@@ -46,7 +63,7 @@
 .attractions {
   list-style: none;
   padding: 0;
-  margin: 16px 0 0;
+  margin: 0;
 }
 
 .no-wait-times {
@@ -83,6 +100,10 @@
   font-size: 12px !important;
   color: #3f3f3f;
 }
+
+.searchbar-input {
+  text-align: left !important;
+}
 </style>
 
 <script lang="ts">
@@ -96,7 +117,8 @@ import {
   IonButton,
   IonButtons,
   IonRefresher,
-  IonRefresherContent, RefresherCustomEvent
+  IonRefresherContent, RefresherCustomEvent,
+  IonSearchbar
 } from "@ionic/vue";
 import {mapGetters, mapState} from "vuex";
 import {themeparkService} from "@/services/themepark.service";
@@ -124,16 +146,19 @@ export default defineComponent({
     Loader,
     IonRefresher,
     IonRefresherContent,
-    ConnectionError
+    ConnectionError,
+    IonSearchbar
   },
   computed: {
     ...mapState(['destinations', 'filters', 'activePark', 'activeDestination', 'notifications', 'settings', 'serverError']),
     ...mapGetters(['favourites', 'notificationIds'])
   },
-  data(): { attractions: Array<Attraction>, loading: boolean  } {
+  data(): { attractions: Array<Attraction>, searchAttractions: Array<Attraction>, loading: boolean, waitTimeSearch: string  } {
     return {
       attractions: [],
-      loading: true
+      searchAttractions: [],
+      loading: true,
+      waitTimeSearch: ''
     }
   },
   beforeMount() {
@@ -186,6 +211,9 @@ export default defineComponent({
           }
         })
       }
+    },
+    searchInAttractions() {
+      this.searchAttractions = this.attractions.filter(a => a.name?.toLowerCase().includes(this.waitTimeSearch.toLowerCase()));
     },
 
     filterAttractions() {

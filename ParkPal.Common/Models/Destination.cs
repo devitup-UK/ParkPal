@@ -7,7 +7,7 @@ public class Destination
 
     public string Image => DestinationId + ".jpeg";
 
-    public string Location
+    public string? Location
     {
         get
         {
@@ -25,6 +25,8 @@ public class Destination
                     return "Chertsey, England";
                 case "8e6bf2ae-77ac-403d-8e10-d7cd9b6c05d7":
                     return "Stoke-on-Trent, England";
+                case "abcfffe7-01f2-4f92-ae61-5093346f5a68":
+                    return "Lantau Island, Hong Kong";
             }
             return null;
         }
