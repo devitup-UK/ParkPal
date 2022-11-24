@@ -14,13 +14,16 @@ export default class Theme {
     selectionBoxBackground = '#FFFFFF';
     selectionBoxText = '#9d9d9d';
     selectionBoxBorder = '#d5d5d5';
+    searchBoxBackground = '#d3d3d3';
+    searchBoxText = '#747474';
+    searchBoxIcons = '#666666';
     header = new Header();
     navigation = new Navigation();
     destinations = new DestinationsTheme();
     settings = new SettingsTheme();
     darkMode = false;
 
-    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "header" | "navigation" | "destinations" | "settings" | "darkMode"> | null = null) {
+    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "searchBoxBackground" | "searchBoxText" | "searchBoxIcons" | "header" | "navigation" | "destinations" | "settings" | "darkMode"> | null = null) {
         if(data) {
             this.background = data.background;
             this.text = data.text;
@@ -32,6 +35,9 @@ export default class Theme {
             this.selectionBoxBackground = data.selectionBoxBackground;
             this.selectionBoxText = data.selectionBoxText;
             this.selectionBoxBorder = data.selectionBoxBorder;
+            this.searchBoxBackground = data.searchBoxBackground;
+            this.searchBoxText = data.searchBoxText;
+            this.searchBoxIcons = data.searchBoxIcons;
             this.header = new Header(data.header);
             this.navigation = new Navigation(data.navigation);
             this.destinations = new DestinationsTheme(data.destinations);
@@ -51,6 +57,9 @@ export default class Theme {
         this.selectionBoxBackground = '#FFFFFF';
         this.selectionBoxText = '#9d9d9d';
         this.selectionBoxBorder = '#d5d5d5';
+        this.searchBoxBackground = '#d3d3d3';
+        this.searchBoxText = '#747474';
+        this.searchBoxIcons = '#666666';
         this.header.setLightTheme();
         this.navigation.setLightTheme();
         this.destinations.setLightTheme();
@@ -68,6 +77,9 @@ export default class Theme {
         this.selectionBoxBackground = '#000000';
         this.selectionBoxText = '#FFFFFF';
         this.selectionBoxBorder = '#464646';
+        this.searchBoxBackground = '#575757';
+        this.searchBoxText = '#FFFFFF';
+        this.searchBoxIcons = '#FFFFFF';
         this.header.setDarkTheme();
         this.navigation.setDarkTheme();
         this.destinations.setDarkTheme();

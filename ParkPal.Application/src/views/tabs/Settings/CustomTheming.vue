@@ -83,6 +83,24 @@
             <input type="color" v-model="theme.selectionBoxText" class="color-picker">
           </IonLabel>
         </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Search Box Background</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.searchBoxBackground" class="color-picker">
+          </IonLabel>
+        </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Search Box Icons</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.searchBoxIcons" class="color-picker">
+          </IonLabel>
+        </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Search Box Text</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.searchBoxText" class="color-picker">
+          </IonLabel>
+        </IonItem>
       </IonList>
       <h3 :style="`color:${settings.theme.text} !important;`" class="ion-text-start ion-padding-start">Header</h3>
       <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">

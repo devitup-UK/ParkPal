@@ -22,7 +22,7 @@
       <ConnectionError v-if="serverError" @retry="getAttractions"></ConnectionError>
       <Loader v-if="loading">Fetching Wait Times...</Loader>
       <template v-else>
-        <IonSearchbar placeholder="Search" debounce="600" @ionChange="searchInAttractions" v-model="waitTimeSearch"></IonSearchbar>
+        <IonSearchbar placeholder="Search" debounce="600" @ionChange="searchInAttractions" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
         <template v-if="attractions.filter(a => !a.hidden).length">
           <ul class="attractions" v-if="!waitTimeSearch.length">
             <AttractionComponent v-for="attraction in attractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
