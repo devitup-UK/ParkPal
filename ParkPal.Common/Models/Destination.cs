@@ -28,6 +28,8 @@ public class Destination
                     return "Stoke-on-Trent, England";
                 case "abcfffe7-01f2-4f92-ae61-5093346f5a68":
                     return "Lantau Island, Hong Kong";
+                case "faff60df-c766-4470-8adb-dee78e813f42":
+                    return "Urayasu, Japan";
             }
             return null;
         }
