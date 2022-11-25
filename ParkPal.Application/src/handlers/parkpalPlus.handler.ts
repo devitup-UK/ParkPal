@@ -56,10 +56,19 @@ function restorePurchases(): PromiseLike<boolean> {
     });
 }
 
+function getPurchases(): PromiseLike<Array<string>> {
+    return new Promise((resolve) => {
+        Purchases.getCustomerInfo().then((customerInfo) => {
+            return customerInfo.activeSubscriptions;
+        });
+    });
+}
+
 export default {
     setDebugLogLevel,
     initialisePurchases,
     getProducts,
+    getPurchases,
     purchaseProduct,
     restorePurchases
 }

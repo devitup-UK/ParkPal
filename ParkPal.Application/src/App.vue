@@ -191,6 +191,7 @@ import {StatusBar, Style} from "@capacitor/status-bar";
 import parkpalplusHandler from "@/handlers/parkpalPlus.handler";
 import {CapacitorPurchases, Package, PurchaserInfo} from "@capgo/capacitor-purchases";
 import {PurchasesPackage} from "cordova-plugin-purchases";
+import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
 
 
 export default defineComponent({
@@ -268,7 +269,7 @@ export default defineComponent({
 
       // If the app has been resumed and PushNotifications are no longer granted, we can set the notifications flag to false.
       App.addListener('resume',() => {
-        console.log('App has been resumed, checking the users permissions in case they have changed.');
+        // Check the permissions.
         PushNotifications.checkPermissions().then((permissions) => {
           if(permissions.receive == 'granted') {
             setupOneSignal().then(() => {
@@ -282,15 +283,23 @@ export default defineComponent({
             this.$store.dispatch('setNotificationsEnabled', false);
           }
         })
+
+        // See if the user still has a subscription active.
+        parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
+          this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
+        })
       })
 
       // Initialise our advertisements right at the start of the application.
       initialiseAdvertisements();
 
       parkpalplusHandler.getProducts().then((products: Array<PurchasesPackage>) => {
-        console.log('Products', products);
         this.$store.dispatch('setProducts', products);
       });
+
+      parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
+        this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
+      })
 
       StatusBar.setStyle({
         style: Style.Light
