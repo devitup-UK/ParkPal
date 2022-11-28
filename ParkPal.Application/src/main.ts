@@ -73,7 +73,6 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 import {VueHammer} from "@/plugins/VueHammer";
 
-
 const app = createApp(App).use(IonicVue).use(router).use(store).use(VueHammer);
 
 Sentry.init({

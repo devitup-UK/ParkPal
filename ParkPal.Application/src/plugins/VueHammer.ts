@@ -25,7 +25,11 @@ const subGestures = [
 const directions = ['up', 'down', 'left', 'right', 'horizontal', 'vertical', 'all'];
 
 export const VueHammer: Plugin = {
-    install(Vue, config = {}) {
+    install(Vue, config = {
+        swipe: {
+            threshold: 1,
+            direction: 6
+        }}) {
         Vue.directive('hammer', {
             beforeMount: (el, binding) => {
                 if (!el.hammer) {
