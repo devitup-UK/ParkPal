@@ -53,6 +53,7 @@
     "vue-content-loader": "^2.0.1",
     "vue-native-color-picker": "^1.2.0",
     "vue-router": "^4.0.13",
+    "vue3-touch-events": "^4.1.0",
     "vuex": "^4.0.0"
   },
   "devDependencies": {

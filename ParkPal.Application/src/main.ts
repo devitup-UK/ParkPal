@@ -71,9 +71,10 @@ import '@ionic/vue/css/display.css';
 
 /* Index variables */
 import './theme/variables.css';
-import {VueHammer} from "@/plugins/VueHammer";
 
-const app = createApp(App).use(IonicVue).use(router).use(store).use(VueHammer);
+import Vue3TouchEvents from "vue3-touch-events";
+
+const app = createApp(App).use(IonicVue).use(router).use(store).use(Vue3TouchEvents);
 
 Sentry.init({
     app,

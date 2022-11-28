@@ -1,6 +1,6 @@
 <template>
   <li class="attraction" :class="{ 'attraction--favourite': this.favourites.includes(attraction.attractionId), 'attraction--notification': this.notification, 'attraction--options': this.options }" @click="showNotificationOptions(attraction, park)" :style="`background: ${settings.theme.waitTimes.background} !important; color: ${settings.theme.waitTimes.text} !important;`">
-    <div class="swiper-gestures" v-hammer:swipe.horizontal="toggleOptions" v-if="this.notification && (notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && this.$route.fullPath.includes('notifications')"></div>
+    <div class="swiper-gestures" v-touch:swipe="toggleOptions" v-if="this.notification && (notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && this.$route.fullPath.includes('notifications')"></div>
     <ul class="features">
       <li class="feature feature--notification" :class="{ 'feature--has-notification': this.notificationIds.includes(attraction.attractionId) }" @click.stop="configureNotification(attraction, park)" v-if="(settings.parkPalPlus || (!settings.parkPalPlus && notificationIds.length < 3) || notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && !this.$route.fullPath.includes('notifications')">
         <FontAwesomeIcon icon="clock" class="feature__icon" fixed-width></FontAwesomeIcon>
@@ -77,15 +77,9 @@ export default defineComponent({
       this.$store.dispatch('deleteNotification', this.notifications.filter((a: TimerWithAttraction) => a.timer?.attractionId == attraction.attractionId)[0].timer.attractionTimerId);
       resumeBannerAdvertisement(this.settings.parkPalPlus);
     },
-    toggleOptions(event: any) {
+    toggleOptions(direction: string) {
       if(this.notification) {
-        if (event.offsetDirection === 2) {
-          this.options = true;
-        }
-
-        if (event.offsetDirection === 4) {
-          this.options = false;
-        }
+        this.options = direction == 'left';
       }
     },
 
