@@ -7,6 +7,7 @@
       <div class="parkpal-plus-card__content parkpal-plus-card__content--video">
         <div class="video-background">
           <img src="@/assets/premium-notifications.gif" alt="Premium Notifications">
+          <img src="@/assets/notification-example.svg" class="video-background__notification" alt="Notification Example">
         </div>
       </div>
       <div class="parkpal-plus-card__footer" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">

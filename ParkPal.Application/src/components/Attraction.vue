@@ -1,20 +1,15 @@
 <template>
-  <li class="attraction" :class="{ 'attraction--favourite': this.favourites.includes(attraction.attractionId), 'attraction--notification': this.notification }" @click="showNotificationOptions(attraction, park)">
-    <div class="attraction__background" :style="'background: url(/img/' + attraction.attractionId + '.jpeg)'"></div>
+  <li class="attraction" :class="{ 'attraction--favourite': this.favourites.includes(attraction.attractionId), 'attraction--notification': this.notification, 'attraction--options': this.options }" @click="showNotificationOptions(attraction, park)" :style="`background: ${settings.theme.waitTimes.background} !important; color: ${settings.theme.waitTimes.text} !important;`">
+    <div class="swiper-gestures" v-hammer:swipe.horizontal="toggleOptions" v-if="this.notification && (notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && this.$route.fullPath.includes('notifications')"></div>
     <ul class="features">
-      <li class="feature feature--favourite ion-margin-bottom" @click.stop="favourite(attraction.attractionId)">
-        <FontAwesomeIcon icon="heart" size="2x" fixed-width></FontAwesomeIcon>
+      <li class="feature feature--notification" :class="{ 'feature--has-notification': this.notificationIds.includes(attraction.attractionId) }" @click.stop="configureNotification(attraction, park)" v-if="(settings.parkPalPlus || (!settings.parkPalPlus && notificationIds.length < 3) || notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && !this.$route.fullPath.includes('notifications')">
+        <FontAwesomeIcon icon="clock" class="feature__icon" fixed-width></FontAwesomeIcon>
       </li>
-      <li class="feature feature--notification" :class="{ 'feature--has-notification': this.notificationIds.includes(attraction.attractionId) }" @click.stop="configureNotification(attraction, park)" v-if="(settings.parkPalPlus || (!settings.parkPalPlus && notificationIds.length < 3) || notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create')">
-        <FontAwesomeIcon icon="clock" size="2x" fixed-width></FontAwesomeIcon>
+      <li class="feature feature--enabled" @click.stop="toggleNotificationEnabled(notification.timer.attractionTimerId)" v-if="(notificationIds.includes(attraction.attractionId)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && this.$route.fullPath.includes('notifications')">
+        <FontAwesomeIcon :icon="this.notification.timer.enabled ? 'bell' : 'bell-slash'" class="feature__icon" fixed-width></FontAwesomeIcon>
       </li>
-    </ul>
-    <ul class="banners">
-      <li class="banner banner--low-wait" v-if="attraction.waitTime <= 30 && attraction.waitTime != null">
-        <span>Low Wait Time</span>
-      </li>
-      <li class="banner banner--thrill-ride" v-if="attraction.thrill">
-        <span>Thrill Ride</span>
+      <li class="feature feature--favourite" @click.stop="favourite(attraction.attractionId)">
+        <FontAwesomeIcon icon="heart" class="feature__icon" fixed-width></FontAwesomeIcon>
       </li>
     </ul>
     <div class="attraction__details">
@@ -25,10 +20,26 @@
           <p v-if="attraction.waitTime != null">{{ attraction.waitTime }} minutes</p>
         </div>
       </div>
-      <div class="attraction__notification-details" v-if="this.notification">
-        <p v-html="getNotificationMessage(notification)"></p>
+      <div class="attraction__notification-details" v-if="this.notification" :style="`background: ${settings.theme.waitTimes.text} !important;`">
+        <p v-html="getNotificationMessage(notification)" :style="`color: ${settings.theme.waitTimes.background} !important;`"></p>
       </div>
     </div>
+    <ul class="banners">
+      <li class="banner banner--low-wait" v-if="attraction.waitTime <= 30 && attraction.waitTime != null">
+        <span>Low Wait Time</span>
+      </li>
+      <li class="banner banner--thrill-ride" v-if="attraction.thrill">
+        <span>Thrill Ride</span>
+      </li>
+      <li class="banner banner--tame-ride" v-if="!attraction.thrill">
+        <span>Tame Ride</span>
+      </li>
+    </ul>
+    <ul class="notification-options">
+      <li @click.stop="deleteNotification(attraction)">
+        <FontAwesomeIcon icon="trash"></FontAwesomeIcon>
+      </li>
+    </ul>
   </li>
 </template>
 
@@ -57,10 +68,27 @@ export default defineComponent({
   props: ['attraction', 'notification', 'park', 'destinationId'],
   data() {
     return {
-      attractionStatus: AttractionStatus
+      attractionStatus: AttractionStatus,
+      options: false
     }
   },
   methods: {
+    deleteNotification(attraction: Attraction) {
+      this.$store.dispatch('deleteNotification', this.notifications.filter((a: TimerWithAttraction) => a.timer?.attractionId == attraction.attractionId)[0].timer.attractionTimerId);
+      resumeBannerAdvertisement(this.settings.parkPalPlus);
+    },
+    toggleOptions(event: any) {
+      if(this.notification) {
+        if (event.offsetDirection === 2) {
+          this.options = true;
+        }
+
+        if (event.offsetDirection === 4) {
+          this.options = false;
+        }
+      }
+    },
+
     favourite(id: string) {
       if (this.favourites.includes(id)) {
         this.$store.dispatch('removeFavourite', id);
@@ -118,19 +146,6 @@ export default defineComponent({
             resumeBannerAdvertisement(this.settings.parkPalPlus);
           }
         })
-
-        buttons.push({
-          text: 'Delete Wait Time Notification',
-          role: 'destructive',
-          data: {
-            action: 'delete',
-          },
-          handler: () => {
-            // This will delete the notification.
-            this.$store.dispatch('deleteNotification', this.notifications.filter((a: TimerWithAttraction) => a.timer?.attractionId == attraction.attractionId)[0].timer.attractionTimerId);
-            resumeBannerAdvertisement(this.settings.parkPalPlus);
-          }
-        })
       }
 
       buttons.push({
@@ -161,7 +176,7 @@ export default defineComponent({
     },
     // Format our notification message.
     getNotificationMessage(notification: TimerWithAttraction) {
-      if(notification.attraction?.waitTime) {
+      if(notification.timer?.waitTime) {
         let message = `Notification activated if wait time is <strong>`;
 
         switch (notification.timer?.criteriaType) {
@@ -178,27 +193,48 @@ export default defineComponent({
 
         message += notification.timer?.waitTime + ` minutes</strong>.`;
 
+        if(!notification.timer?.enabled) {
+          if((this.notificationIds.includes(notification.attraction?.attractionId)) && !this.$route.fullPath.includes('edit') && !this.$route.fullPath.includes('create') && this.$route.fullPath.includes('notifications')) {
+            message += " This notification is currently <strong>disabled</strong>."
+          }
+        }
+
         return message;
       }
+    },
+    toggleNotificationEnabled(attractionTimerId: number) {
+      if(this.notification.timer.enabled) {
+        this.$store.dispatch('setNotificationDisabled', attractionTimerId);
+      }else{
+        this.$store.dispatch('setNotificationEnabled', attractionTimerId);
+      }
     }
-  }
+  },
 });
 </script>
 
 <style lang="scss" scoped>
+.swiper-gestures {
+  position: absolute; top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
 .attraction {
   list-style: none;
   margin: 16px 16px;
-  padding: 0 10px;
-  height: 195px;
+  padding: 10px;
+  min-height: 132px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  color: #FFF;
+  //color: #FFF;
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  background-image: linear-gradient(transparent, white 100%);
+  //background-image: linear-gradient(transparent, white 100%);
+  flex-direction: column;
 
   &:nth-child(1) {
     margin: 0 16px 16px;
@@ -218,8 +254,43 @@ export default defineComponent({
     color: #ffc04e;
   }
 
+  .notification-options {
+    width: 0;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    background: #f53d3d;
+    right: 0;
+    z-index: 10;
+    transition: width .25s;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: stretch;
+    overflow: hidden;
+
+    li {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &.attraction--options {
+    .notification-options {
+      width: 25%;
+    }
+  }
+
   &.attraction--notification {
-    height: 230px;
+    //height: 230px;
 
     .attraction__details {
       flex-direction: column;
@@ -231,15 +302,14 @@ export default defineComponent({
     }
 
     .attraction__notification-details {
-      flex-grow: 1;
-      margin: 10px 10px 0;
-      width: 100%;
+      margin: 15px -20px 5px;
+      background: #8a8a8a;
+      padding: 8px 10px;
 
       p {
         margin: 0;
         text-align: left;
         font-size: 14px;
-        color: #969696;
       }
     }
   }
@@ -263,12 +333,11 @@ export default defineComponent({
   }
 
   .attraction__details {
-    position: absolute;
-    bottom: 10px;
+    //position: absolute;
+    //bottom: 10px;
     align-self: end;
     display: flex;
     align-items: center;
-    color: #000;
     width: 100%;
     justify-content: space-between;
 
@@ -276,7 +345,7 @@ export default defineComponent({
       text-align: left;
 
       h1 {
-        margin: 0;
+        margin: 0 0 2px;
       }
 
       p {
@@ -285,7 +354,7 @@ export default defineComponent({
     }
 
     .attraction-footer {
-      margin: 0 10px;
+      margin: 0 5px;
       width: 100%;
 
       h1 {
@@ -294,7 +363,7 @@ export default defineComponent({
 
       p {
         font-size: 16px;
-        color: #6E6E6E;
+        //color: #6E6E6E;
       }
 
       .attraction-footer__information {
@@ -318,68 +387,51 @@ export default defineComponent({
 }
 
 .banners {
-  position: absolute;
-  top: 0;
-  left: 0;
   list-style: none;
+  margin: 0;
   padding: 0;
-  margin: 5px 0 0;
+  display: flex;
+  width: 100%;
 
   .banner {
     position: relative;
-    font-size: 17px;
+    font-size: 10px;
     font-weight: 500;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    margin: 5px 0 0;
-
-    &::before, &::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 99%;
-      width: 16px;
-      height: 50%;
-    }
-
-    &::after {
-      top: 50%;
-      transform: scaleY(-1);
-    }
+    padding: 5px 10px;
+    margin: 10px 2px 0;
+    border-radius: 16px;
+    color: #FFF;
 
     &.banner--low-wait {
       background-color: #1CA70A;
-      background-image: linear-gradient(to left top, transparent 50%, #1CA70A 50%);
-
-      &::before, &::after {
-        background-image: linear-gradient(to left top, transparent 50%, #1CA70A 50%);
-      }
     }
 
     &.banner--thrill-ride {
       background-color: #E35313;
-      background-image: linear-gradient(to left top, transparent 50%, #E35313 50%);
+    }
 
-      &::before, &::after {
-        background-image: linear-gradient(to left top, transparent 50%, #E35313 50%);
-      }
+    &.banner--tame-ride {
+      background-color: #2e7198;
     }
   }
 }
 
 .features {
+  display: flex;
   list-style: none;
   padding: 0;
   margin: 0;
   position: absolute;
-  top: 4px;
+  bottom: 10px;
   right: 10px;
   z-index: 3;
 
   .feature {
-    margin-top: 4px;
+    margin: 0 0 0 5px;
+
+    .feature__icon {
+      font-size: 20px;
+    }
   }
 }
 </style>

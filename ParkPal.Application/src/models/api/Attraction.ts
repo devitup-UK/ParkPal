@@ -21,18 +21,4 @@ export default class Attraction {
             this.waitTime = data.waitTime;
         }
     }
-
-    checkImageExists() {
-        return new Promise((resolve) => {
-            if(this.image) {
-                axios.get('/img/' + this.image).then(() => {
-                    resolve(true);
-                }).catch(() => {
-                    resolve(false);
-                });
-            }else{
-                resolve(true);
-            }
-        })
-    }
 }

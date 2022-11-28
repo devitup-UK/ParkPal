@@ -22,6 +22,7 @@ import {IAPProduct} from "@ionic-native/in-app-purchase-2";
 import {Package} from "@capgo/capacitor-purchases";
 import Theme from "@/models/store/theme/Theme";
 import {PurchasesPackage} from "cordova-plugin-purchases";
+import EnableDisableNotificationRequest from "@/models/api/requests/notification/EnableDisableNotificationRequest";
 
 const store: StoreOptions<RootState> = {
   state: {
@@ -265,8 +266,27 @@ const store: StoreOptions<RootState> = {
     },
     setTheme({commit}, theme: Theme) {
       commit('setTheme', theme);
+    },
+    setNotificationEnabled({state, dispatch}, attractionTimerId: number) {
+      notificationService.enableNotification(new EnableDisableNotificationRequest({
+        attractionTimerId
+      })).then(() => {
+        dispatch('getAllNotifications', {
+          filters: state.filters.notificationsFilter,
+          favouriteAttractionIds: state.settings.favourites
+        })
+      });
+    },
+    setNotificationDisabled({state, dispatch}, attractionTimerId: number) {
+      notificationService.disableNotification(new EnableDisableNotificationRequest({
+        attractionTimerId
+      })).then(() => {
+        dispatch('getAllNotifications', {
+          filters: state.filters.notificationsFilter,
+          favouriteAttractionIds: state.settings.favourites
+        })
+      });
     }
-
   },
 }
 

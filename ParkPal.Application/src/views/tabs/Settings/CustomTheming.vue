@@ -201,6 +201,21 @@
           </IonLabel>
         </IonItem>
       </IonList>
+      <h3 :style="`color:${settings.theme.text} !important;`" class="ion-text-start ion-padding-start">Wait Times</h3>
+      <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Text</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.waitTimes.text" class="color-picker">
+          </IonLabel>
+        </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Background</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.waitTimes.background" class="color-picker">
+          </IonLabel>
+        </IonItem>
+      </IonList>
       <h3 :style="`color:${settings.theme.text} !important;`" class="ion-text-start ion-padding-start">Settings</h3>
       <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
         <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">

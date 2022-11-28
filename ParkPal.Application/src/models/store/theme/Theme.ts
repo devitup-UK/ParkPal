@@ -2,6 +2,7 @@ import Navigation from "@/models/store/theme/Navigation";
 import SettingsTheme from "@/models/store/theme/SettingsTheme";
 import Header from "@/models/store/theme/Header";
 import DestinationsTheme from "@/models/store/theme/DestinationsTheme";
+import WaitTimes from "@/models/store/theme/WaitTimes";
 
 export default class Theme {
     background = '#e3e3e3';
@@ -20,10 +21,12 @@ export default class Theme {
     header = new Header();
     navigation = new Navigation();
     destinations = new DestinationsTheme();
+    waitTimes = new WaitTimes();
     settings = new SettingsTheme();
+
     darkMode = false;
 
-    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "searchBoxBackground" | "searchBoxText" | "searchBoxIcons" | "header" | "navigation" | "destinations" | "settings" | "darkMode"> | null = null) {
+    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "searchBoxBackground" | "searchBoxText" | "searchBoxIcons" | "header" | "navigation" | "destinations" | "waitTimes" | "settings" | "darkMode"> | null = null) {
         if(data) {
             this.background = data.background;
             this.text = data.text;
@@ -41,6 +44,7 @@ export default class Theme {
             this.header = new Header(data.header);
             this.navigation = new Navigation(data.navigation);
             this.destinations = new DestinationsTheme(data.destinations);
+            this.waitTimes = new WaitTimes(data.waitTimes);
             this.settings = new SettingsTheme(data.settings);
             this.darkMode = data.darkMode;
         }
@@ -63,6 +67,7 @@ export default class Theme {
         this.header.setLightTheme();
         this.navigation.setLightTheme();
         this.destinations.setLightTheme();
+        this.waitTimes.setLightTheme();
         this.settings.setLightTheme();
     }
 
@@ -83,6 +88,7 @@ export default class Theme {
         this.header.setDarkTheme();
         this.navigation.setDarkTheme();
         this.destinations.setDarkTheme();
+        this.waitTimes.setDarkTheme();
         this.settings.setDarkTheme();
     }
 }

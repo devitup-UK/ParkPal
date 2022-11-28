@@ -22,8 +22,8 @@
       <ConnectionError v-if="serverError" @retry="getAttractions"></ConnectionError>
       <Loader v-if="loading">Fetching Wait Times...</Loader>
       <template v-else>
-        <IonSearchbar placeholder="Search" debounce="600" @ionChange="searchInAttractions" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
         <template v-if="attractions.filter(a => !a.hidden).length">
+          <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInAttractions" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
           <ul class="attractions" v-if="!waitTimeSearch.length">
             <AttractionComponent v-for="attraction in attractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
           </ul>
@@ -176,18 +176,14 @@ export default defineComponent({
         filters: this.filters.waitTimeFilter,
         favouriteAttractionIds: this.favourites
       }).then((response: AxiosResponse<Park>) => {
-        this.attractions = response.data.attractions;
+        const attractions: Array<Attraction> = [];
 
         response.data.attractions.forEach(attraction => {
           let transformedAttraction = new Attraction(attraction);
-
-          transformedAttraction.checkImageExists().then(exists => {
-            if (!exists) {
-              this.attractions = this.attractions.filter(a => a.attractionId != transformedAttraction.attractionId);
-            }
-          })
+          attractions.push(transformedAttraction);
         })
 
+        this.attractions = attractions;
         this.loading = false;
         event?.target?.complete();
       }).catch(() => {

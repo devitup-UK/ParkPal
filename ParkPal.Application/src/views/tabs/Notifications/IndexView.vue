@@ -18,9 +18,26 @@
       <Loader v-if="loading && !serverError">Fetching Notifications...</Loader>
       <template v-else>
         <AlertComponent v-if="!settings.parkPalPlus">You can only have a maximum of 3 notifications. Subscribe to ParkPal+ to set an unlimited amount of notifications.</AlertComponent>
-        <ul class="attractions" v-if="notifications.length">
-          <AttractionComponent v-for="notification in notifications" :key="notification.timer.attractionTimerId" :attraction="notification.attraction" :park="notification.park" :notification="notification"></AttractionComponent>
-        </ul>
+        <template v-if="notifications.length">
+          <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInNotifications" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
+          <ul class="attractions" v-if="!waitTimeSearch.length">
+                <AttractionComponent v-for="notification in notifications" :key="notification.timer.attractionTimerId" :attraction="notification.attraction" :park="notification.park" :notification="notification"></AttractionComponent>
+          </ul>
+          <ul class="attractions" v-if="waitTimeSearch.length">
+            <AttractionComponent v-for="notification in searchNotifications" :key="notification.timer.attractionTimerId" :attraction="notification.attraction" :park="notification.park" :notification="notification"></AttractionComponent>
+          </ul>
+          <div class="no-notifications" v-if="waitTimeSearch.length && !searchNotifications.length">
+            <div class="no-notifications__image">
+              <img src="@/assets/no-notifications.svg">
+            </div>
+            <p :style="'color: ' + settings.theme.text + ' !important;'">There are no notifications that match your search criteria, please change your search term and try again.</p>
+            <div class="filter-button">
+              <IonButton expand="full" @click="waitTimeSearch = ''" color="transparent" :style="`color: ${settings.theme.resetButtonText} !important; background: ${settings.theme.resetButtonBackground} !important;`">
+                RESET SEARCH
+              </IonButton>
+            </div>
+          </div>
+        </template>
         <div class="no-notifications" v-else>
           <div class="no-notifications__image">
             <img src="@/assets/no-notifications.svg">
@@ -36,7 +53,7 @@
 .attractions {
   list-style: none;
   padding: 0;
-  margin: 16px 0 0;
+  margin: 0;
 }
 
 .no-notifications {
@@ -57,6 +74,16 @@
   font-size: 12px !important;
   color: #3f3f3f;
 }
+
+.filter-button {
+  width: 100%;
+
+  ion-button {
+    margin: 0;
+    font-weight: 300;
+    font-size: 14px;
+  }
+}
 </style>
 
 <script lang="ts">
@@ -73,12 +100,14 @@ import {
   IonButtons,
   RefresherCustomEvent,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    IonSearchbar
 } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Loader from "../../../components/Loader.vue";
 import AlertComponent from "@/components/Alert.vue";
 import ConnectionError from "@/components/ConnectionError.vue";
+import TimerWithAttraction from "@/models/api/TimerWithAttraction";
 
 export default defineComponent({
   name: "NotificationsView",
@@ -96,7 +125,8 @@ export default defineComponent({
     Loader,
     ConnectionError,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    IonSearchbar
   },
   computed: {
     ...mapState(['notifications', 'filters', 'settings', 'serverError']),
@@ -104,7 +134,9 @@ export default defineComponent({
   },
   data() {
     return {
-      loading: true
+      loading: true,
+      waitTimeSearch: '',
+      searchNotifications: []
     }
   },
   watch: {
@@ -131,6 +163,9 @@ export default defineComponent({
           transition: 'slide-right'
         }
       })
+    },
+    searchInNotifications() {
+      this.searchNotifications = this.notifications.filter((a: TimerWithAttraction) => a.attraction?.name?.toLowerCase().includes(this.waitTimeSearch.toLowerCase()));
     },
   }
 })

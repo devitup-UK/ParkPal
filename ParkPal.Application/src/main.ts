@@ -24,7 +24,10 @@ import {
     faPlus,
     faAt,
     faWallet,
-    faPaintRoller
+    faPaintRoller,
+    faTrash,
+    faBell,
+    faBellSlash
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faMapMarkerAlt,
@@ -43,7 +46,10 @@ library.add(faMapMarkerAlt,
     faAt,
     faWallet,
     faTimesCircle,
-    faPaintRoller)
+    faPaintRoller,
+    faTrash,
+    faBell,
+    faBellSlash)
 
 
 
@@ -65,9 +71,10 @@ import '@ionic/vue/css/display.css';
 
 /* Index variables */
 import './theme/variables.css';
+import {VueHammer} from "@/plugins/VueHammer";
 
 
-const app = createApp(App).use(IonicVue).use(router).use(store);
+const app = createApp(App).use(IonicVue).use(router).use(store).use(VueHammer);
 
 Sentry.init({
     app,

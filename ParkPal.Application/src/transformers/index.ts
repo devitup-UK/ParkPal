@@ -52,9 +52,6 @@ function transformApiAttractionsArrayToInternalAttractionsArray(attractions: Arr
         // Transform our destination from the API to an internal one.
         attractions.forEach((attraction: Attraction) => {
             const attractionToAdd = new Attraction(attraction);
-            attractionToAdd.checkImageExists().then((exists) => {
-                attractionToAdd.hidden = !exists;
-            })
             transformedAttractions.push(attractionToAdd);
         });
 
