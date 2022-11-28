@@ -28,7 +28,8 @@ export const VueHammer: Plugin = {
     install(Vue, config = {
         swipe: {
             threshold: 1,
-            direction: 6
+            direction: 6,
+            velocity: .0001
         }}) {
         Vue.directive('hammer', {
             beforeMount: (el, binding) => {
