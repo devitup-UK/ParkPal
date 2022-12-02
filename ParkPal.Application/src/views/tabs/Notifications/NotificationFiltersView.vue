@@ -107,10 +107,18 @@ export default defineComponent({
         type: [
           {
             value: 0,
-            label: 'All Attractions'
+            label: 'All'
           },
           {
             value: 1,
+            label: 'Attractions'
+          },
+          {
+            value: 2,
+            label: 'Parks'
+          },
+          {
+            value: 3,
             label: 'Favourites'
           }
         ],

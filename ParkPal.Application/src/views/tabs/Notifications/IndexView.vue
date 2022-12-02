@@ -19,12 +19,12 @@
       <template v-else>
         <AlertComponent v-if="!settings.parkPalPlus">You can only have a maximum of 3 notifications. Subscribe to ParkPal+ to set an unlimited amount of notifications.</AlertComponent>
         <template v-if="notifications.length">
-          <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInNotifications" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
+          <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInNotifications" @keyup.enter="dismissKeyboard" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
           <ul class="attractions" v-if="!waitTimeSearch.length">
-                <AttractionComponent v-for="notification in notifications" :key="notification.timer.attractionTimerId" :attraction="notification.attraction" :park="notification.park" :notification="notification"></AttractionComponent>
+                <NotificationComponent v-for="notification in notifications" :key="notification.properties.itemId" :notification="notification"></NotificationComponent>
           </ul>
           <ul class="attractions" v-if="waitTimeSearch.length">
-            <AttractionComponent v-for="notification in searchNotifications" :key="notification.timer.attractionTimerId" :attraction="notification.attraction" :park="notification.park" :notification="notification"></AttractionComponent>
+            <NotificationComponent v-for="notification in searchNotifications" :key="notification.properties.itemId" :notification="notification"></NotificationComponent>
           </ul>
           <div class="no-notifications" v-if="waitTimeSearch.length && !searchNotifications.length">
             <div class="no-notifications__image">
@@ -107,11 +107,14 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Loader from "../../../components/Loader.vue";
 import AlertComponent from "@/components/Alert.vue";
 import ConnectionError from "@/components/ConnectionError.vue";
-import TimerWithAttraction from "@/models/api/TimerWithAttraction";
+import Notification from "@/models/api/Notification";
+import {Keyboard} from "@capacitor/keyboard";
+import NotificationComponent from "@/components/Notification.vue";
 
 export default defineComponent({
   name: "NotificationsView",
   components: {
+    NotificationComponent,
     AlertComponent,
     IonButtons,
     IonButton,
@@ -120,7 +123,6 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonTitle,
-    AttractionComponent,
     FontAwesomeIcon,
     Loader,
     ConnectionError,
@@ -149,10 +151,13 @@ export default defineComponent({
     this.getAllNotifications(null);
   },
   methods: {
+    dismissKeyboard() {
+      Keyboard.hide();
+    },
     getAllNotifications(event: RefresherCustomEvent | null) {
       this.$store.dispatch('getAllNotifications', {
         filters: this.filters.notificationsFilter,
-        favouriteAttractionIds: this.favourites
+        favouriteIds: this.favourites
       });
       event?.target?.complete();
     },
@@ -165,7 +170,7 @@ export default defineComponent({
       })
     },
     searchInNotifications() {
-      this.searchNotifications = this.notifications.filter((a: TimerWithAttraction) => a.attraction?.name?.toLowerCase().includes(this.waitTimeSearch.toLowerCase()));
+      this.searchNotifications = this.notifications.filter((a: Notification) => JSON.stringify(a).toLowerCase().includes(this.waitTimeSearch.toLowerCase()));
     },
   }
 })

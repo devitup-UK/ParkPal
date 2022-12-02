@@ -1,7 +1,7 @@
 import Settings from "@/models/store/Settings";
 import WaitTimeFilter from "@/models/store/WaitTimeFilter";
 import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
-import TimerWithAttraction from "@/models/api/TimerWithAttraction";
+import Notification from "@/models/api/Notification";
 import Destination from "@/models/api/Destination";
 import NotificationsFilter from "@/models/store/NotificationsFilter";
 import Park from "@/models/api/Park";
@@ -20,7 +20,9 @@ export interface RootState {
     loading: boolean;
     isApp: boolean;
     notificationsEnabled: boolean;
-    notifications: Array<TimerWithAttraction>;
+    notifications: Array<Notification>;
     serverError: boolean;
     products: Array<PurchasesPackage>;
+    destinationSlideIndex: number;
+    destinationSearchTerm: string;
 }

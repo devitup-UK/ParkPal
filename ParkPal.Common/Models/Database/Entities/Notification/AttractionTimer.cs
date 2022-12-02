@@ -6,6 +6,7 @@ using ParkPal.Common.Models.Database.Entities.Device;
 
 namespace ParkPal.Common.Models.Database.Entities.Notification
 {
+    [Obsolete("AttractionTimer is due to be removed and is therefore obsolete, please use Notification.Item going forwards.")]
     [Table("AttractionTimer", Schema = "Notification")]
     public class AttractionTimer
     {

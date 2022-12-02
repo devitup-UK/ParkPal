@@ -1,11 +1,11 @@
-import AttractionTimer from "@/models/api/AttractionTimer";
+import NotificationProperties from "@/models/api/NotificationProperties";
 
 export default class Subscription {
     subscriptionId?: number;
     tokenId?: number;
     token?: Token;
     playerId?: string;
-    attractionTimers: Array<AttractionTimer> = [];
+    attractionTimers: Array<NotificationProperties> = [];
 
     constructor(data: Pick<Subscription, "subscriptionId" | "tokenId" | "token" | "playerId" | "attractionTimers"> | null = null) {
         if(data != null) {
@@ -15,7 +15,7 @@ export default class Subscription {
             this.playerId = data.playerId;
 
             if(data.attractionTimers) {
-                data.attractionTimers.forEach((attractionTimer: AttractionTimer) => {
+                data.attractionTimers.forEach((attractionTimer: NotificationProperties) => {
                     this.attractionTimers.push(attractionTimer);
                 });
             }

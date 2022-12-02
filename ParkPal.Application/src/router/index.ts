@@ -58,7 +58,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     name: 'notificationsEdit',
-    path: '/tabs/notifications/edit/:attractionTimerId',
+    path: '/tabs/notifications/edit/:notificationId',
     component: NotificationsEditView
   },
   {

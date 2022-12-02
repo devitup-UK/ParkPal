@@ -7,7 +7,6 @@ using ParkPal.API.Models.Requests.Notification;
 using ParkPal.API.Models.Requests.Subscription;
 using ParkPal.API.Models.Requests.ThemePark;
 using ParkPal.API.Models.Requests.Token;
-using ParkPal.API.Models.Responses.Notification;
 using ParkPal.API.Services.Interfaces;
 using ParkPal.Common.Models;
 using ParkPal.Common.Models.Database.Entities.Device;
@@ -64,7 +63,7 @@ public class ThemeParkController : ControllerBase
                 case WaitTimeFilterType.Favourites:
                     // Sort by Ids in favouriteIds.
                     park.Attractions = park.Attractions
-                        .Where(a => request.FavouriteAttractionIds.Contains(a.AttractionId)).ToList();
+                        .Where(a => request.FavouriteIds.Contains(a.AttractionId)).ToList();
                     break;
             }
 

@@ -4,5 +4,5 @@ public class GetNotificationsRequest
 {
     public NotificationFilters Filters { get; set; }
     
-    public List<string> FavouriteAttractionIds { get; set; }
+    public List<string> FavouriteIds { get; set; }
 }

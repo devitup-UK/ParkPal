@@ -12,14 +12,12 @@ import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
 import {notificationService} from "@/services/notification.service";
 import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
 import transformers from '../transformers';
-import TimerWithAttraction from "@/models/api/TimerWithAttraction";
+import Notification from "@/models/api/Notification";
 import Destination from "@/models/api/Destination";
 import GetNotificationsRequest from "@/models/api/requests/notification/GetNotificationsRequest";
 import NotificationsFilter from "@/models/store/NotificationsFilter";
 import EditNotificationRequest from "@/models/api/requests/notification/EditNotificationRequest";
 import Park from "@/models/api/Park";
-import {IAPProduct} from "@ionic-native/in-app-purchase-2";
-import {Package} from "@capgo/capacitor-purchases";
 import Theme from "@/models/store/theme/Theme";
 import {PurchasesPackage} from "cordova-plugin-purchases";
 import EnableDisableNotificationRequest from "@/models/api/requests/notification/EnableDisableNotificationRequest";
@@ -40,7 +38,9 @@ const store: StoreOptions<RootState> = {
     isApp: !document.URL.startsWith('http'),
     notificationsEnabled: false,
     serverError: false,
-    products: []
+    products: [],
+    destinationSlideIndex: 0,
+    destinationSearchTerm: ''
   },
   getters: {
     favourites(state) {
@@ -49,12 +49,23 @@ const store: StoreOptions<RootState> = {
     notifications(state) {
       return state.notifications;
     },
-    notificationIds(state) {
+    notificationAttractionIds(state) {
       const ids: Array<string> = [];
 
       state.notifications.forEach(notification => {
-        if(notification.timer?.attractionId) {
-          ids.push(notification.timer.attractionId);
+        if(notification.properties?.attractionId) {
+          ids.push(notification.properties.attractionId);
+        }
+      })
+
+      return ids;
+    },
+    notificationParkIds(state) {
+      const ids: Array<string> = [];
+
+      state.notifications.forEach(notification => {
+        if(notification.properties?.parkId) {
+          ids.push(notification.properties.parkId);
         }
       })
 
@@ -94,10 +105,10 @@ const store: StoreOptions<RootState> = {
     setNotificationHoldingArea(state, notificationHoldingArea: NotificationHoldingArea) {
       state.notificationHoldingArea = notificationHoldingArea;
     },
-    addNotification(state, notification: TimerWithAttraction) {
+    addNotification(state, notification: Notification) {
       state.notifications.push(notification);
     },
-    setNotifications(state, timers: Array<TimerWithAttraction>) {
+    setNotifications(state, timers: Array<Notification>) {
       state.notifications = timers;
     },
     setToken(state, token: string) {
@@ -142,6 +153,12 @@ const store: StoreOptions<RootState> = {
     setTheme(state, theme: Theme) {
       state.settings.theme = theme;
       storageService.storeSettingsInLocalStorage(state.settings);
+    },
+    setDestinationSlideIndex(state, activeIndex: number) {
+      state.destinationSlideIndex = activeIndex;
+    },
+    setDestinationSearchTerm(state, searchTerm: string) {
+      state.destinationSearchTerm = searchTerm;
     }
   },
   actions: {
@@ -196,7 +213,7 @@ const store: StoreOptions<RootState> = {
       notificationService.createNotification(notificationToCreate).then(() => {
         dispatch('getAllNotifications', {
           filters: state.filters.notificationsFilter,
-          favouriteAttractionIds: state.settings.favourites
+          favouriteIds: state.settings.favourites
         })
       });
     },
@@ -204,16 +221,16 @@ const store: StoreOptions<RootState> = {
       notificationService.editNotification(request).then(() => {
         dispatch('getAllNotifications', {
           filters: state.filters.notificationsFilter,
-          favouriteAttractionIds: state.settings.favourites
+          favouriteIds: state.settings.favourites
         })
       });
     },
-    deleteNotification({dispatch, state}, attractionTimerId: number) {
-      notificationService.deleteNotification(attractionTimerId).then(deleted => {
+    deleteNotification({dispatch, state}, notificationId: number) {
+      notificationService.deleteNotification(notificationId).then(deleted => {
         if(deleted) {
           dispatch('getAllNotifications', {
             filters: state.filters.notificationsFilter,
-            favouriteAttractionIds: state.settings.favourites
+            favouriteIds: state.settings.favourites
           })
         }
       });
@@ -221,7 +238,7 @@ const store: StoreOptions<RootState> = {
     getAllNotifications({ commit }, request: GetNotificationsRequest) {
       commit('setServerError', false);
       notificationService.getAllNotifications(request).then(timers => {
-        const transformedTimers = transformers.transformApiTimerWithAttractionArrayToInternalTimerWithAttractionArray(timers);
+        const transformedTimers = transformers.transformApiNotificationWithEntityArrayToInternalNotificationWithEntityArray(timers);
         commit('setNotifications', transformedTimers);
       }).catch(() => {
         commit('setServerError', true);
@@ -267,25 +284,37 @@ const store: StoreOptions<RootState> = {
     setTheme({commit}, theme: Theme) {
       commit('setTheme', theme);
     },
-    setNotificationEnabled({state, dispatch}, attractionTimerId: number) {
-      notificationService.enableNotification(new EnableDisableNotificationRequest({
-        attractionTimerId
-      })).then(() => {
-        dispatch('getAllNotifications', {
-          filters: state.filters.notificationsFilter,
-          favouriteAttractionIds: state.settings.favourites
-        })
+    setNotificationEnabled({state, dispatch}, notificationId: number) {
+      return new Promise((resolve) => {
+        notificationService.enableNotification(new EnableDisableNotificationRequest({
+          notificationId
+        })).then(() => {
+          dispatch('getAllNotifications', {
+            filters: state.filters.notificationsFilter,
+            favouriteAttractionIds: state.settings.favourites
+          });
+          resolve(true);
+        });
       });
     },
-    setNotificationDisabled({state, dispatch}, attractionTimerId: number) {
-      notificationService.disableNotification(new EnableDisableNotificationRequest({
-        attractionTimerId
-      })).then(() => {
-        dispatch('getAllNotifications', {
-          filters: state.filters.notificationsFilter,
-          favouriteAttractionIds: state.settings.favourites
-        })
+    setNotificationDisabled({state, dispatch}, notificationId: number) {
+      return new Promise((resolve) => {
+        notificationService.disableNotification(new EnableDisableNotificationRequest({
+          notificationId
+        })).then(() => {
+          dispatch('getAllNotifications', {
+            filters: state.filters.notificationsFilter,
+            favouriteAttractionIds: state.settings.favourites
+          })
+          resolve(true);
+        });
       });
+    },
+    setDestinationSlideIndex({commit}, slideIndex: number) {
+      commit('setDestinationSlideIndex', slideIndex);
+    },
+    setDestinationSearchTerm({commit}, searchTerm: string) {
+      commit('setDestinationSearchTerm', searchTerm);
     }
   },
 }

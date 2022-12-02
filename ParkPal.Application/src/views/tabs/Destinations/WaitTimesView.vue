@@ -23,12 +23,17 @@
       <Loader v-if="loading">Fetching Wait Times...</Loader>
       <template v-else>
         <template v-if="attractions.filter(a => !a.hidden).length">
-          <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInAttractions" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
+          <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInAttractions" v-model="waitTimeSearch" @keyup.enter="dismissKeyboard" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
+          <IonRow v-if="settings.parkPalPlus">
+            <IonCol>
+              <IonButton expand="block" class="park-notification-button" @click="createParkNotification" :style="`--background: ${settings.theme.actionButtonBackground}; --color: ${settings.theme.actionButtonText};`">Create Park Notification</IonButton>
+            </IonCol>
+          </IonRow>
           <ul class="attractions" v-if="!waitTimeSearch.length">
-            <AttractionComponent v-for="attraction in attractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
+            <AttractionComponent v-for="attraction in attractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark"></AttractionComponent>
           </ul>
           <ul class="attractions" v-if="waitTimeSearch.length && searchAttractions.filter(a => !a.hidden).length">
-            <AttractionComponent v-for="attraction in searchAttractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark" :notification="notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length ? notifications.filter(a => a.attraction.attractionId == attraction.attractionId).length[0] : null"></AttractionComponent>
+            <AttractionComponent v-for="attraction in searchAttractions.filter(a => !a.hidden)" :key="attraction.attractionId" :attraction="attraction" :park="activePark"></AttractionComponent>
           </ul>
           <div class="no-wait-times" v-if="waitTimeSearch.length && !searchAttractions.filter(a => !a.hidden).length">
             <div class="no-wait-times__image">
@@ -89,6 +94,10 @@
     }
   }
 
+.park-notification-button {
+  margin: 0 12px 12px;
+}
+
 .action-sheet-title {
   border-bottom: 1px solid #3F3F3F;
 }
@@ -118,7 +127,7 @@ import {
   IonButtons,
   IonRefresher,
   IonRefresherContent, RefresherCustomEvent,
-  IonSearchbar
+  IonSearchbar, IonRow, IonCol
 } from "@ionic/vue";
 import {mapGetters, mapState} from "vuex";
 import {themeparkService} from "@/services/themepark.service";
@@ -130,6 +139,11 @@ import Park from "@/models/api/Park";
 import Loader from "@/components/Loader.vue";
 import Attraction from "@/models/api/Attraction";
 import ConnectionError from "@/components/ConnectionError.vue";
+import {Keyboard} from "@capacitor/keyboard";
+import store from "@/store";
+import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
+import {NotificationType} from "@/models/enums/NotificationType";
+import router from "@/router";
 
 export default defineComponent({
   name: "WaitTimesView",
@@ -147,11 +161,13 @@ export default defineComponent({
     IonRefresher,
     IonRefresherContent,
     ConnectionError,
-    IonSearchbar
+    IonSearchbar,
+    IonRow,
+    IonCol
   },
   computed: {
     ...mapState(['destinations', 'filters', 'activePark', 'activeDestination', 'notifications', 'settings', 'serverError']),
-    ...mapGetters(['favourites', 'notificationIds'])
+    ...mapGetters(['favourites', 'notificationAttractionIds'])
   },
   data(): { attractions: Array<Attraction>, searchAttractions: Array<Attraction>, loading: boolean, waitTimeSearch: string  } {
     return {
@@ -164,17 +180,30 @@ export default defineComponent({
   beforeMount() {
     this.$store.dispatch('getAllNotifications', {
       filters: this.filters.notificationsFilter,
-      favouriteAttractionIds: this.favourites
+      favouriteIds: this.favourites
     });
 
     this.getAttractions(null);
   },
   methods: {
+    createParkNotification() {
+      store.commit('setNotificationHoldingArea', new NotificationHoldingArea({attraction: new Attraction(), park: this.activePark, type: NotificationType.Park}));
+
+      router.push({
+        name: 'notificationsCreate',
+        params: {
+          transition: 'slide-right'
+        }
+      })
+    },
+    dismissKeyboard() {
+      Keyboard.hide();
+    },
     getAttractions(event: RefresherCustomEvent | null) {
       this.$store.dispatch('setServerError', false);
       themeparkService.getAttractions(this.activePark.parkId, {
         filters: this.filters.waitTimeFilter,
-        favouriteAttractionIds: this.favourites
+        favouriteIds: this.favourites
       }).then((response: AxiosResponse<Park>) => {
         const attractions: Array<Attraction> = [];
 
@@ -188,7 +217,8 @@ export default defineComponent({
         event?.target?.complete();
       }).catch(() => {
             this.$store.dispatch('setServerError', true);
-          });
+            this.loading = false;
+      });
     },
     // Not implemented yet.
     backToParks() {

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ParkPal.API.Models;
 using ParkPal.API.Models.OneSignal.Requests;
-using ParkPal.API.Models.Responses.Notification;
+using ParkPal.API.Models.Responses;
 using ParkPal.API.Services.Interfaces;
 using ParkPal.Common.API.Models.ThemeParkApi;
 using ParkPal.Common.Database.Contexts;
@@ -13,6 +13,7 @@ using ParkPal.Common.Models.Database.Entities.Notification.Enums;
 using ParkPal.Common.Services;
 using ParkPal.Common.Services.Interfaces;
 using RestSharp;
+using Type = ParkPal.Common.Models.Database.Entities.Notification.Enums.Type;
 
 namespace ParkPal.API.Services;
 
@@ -27,9 +28,9 @@ public class NotificationService: INotificationService
         _themeParkService = themeParkService;
     }
 
-    public List<TimerWithAttraction> GetAllTimers(string token)
+    public List<Notification> GetAllNotifications(string token)
     {
-        List<TimerWithAttraction> timers = new List<TimerWithAttraction>();
+        List<Notification> notifications = new List<Notification>();
         
         Subscription? subscription =
             _context.Subscriptions
@@ -38,13 +39,13 @@ public class NotificationService: INotificationService
 
         if (subscription != null)
         {
-            // Get the attraction timers.
-            List<AttractionTimer> attractionTimerNotifications = _context.AttractionTimers.Include(a => a.Subscription).Where(a =>
+            // Get the notifications.
+            List<Item> databaseNotifications = _context.Notifications.Include(a => a.Subscription).Where(a =>
                 a.Subscription.SubscriptionId == subscription.SubscriptionId).ToList();
             
             // Get all parkIds in our timers.                                             
-            List<string> parkIds = attractionTimerNotifications.Select(a => a.ParkId).Distinct().ToList();
-            Dictionary<string, Park> parksLiveData = new();
+            List<string> parkIds = databaseNotifications.Select(a => a.ParkId).Distinct().ToList();
+            Dictionary<string, Park?> parksLiveData = new();
 
             // Loop through parkId we have notifications for and get the park wait times for each one from the API.
             foreach (string parkId in parkIds)
@@ -53,36 +54,39 @@ public class NotificationService: INotificationService
                 parksLiveData.Add(parkId, _themeParkService.GetParkWithAttractions(parkId));
             }
 
-            foreach (AttractionTimer timer in attractionTimerNotifications)
+            foreach (Item notification in databaseNotifications)
             {
                 // Get the park for the notification.
-                Park parkData = parksLiveData[timer.ParkId];
-                Attraction? attraction = parkData.Attractions.FirstOrDefault(a => a.AttractionId == timer.AttractionId);
-
-                if (attraction != null)
+                Park? parkData = parksLiveData[notification.ParkId];
+                Attraction? attraction = null;
+                
+                if (notification.TypeId != (int)Type.Park)
                 {
-                    TimerWithAttraction timerWithAttraction = new TimerWithAttraction()
-                    {
-                        Timer = timer,
-                        Attraction = attraction,
-                        Park = parkData
-                    };
-                    
-                    timers.Add(timerWithAttraction);
+                    attraction =
+                        parkData?.Attractions.FirstOrDefault(a => a.AttractionId == notification.AttractionId);
                 }
+                
+                Notification apiNotification = new Notification()
+                {
+                    Properties = notification,
+                    Attraction = attraction,
+                    Park = parkData
+                };
+                    
+                notifications.Add(apiNotification);
             }
         }
 
-        return timers;
+        return notifications;
     }
 
-    public AttractionTimer? GetTimer(string playerId, string attractionId, string parkId)
+    public Item? GetNotification(string playerId, string attractionId, string parkId)
     {
-        return _context.AttractionTimers.Include(a => a.Subscription).FirstOrDefault(a =>
+        return _context.Notifications.Include(a => a.Subscription).FirstOrDefault(a =>
             a.Subscription.PlayerId == playerId && a.AttractionId == attractionId && a.ParkId == parkId);
     }
     
-    public AttractionTimer? CreateTimer(string token, string attractionId, string parkId,
+    public Item? CreateNotification(string token, Type type, string attractionId, string parkId,
         CriteriaType criteriaType, int waitTime, int minuteInterval = 5)
     {
         // We will only receive the token from the header, use that to get the subscriptionId.
@@ -93,9 +97,10 @@ public class NotificationService: INotificationService
 
         if (subscription != null)
         {
-            AttractionTimer newTimer = new AttractionTimer()
+            Item notification = new Item()
             {
                 SubscriptionId = subscription.SubscriptionId,
+                TypeId = (int)type,
                 AttractionId = attractionId,
                 CriteriaType = (int)criteriaType,
                 ParkId = parkId,
@@ -104,50 +109,50 @@ public class NotificationService: INotificationService
                 Enabled = true
             };
 
-            _context.AttractionTimers.Add(newTimer);
+            _context.Notifications.Add(notification);
             _context.SaveChanges();
 
-            return newTimer;
+            return notification;
         }
 
         return null;
     }
 
-    public AttractionTimer? EditTimer(int attractionTimerId, CriteriaType criteriaType, int waitTime)
+    public Item? EditNotification(int notificationId, CriteriaType criteriaType, int waitTime)
     {
-        AttractionTimer? attractionTimer =
-            _context.AttractionTimers.FirstOrDefault(a => a.AttractionTimerId == attractionTimerId);
+        Item? notification =
+            _context.Notifications.FirstOrDefault(a => a.ItemId == notificationId);
 
-        if (attractionTimer != null)
+        if (notification != null)
         {
-            attractionTimer.CriteriaType = (int)criteriaType;
-            attractionTimer.WaitTime = waitTime;
+            notification.CriteriaType = (int)criteriaType;
+            notification.WaitTime = waitTime;
 
             _context.SaveChanges();
-            return attractionTimer;
+            return notification;
         }
 
         return null;
     }
 
-    public AttractionTimer? DisableTimer(int attractionTimerId)
+    public Item? DisableNotification(int notificationId)
     {
-        return SetEnabledFlag(attractionTimerId, false);
+        return SetEnabledFlag(notificationId, false);
     }
 
-    public AttractionTimer? EnableTimer(int attractionTimerId)
+    public Item? EnableNotification(int notificationId)
     {
-        return SetEnabledFlag(attractionTimerId, true);
+        return SetEnabledFlag(notificationId, true);
     }
 
-    public bool DeleteTimer(int attractionTimerId)
+    public bool DeleteNotification(int notificationId)
     {
-        AttractionTimer? attractionTimer =
-            _context.AttractionTimers.FirstOrDefault(a => a.AttractionTimerId == attractionTimerId);
+        Item? notification =
+            _context.Notifications.FirstOrDefault(a => a.ItemId == notificationId);
 
-        if (attractionTimer != null)
+        if (notification != null)
         {
-            _context.AttractionTimers.Remove(attractionTimer);
+            _context.Notifications.Remove(notification);
             _context.SaveChanges();
 
             return true;
@@ -156,17 +161,17 @@ public class NotificationService: INotificationService
         return false;
     }
 
-    public AttractionTimer? SetEnabledFlag(int attractionTimerId, bool enabled)
+    public Item? SetEnabledFlag(int notificationId, bool enabled)
     {
-        AttractionTimer? attractionTimer =
-            _context.AttractionTimers.FirstOrDefault(a => a.AttractionTimerId == attractionTimerId);
+        Item? notification =
+            _context.Notifications.FirstOrDefault(a => a.ItemId == notificationId);
 
-        if (attractionTimer != null)
+        if (notification != null)
         {
-            attractionTimer.Enabled = enabled;
+            notification.Enabled = enabled;
             _context.SaveChanges();
 
-            return attractionTimer;
+            return notification;
         }
 
         return null;

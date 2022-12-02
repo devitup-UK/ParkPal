@@ -1,25 +1,25 @@
 import axios, {AxiosResponse} from "axios";
 import { authHeader } from '../helpers/authHeaders.helper';
-import AttractionTimer from "@/models/api/AttractionTimer";
+import NotificationProperties from "@/models/api/NotificationProperties";
 import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
 import EditNotificationRequest from "@/models/api/requests/notification/EditNotificationRequest";
 import EnableDisableNotificationRequest from "@/models/api/requests/notification/EnableDisableNotificationRequest";
-import TimerWithAttraction from "@/models/api/TimerWithAttraction";
+import Notification from "@/models/api/Notification";
 import GetNotificationsRequest from "@/models/api/requests/notification/GetNotificationsRequest";
 
 const instance = axios.create({
-    baseURL: 'https://api-dev.parkpal.co.uk/notification/',
+    baseURL: 'http://192.168.1.96:5002/notification/',
     timeout: 10000
 });
 
 function getAllNotifications(request: GetNotificationsRequest) {
     return instance.post('', request, {
         headers: authHeader()
-    }).then((response: AxiosResponse<Array<TimerWithAttraction>>) => {
-        const responseArray: Array<TimerWithAttraction> = [];
+    }).then((response: AxiosResponse<Array<Notification>>) => {
+        const responseArray: Array<Notification> = [];
 
-        response.data.forEach(timer => {
-            responseArray.push(new TimerWithAttraction(timer));
+        response.data.forEach(notificationWithEntity => {
+            responseArray.push(new Notification(notificationWithEntity));
         })
 
         return responseArray;
@@ -29,37 +29,37 @@ function getAllNotifications(request: GetNotificationsRequest) {
 function createNotification(request: CreateNotificationRequest) {
     return instance.post('create', request, {
         headers: authHeader()
-    }).then((response: AxiosResponse<AttractionTimer>) => {
-        return new AttractionTimer(response.data);
+    }).then((response: AxiosResponse<NotificationProperties>) => {
+        return new NotificationProperties(response.data);
     })
 }
 
 function editNotification(request: EditNotificationRequest) {
     return instance.post('edit', request, {
         headers: authHeader()
-    }).then((response: AxiosResponse<AttractionTimer>) => {
-        return new AttractionTimer(response.data)
+    }).then((response: AxiosResponse<NotificationProperties>) => {
+        return new NotificationProperties(response.data)
     })
 }
 
 function enableNotification(request: EnableDisableNotificationRequest) {
     return instance.post('enable', request, {
         headers: authHeader()
-    }).then((response: AxiosResponse<AttractionTimer>) => {
-        return new AttractionTimer(response.data);
+    }).then((response: AxiosResponse<NotificationProperties>) => {
+        return new NotificationProperties(response.data);
     })
 }
 
 function disableNotification(request: EnableDisableNotificationRequest) {
     return instance.post('disable', request, {
         headers: authHeader()
-    }).then((response: AxiosResponse<AttractionTimer>) => {
-        return new AttractionTimer(response.data);
+    }).then((response: AxiosResponse<NotificationProperties>) => {
+        return new NotificationProperties(response.data);
     })
 }
 
-function deleteNotification(attractionTimerId: number) {
-    return instance.delete('delete/' + attractionTimerId, {
+function deleteNotification(notificationId: number) {
+    return instance.delete('delete/' + notificationId, {
         headers: authHeader()
     }).then(() => {
         return true;

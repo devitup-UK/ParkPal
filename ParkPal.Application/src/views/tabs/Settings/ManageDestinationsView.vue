@@ -94,11 +94,7 @@ export default defineComponent({
           transformedDestination.hidden = true;
         }
 
-        transformedDestination.checkImageExists().then(exists => {
-          if(exists) {
-            this.destinations.push(transformedDestination);
-          }
-        })
+        this.destinations.push(transformedDestination);
       })
     })
   },

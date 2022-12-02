@@ -1,5 +1,5 @@
-import AttractionTimer from "@/models/api/AttractionTimer";
-import TimerWithAttraction from "@/models/api/TimerWithAttraction";
+import NotificationProperties from "@/models/api/NotificationProperties";
+import Notification from "@/models/api/Notification";
 import Destination from "@/models/api/Destination";
 import Park from "@/models/api/Park";
 import Attraction from "@/models/api/Attraction";
@@ -60,23 +60,23 @@ function transformApiAttractionsArrayToInternalAttractionsArray(attractions: Arr
 
 }
 
-function transformApiAttractionTimerArrayToInternalAttractionTimerArray(timers: Array<AttractionTimer>) {
-    const transformedTimers: Array<AttractionTimer> = [];
+function transformApiAttractionTimerArrayToInternalAttractionTimerArray(timers: Array<NotificationProperties>) {
+    const transformedTimers: Array<NotificationProperties> = [];
 
     // Transform our attraction timer to an internal timer.
-    timers.forEach((timer: AttractionTimer) => {
-        transformedTimers.push(new AttractionTimer(timer));
+    timers.forEach((timer: NotificationProperties) => {
+        transformedTimers.push(new NotificationProperties(timer));
     });
 
     return transformedTimers;
 }
 
-function transformApiTimerWithAttractionArrayToInternalTimerWithAttractionArray(timers: Array<TimerWithAttraction>) {
-    const transformedTimers: Array<TimerWithAttraction> = [];
+function transformApiNotificationWithEntityArrayToInternalNotificationWithEntityArray(timers: Array<Notification>) {
+    const transformedTimers: Array<Notification> = [];
 
     // Transform our attraction timer to an internal timer.
-    timers.forEach((timer: TimerWithAttraction) => {
-        transformedTimers.push(new TimerWithAttraction(timer));
+    timers.forEach((timer: Notification) => {
+        transformedTimers.push(new Notification(timer));
     });
 
     return transformedTimers;
@@ -88,5 +88,5 @@ export default {
     transformApiParksArrayToInternalParksArray,
     transformApiAttractionsArrayToInternalAttractionsArray,
     transformApiAttractionTimerArrayToInternalAttractionTimerArray,
-    transformApiTimerWithAttractionArrayToInternalTimerWithAttractionArray
+    transformApiNotificationWithEntityArrayToInternalNotificationWithEntityArray
 };

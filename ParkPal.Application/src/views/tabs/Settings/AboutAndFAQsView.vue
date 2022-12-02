@@ -88,6 +88,9 @@
           </div>
         </IonAccordion>
       </IonAccordionGroup>
+      <div class="copyright" :style="`color: ${settings.theme.text} !important;`">
+        <p>&copy; 2022 DevItUp / ParkPal</p>
+      </div>
     </IonContent>
   </IonPage>
 </template>
@@ -129,6 +132,9 @@ ion-item::part(detail-icon) {
   font-size: 14px;
   color: #6b6b6b;
   //border-bottom:1px solid var(--ion-item-border-color, var(--ion-border-color, var(--ion-color-step-250, #c8c7cc)));;
+}
+.copyright {
+  font-size: 14px;
 }
 </style>
 

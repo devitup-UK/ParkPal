@@ -59,7 +59,7 @@ function restorePurchases(): PromiseLike<boolean> {
 function getPurchases(): PromiseLike<Array<string>> {
     return new Promise((resolve) => {
         Purchases.getCustomerInfo().then((customerInfo) => {
-            return customerInfo.activeSubscriptions;
+            resolve(customerInfo.activeSubscriptions);
         });
     });
 }

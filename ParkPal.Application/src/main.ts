@@ -27,7 +27,8 @@ import {
     faPaintRoller,
     faTrash,
     faBell,
-    faBellSlash
+    faBellSlash,
+    faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faMapMarkerAlt,
@@ -49,7 +50,8 @@ library.add(faMapMarkerAlt,
     faPaintRoller,
     faTrash,
     faBell,
-    faBellSlash)
+    faBellSlash,
+    faSpinner)
 
 
 
@@ -74,7 +76,9 @@ import './theme/variables.css';
 
 import Vue3TouchEvents from "vue3-touch-events";
 
-const app = createApp(App).use(IonicVue).use(router).use(store).use(Vue3TouchEvents);
+const app = createApp(App).use(IonicVue).use(router).use(store).use(Vue3TouchEvents, {
+    swipeTolerance: 3
+});
 
 Sentry.init({
     app,

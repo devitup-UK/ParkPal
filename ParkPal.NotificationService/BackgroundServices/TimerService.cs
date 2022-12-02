@@ -39,12 +39,12 @@ public class TimerService : IHostedService, IDisposable
         _logger.LogInformation("Scanning the database for matching notifications to send to the users");
         
         // Get all of the notifications we need to handle in the database.
-        List<AttractionTimer> attractionTimerNotifications = _context.AttractionTimers.Include(a => a.Subscription).Where(a => a.Enabled).ToList();
+        List<Item> notifications = _context.Notifications.Include(a => a.Subscription).Where(a => a.Enabled).ToList();
         
-        _logger.LogInformation("{Count} attraction notification timers to process", attractionTimerNotifications.Count);
+        _logger.LogInformation("{Count} attraction notification timers to process", notifications.Count);
         
         // Then we need to get all of the park Id's from our original query.
-        List<string> parkIds = attractionTimerNotifications.Select(a => a.ParkId).Distinct().ToList();
+        List<string> parkIds = notifications.Select(a => a.ParkId).Distinct().ToList();
         // Now we will create a list of dictionary to store our wait time data against our parkId. 
         Dictionary<string, EntityLiveDataResponse> parksLiveData = new();
         
@@ -62,54 +62,128 @@ public class TimerService : IHostedService, IDisposable
             }
         }
 
-        foreach (AttractionTimer notificationTimer in attractionTimerNotifications)
+        foreach (Item notification in notifications)
         {
             // Get the live data response for this specific park for this notification.
-            EntityLiveDataResponse parkResponseForTimer = parksLiveData[notificationTimer.ParkId];
-            EntityLiveData? attractionData =
-                parkResponseForTimer.LiveData.FirstOrDefault(a => a.Id == notificationTimer.AttractionId && a.Status != LiveStatusType.DOWN && a.Status != LiveStatusType.CLOSED && a.Status != LiveStatusType.REFURBISHMENT);
+            EntityLiveDataResponse parkResponseForNotification = parksLiveData[notification.ParkId];
 
-            if (attractionData != null)
+            if (notification.AttractionId != null)
             {
-                // Get the wait time of the attraction that this notification is for.
-                int? attractionWaitTime =
-                    _themeParkService.GetAttractionWaitTime(notificationTimer.AttractionId,
-                        parkResponseForTimer.LiveData);
+                EntityLiveData? attractionData =
+                    parkResponseForNotification.LiveData.FirstOrDefault(a =>
+                        a.Id == notification.AttractionId && a.Status != LiveStatusType.DOWN &&
+                        a.Status != LiveStatusType.CLOSED && a.Status != LiveStatusType.REFURBISHMENT);
 
-                // If the attraction wait time is not null, we can continue.
-                if (attractionWaitTime != null)
+                if (attractionData != null)
                 {
-                    switch (notificationTimer.CriteriaType)
+                    // Get the wait time of the attraction that this notification is for.
+                    int? attractionWaitTime =
+                        _themeParkService.GetAttractionWaitTime(notification.AttractionId,
+                            parkResponseForNotification.LiveData);
+
+                    // If the attraction wait time is not null, we can continue.
+                    if (attractionWaitTime != null)
                     {
-                        case (int)CriteriaType.EqualTo:
-                            if (attractionWaitTime == notificationTimer.WaitTime)
-                            {
-                                // Send a notification that signifies the attraction's wait time is equal to.
-                                _oneSignalService.SendPushNotificationToPlayer("ParkPal",
-                                    $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.", notificationTimer.Subscription.PlayerId);
-                            }
+                        switch (notification.CriteriaType)
+                        {
+                            case (int)CriteriaType.EqualTo:
+                                if (attractionWaitTime == notification.WaitTime)
+                                {
+                                    // Send a notification that signifies the attraction's wait time is equal to.
+                                    _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                        $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
+                                        notification.Subscription.PlayerId);
+                                }
 
-                            break;
-                        case (int)CriteriaType.LessThan:
-                            if (attractionWaitTime <= notificationTimer.WaitTime)
-                            {
-                                // Send a notification about wait time being less.
-                                _oneSignalService.SendPushNotificationToPlayer("ParkPal",
-                                    $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.", notificationTimer.Subscription.PlayerId);
-                            }
+                                break;
+                            case (int)CriteriaType.LessThan:
+                                if (attractionWaitTime <= notification.WaitTime)
+                                {
+                                    // Send a notification about wait time being less.
+                                    _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                        $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
+                                        notification.Subscription.PlayerId);
+                                }
 
-                            break;
-                        case (int)CriteriaType.MoreThan:
-                            if (attractionWaitTime >= notificationTimer.WaitTime)
-                            {
-                                // Send a notification about wait time being more.
-                                _oneSignalService.SendPushNotificationToPlayer("ParkPal",
-                                    $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.", notificationTimer.Subscription.PlayerId);
-                            }
+                                break;
+                            case (int)CriteriaType.MoreThan:
+                                if (attractionWaitTime >= notification.WaitTime)
+                                {
+                                    // Send a notification about wait time being more.
+                                    _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                        $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
+                                        notification.Subscription.PlayerId);
+                                }
 
-                            break;
+                                break;
+                        }
                     }
                 }
+            }
+            else
+            {
+                int attractionsThatMatchCriteraCount = 0;
+                EntityLiveData? closestAttractionToCriteria = null;
+                List<EntityLiveData> attractions = new List<EntityLiveData>();
+                string description = "less than";
+                bool equalTo = false;
+                
+                // This is a park specific notification.
+                // foreach (EntityLiveData attractionData in parkResponseForNotification.LiveData)
+                // {
+                    switch (notification.CriteriaType)
+                    {
+                        case (int)CriteriaType.LessThan:
+                            description = "less than";
+                            attractions = parkResponseForNotification.LiveData
+                                .Where(a => a.Queue?.STANDBY?.WaitTime <= notification.WaitTime).OrderBy(a => a.Queue?.STANDBY?.WaitTime).ToList();
+                            break;
+                        case (int)CriteriaType.MoreThan:
+                            description = "more than";
+                            attractions = parkResponseForNotification.LiveData
+                                .Where(a => a.Queue?.STANDBY?.WaitTime >= notification.WaitTime).OrderByDescending(a => a.Queue?.STANDBY?.WaitTime).ToList();
+                            break;
+                        case (int)CriteriaType.EqualTo:
+                            equalTo = true;
+                            description = "at";
+                            attractions = parkResponseForNotification.LiveData
+                                .Where(a => a.Queue?.STANDBY?.WaitTime == notification.WaitTime).OrderByDescending(a => a.Queue?.STANDBY?.WaitTime).ToList();
+                            break;
+                    }
+                    
+                    if (attractions.Any())
+                    {
+                        attractionsThatMatchCriteraCount = attractions.Count;
+                        closestAttractionToCriteria = attractions[0];
+                        int? lowestWaitTime = closestAttractionToCriteria.Queue?.STANDBY?.WaitTime;
+
+                        if (lowestWaitTime != null)
+                        {
+                            if (!equalTo)
+                            {
+                                _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                    $"{parkResponseForNotification.Name} has {attractionsThatMatchCriteraCount} attractions that are {description} {notification.WaitTime} minutes right now. The attraction with the lowest wait time is {closestAttractionToCriteria.Name} with {lowestWaitTime} minutes.",
+                                    notification.Subscription.PlayerId);
+                            }
+                            else
+                            {
+                                _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                    $"{parkResponseForNotification.Name} has {attractionsThatMatchCriteraCount} attractions that are {description} {notification.WaitTime} minutes right now.",
+                                    notification.Subscription.PlayerId);
+                            }
+                            
+                        }
+                        else
+                        {
+                            _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                $"{parkResponseForNotification.Name} has {attractionsThatMatchCriteraCount} that are {description} {notification.WaitTime} minutes right now. Check out the Wait Times to see a list of matching attractions.",
+                                notification.Subscription.PlayerId);
+                        }
+                        
+                        
+                    }
+                // }
+                
             }
         }
     }

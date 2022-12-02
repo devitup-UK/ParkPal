@@ -1,13 +1,24 @@
 <template>
   <IonContent :style="`background:${settings.theme.background} !important;`">
     <div class="parkpal-plus-card">
+      <div class="parkpal-plus-card__header" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
+        <strong>No Ads</strong>
+      </div>
+      <div class="parkpal-plus-card__content">
+        <img src="@/assets/no-ads.svg" alt="No Advertisements">
+      </div>
+      <div class="parkpal-plus-card__footer" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
+        <p>With ParkPal+ say goodbye to Advertisements, no more banners to block your screen space.</p>
+      </div>
+    </div>
+    <div class="parkpal-plus-card">
       <div class="parkpal-plus-card__header" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">
         <strong>Low Wait Time Notifications</strong>
       </div>
       <div class="parkpal-plus-card__content parkpal-plus-card__content--video">
         <div class="video-background">
           <img src="@/assets/premium-notifications.gif" alt="Premium Notifications">
-          <img src="@/assets/notification-example.svg" class="video-background__notification" alt="Notification Example">
+          <img src="@/assets/notification-example.svg" class="video-background__notification" alt="NotificationProperties Example">
         </div>
       </div>
       <div class="parkpal-plus-card__footer" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">
@@ -27,13 +38,16 @@
     </div>
     <div class="parkpal-plus-card">
       <div class="parkpal-plus-card__header" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
-        <strong>No Ads</strong>
+        <strong>Park Wide Notifications</strong>
       </div>
-      <div class="parkpal-plus-card__content">
-        <img src="@/assets/no-ads.svg" alt="No Advertisements">
+      <div class="parkpal-plus-card__content parkpal-plus-card__content--video">
+        <div class="video-background">
+          <img src="@/assets/premium-notifications.gif" alt="Premium Notifications">
+          <img src="@/assets/park-notification-example.svg" class="video-background__notification" alt="Park NotificationProperties Example">
+        </div>
       </div>
       <div class="parkpal-plus-card__footer" :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
-        <p>With ParkPal+ say goodbye to Advertisements, no more banners to block your screen space.</p>
+        <p>Park wide notifications give you the ability to know how many rides in the park match a notification criteria, giving you the know how on how many attractions are above, below or equal to a specific wait time of your choice.</p>
       </div>
     </div>
     <div class="parkpal-plus-card">

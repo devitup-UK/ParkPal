@@ -6,10 +6,11 @@ using ParkPal.API.Models.Enums;
 using ParkPal.API.Models.Requests.Notification;
 using ParkPal.API.Models.Requests.Subscription;
 using ParkPal.API.Models.Requests.Token;
-using ParkPal.API.Models.Responses.Notification;
+using ParkPal.API.Models.Responses;
 using ParkPal.API.Services.Interfaces;
 using ParkPal.Common.Models.Database.Entities.Device;
 using ParkPal.Common.Models.Database.Entities.Notification;
+using Type = ParkPal.Common.Models.Database.Entities.Notification.Enums.Type;
 
 namespace ParkPal.API.Controllers;
 
@@ -32,16 +33,14 @@ public class NotificationController : ControllerBase
     [HttpPost("")]
     public IActionResult Notifications([FromBody] GetNotificationsRequest request)
     {
-        List<TimerWithAttraction> timers = new List<TimerWithAttraction>();
-
         string token = User.FindFirstValue(ClaimTypes.Name);
 
-        timers = _notificationService.GetAllTimers(token);
+        List<Notification> notifications = _notificationService.GetAllNotifications(token);
         
         // Get all timers by only the specified parkId if one is set in the filters.
         if (request.Filters.ParkId != null)
         {
-            timers = timers.FindAll(a => a.Park.ParkId == request.Filters.ParkId);
+            notifications = notifications.FindAll(a => a.Park?.ParkId == request.Filters.ParkId);
         }
 
         // Get all timers by any criteria set, this should default to All.
@@ -50,7 +49,7 @@ public class NotificationController : ControllerBase
             case NotificationsFilterCriteria.LessThan:
             case NotificationsFilterCriteria.MoreThan:
             case NotificationsFilterCriteria.EqualTo:
-                timers = timers.FindAll(a => a.Timer.CriteriaType == (int)request.Filters.Criteria);
+                notifications = notifications.FindAll(a => a.Properties?.CriteriaType == (int)request.Filters.Criteria);
                 break;
         }
         
@@ -58,7 +57,13 @@ public class NotificationController : ControllerBase
         switch (request.Filters.Type)
         {
             case NotificationsFilterType.Favourites:
-                timers = timers.FindAll(a => request.FavouriteAttractionIds.Contains(a.Attraction.AttractionId));
+                notifications = notifications.FindAll(a => (request.FavouriteIds.Contains(a.Attraction?.AttractionId) && a.Properties.TypeId == (int)Type.Attraction) || (request.FavouriteIds.Contains(a.Park?.ParkId) && a.Properties.TypeId == (int)Type.Park));
+                break;
+            case NotificationsFilterType.Attractions:
+                notifications = notifications.FindAll(a => a.Properties.TypeId == (int)Type.Attraction);
+                break;
+            case NotificationsFilterType.Parks:
+                notifications = notifications.FindAll(a => a.Properties.TypeId == (int)Type.Park);
                 break;
         }
         
@@ -66,20 +71,20 @@ public class NotificationController : ControllerBase
         switch (request.Filters.Sort)
         {
             case NotificationsFilterSort.ThrillRides:
-                timers = timers.OrderByDescending(a => a.Attraction.Thrill).ToList();
+                notifications = notifications.Where(a => a.Properties.TypeId == (int)Type.Attraction).OrderByDescending(a => a.Attraction?.Thrill).ToList();
                 break;
             case NotificationsFilterSort.TameRides:
-                timers = timers.OrderByDescending(a => !a.Attraction.Thrill).ToList();
+                notifications = notifications.Where(a => a.Properties.TypeId == (int)Type.Attraction).OrderByDescending(a => !a.Attraction?.Thrill).ToList();
                 break;
             case NotificationsFilterSort.HighestWaitTime:
-                timers = timers.OrderByDescending(a => a.Attraction.WaitTime).ToList();
+                notifications = notifications.OrderByDescending(a => a.Properties.WaitTime).ToList();
                 break;
             case NotificationsFilterSort.LowestWaitTime:
-                timers = timers.OrderBy(a => a.Attraction.WaitTime).ToList();
+                notifications = notifications.OrderBy(a => a.Properties?.WaitTime).ToList();
                 break;
         }
         
-        return Ok(timers);
+        return Ok(notifications);
     }
     
     [HttpPost("create")]
@@ -87,12 +92,12 @@ public class NotificationController : ControllerBase
     {
         string token = User.FindFirstValue(ClaimTypes.Name);
 
-        AttractionTimer? timer = _notificationService.CreateTimer(token, request.AttractionId, request.ParkId, request.CriteriaType,
+        Item? notification = _notificationService.CreateNotification(token, request.Type, request.AttractionId, request.ParkId, request.CriteriaType,
             request.WaitTime);
 
-        if (timer != null)
+        if (notification != null)
         {
-            return Ok(timer);
+            return Ok(notification);
         }
 
         return Problem();
@@ -103,12 +108,12 @@ public class NotificationController : ControllerBase
     {
         string token = User.FindFirstValue(ClaimTypes.Name);
 
-        AttractionTimer? timer = _notificationService.EditTimer(request.AttractionTimerId, request.CriteriaType,
+        Item? notification = _notificationService.EditNotification(request.NotificationId, request.CriteriaType,
             request.WaitTime);
 
-        if (timer != null)
+        if (notification != null)
         {
-            return Ok(timer);
+            return Ok(notification);
         }
 
         return Problem();
@@ -119,11 +124,11 @@ public class NotificationController : ControllerBase
     {
         string token = User.FindFirstValue(ClaimTypes.Name);
         
-        AttractionTimer? timer = _notificationService.EnableTimer(request.AttractionTimerId);
+        Item? notification = _notificationService.EnableNotification(request.NotificationId);
 
-        if (timer.Enabled)
+        if (notification.Enabled)
         {
-            return Ok(timer);
+            return Ok(notification);
         }
 
         return Problem();
@@ -134,20 +139,20 @@ public class NotificationController : ControllerBase
     {
         string token = User.FindFirstValue(ClaimTypes.Name);
         
-        AttractionTimer? timer = _notificationService.DisableTimer(request.AttractionTimerId);
+        Item? notification = _notificationService.DisableNotification(request.NotificationId);
 
-        if (!timer.Enabled)
+        if (!notification.Enabled)
         {
-            return Ok(timer);
+            return Ok(notification);
         }
 
         return Problem();
     }
     
-    [HttpDelete("delete/{attractionTimerId}")]
-    public IActionResult Delete(int attractionTimerId)
+    [HttpDelete("delete/{notificationId}")]
+    public IActionResult Delete(int notificationId)
     {
-        bool deleted = _notificationService.DeleteTimer(attractionTimerId);
+        bool deleted = _notificationService.DeleteNotification(notificationId);
 
         if (deleted)
         {

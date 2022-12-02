@@ -287,6 +287,11 @@ export default defineComponent({
         // See if the user still has a subscription active.
         parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
           this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
+          if(activeSubscriptions.length) {
+            hideBannerAdvertisement();
+          }else{
+            showBannerAdvertisement(activeSubscriptions.length > 0);
+          }
         })
       })
 
@@ -312,7 +317,9 @@ export default defineComponent({
   },
   mounted() {
     // Setup our banner advertisements.
-    showBannerAdvertisement(this.settings.parkPalPlus);
+    setTimeout(() => {
+      showBannerAdvertisement(this.settings.parkPalPlus);
+    }, 400);
   },
 });
 </script>

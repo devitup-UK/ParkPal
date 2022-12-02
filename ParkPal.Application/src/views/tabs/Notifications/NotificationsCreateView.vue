@@ -23,29 +23,28 @@
         </Alert>
         <IonRow>
           <IonCol class="attraction-wrapper">
-            <AttractionComponent :attraction="attraction" :notification="null"></AttractionComponent>
+            <NotificationComponent :notification="notification"></NotificationComponent>
           </IonCol>
         </IonRow>
 
         <form class="filter-form">
-          <IonRow class="select-filter"  :style="`background:${settings.theme.selectionBoxBackground} !important; border-color: ${settings.theme.selectionBoxBorder} !important;`">
-            <IonCol cols="6" class="select-filter__label">
-              <h3 :style="`color: ${settings.theme.selectionBoxText} !important; background: transparent;`">Type</h3>
-            </IonCol>
-            <IonCol cols="6" class="select-filter__input">
-              <IonSelect interface="action-sheet" cancelText="Cancel" v-model="criteria" @click="hideBannerAdvertisement" @ionDismiss="resumeBannerAdvertisement">
-                <IonSelectOption v-for="criteria in definitions.criteria" :key="criteria.label" :value="criteria.value">{{ criteria.label }}</IonSelectOption>
-              </IonSelect>
-            </IonCol>
-          </IonRow>
-          <IonRow class="select-filter select-filter--wait"  :style="`background:${settings.theme.selectionBoxBackground} !important; border-color: ${settings.theme.selectionBoxBorder} !important;`">
-            <IonCol cols="6" class="select-filter__label">
-              <h3 :style="`color: ${settings.theme.selectionBoxText} !important; background: transparent;`">Wait Time</h3>
-            </IonCol>
-            <IonCol cols="6" class="select-filter__input" @click="openWaitTimePicker()">
-              <span>{{ waitTime }}</span>
-            </IonCol>
-          </IonRow>
+          <SelectBox label="Criteria" v-model="notification.properties.criteriaType" @click="hideBannerAdvertisement" @dismiss="resumeBannerAdvertisement" :options="definitions.criteria"></SelectBox>
+          <PickerComponent label="Wait Time" v-model="notification.properties.waitTime" :columns="[
+          {
+            name: 'waitTime',
+            options: this.waitTimeOptions,
+            selectedIndex: this.waitTimeOptions.findIndex(a => a.value == this.notification.properties?.waitTime)
+
+          },
+        ]" :buttons="[
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            handler: () => {
+              resumeBannerAdvertisement(this.settings.parkPalPlus);
+            }
+          },
+        ]"></PickerComponent>
           <IonRow class="filter-button">
             <IonCol>
               <IonButton expand="full" @click="createNotification"  color="transparent" :style="`color: ${settings.theme.actionButtonText} !important; background: ${settings.theme.actionButtonBackground} !important;`">
@@ -90,11 +89,18 @@ import {mapState} from "vuex";
 import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
 import {hideBannerAdvertisement, resumeBannerAdvertisement, showRewardAdvertisement} from "@/handlers/advertisements.handler";
 import {openAppNotificationSettings} from "@/handlers/notifications.handler";
+import {NotificationType} from "@/models/enums/NotificationType";
+import NotificationComponent from "@/components/Notification";
+import SelectBox from "@/components/custom-inputs/SelectBox";
+import Notification from "@/models/api/Notification";
+import PickerComponent from "@/components/custom-inputs/Picker";
 
 export default defineComponent({
   name: "NotificationsCreateView",
   components: {
-    AttractionComponent,
+    PickerComponent,
+    SelectBox,
+    NotificationComponent,
     FontAwesomeIcon,
     IonContent,
     IonPage,
@@ -106,17 +112,38 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonSelect,
-    IonSelectOption,
     Alert
   },
-  computed: mapState({
-    notificationsEnabled: (state) => state.notificationsEnabled,
-    settings: (state) => state.settings,
-    attraction: (state) => state.notificationHoldingArea?.attraction,
-    park: (state) => state.notificationHoldingArea?.park,
-    activeDestination: (state) => state.activeDestination,
-  }),
+  computed: {
+    ...mapState(['notificationsEnabled', 'settings', 'activeDestination', 'notificationHoldingArea']),
+    waitTimeOptions() {
+      let waitTimeOptions = [{
+        text: '5',
+        value: 5
+      }];
+
+      // First we build up the wait time selection to be less than 180.
+      while (waitTimeOptions[waitTimeOptions.length - 1].value < 180) {
+        waitTimeOptions.push({
+          text: (waitTimeOptions[waitTimeOptions.length - 1].value + 5).toString(),
+          value: waitTimeOptions[waitTimeOptions.length - 1].value + 5
+        })
+      }
+
+      // Then check if the criteria is set to LessThan.
+      // if(this.criteria === 1 && this.attraction.waitTime) {
+      //   this.waitTimeOptions = this.waitTimeOptions.filter(a => a.value < this.attraction.waitTime);
+      // }
+
+      if(!this.settings.parkPalPlus) {
+        if(!this.adWatched) {
+          waitTimeOptions = waitTimeOptions.filter(a => a.value >= 35);
+        }
+      }
+
+      return waitTimeOptions;
+    }
+  },
   data() {
     return {
       definitions: {
@@ -135,19 +162,15 @@ export default defineComponent({
           },
         ]
       },
-      criteria: 1,
-      waitTime: 35,
       adWatched: false,
-      waitTimeOptions: []
+      notification: new Notification()
     }
   },
   methods: {
 
     async watchAd() {
-      // console.log('Show advertisement.');
       showRewardAdvertisement().then(() => {
         this.adWatched = true;
-        this.setupWaitTimes();
       });
     },
 
@@ -182,80 +205,35 @@ export default defineComponent({
       resumeBannerAdvertisement(this.settings.parkPalPlus);
     },
 
-    setupWaitTimes() {
-      this.waitTimeOptions = [{
-        text: '5',
-        value: 5
-      }];
-
-      // First we build up the wait time selection to be less than 180.
-      while (this.waitTimeOptions[this.waitTimeOptions.length - 1].value < 180) {
-        this.waitTimeOptions.push({
-          text: (this.waitTimeOptions[this.waitTimeOptions.length - 1].value + 5).toString(),
-          value: this.waitTimeOptions[this.waitTimeOptions.length - 1].value + 5
-        })
-      }
-
-      // Then check if the criteria is set to LessThan.
-      // if(this.criteria === 1 && this.attraction.waitTime) {
-      //   this.waitTimeOptions = this.waitTimeOptions.filter(a => a.value < this.attraction.waitTime);
-      // }
-
-      if(!this.settings.parkPalPlus) {
-        if(!this.adWatched) {
-          this.waitTimeOptions = this.waitTimeOptions.filter(a => a.value >= 35);
-        }
-      }
-    },
-
-    async openWaitTimePicker() {
-
-      this.setupWaitTimes();
-
-      hideBannerAdvertisement();
-      const picker = await pickerController.create({
-        columns: [
-          {
-            name: 'waitTime',
-            options: this.waitTimeOptions
-          },
-        ],
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            handler: () => {
-              resumeBannerAdvertisement(this.settings.parkPalPlus);
-            }
-          },
-          {
-            text: 'Confirm',
-            handler: (value) => {
-              this.waitTime = value.waitTime.value;
-              resumeBannerAdvertisement(this.settings.parkPalPlus);
-            },
-          },
-        ],
-      });
-      await picker.present();
-      },
 
     createNotification() {
       let notificationToCreate = new CreateNotificationRequest({
-        attractionId: this.attraction.attractionId,
-        parkId: this.park.parkId,
-        criteriaType: this.criteria,
-        waitTime: this.waitTime
+        attractionId: this.notification.properties.attractionId,
+        type: this.notification.properties.typeId,
+        parkId: this.notification.properties.parkId,
+        criteriaType: this.notification.properties.criteriaType,
+        waitTime: this.notification.properties.waitTime
       });
 
       this.$store.dispatch('addNotification', notificationToCreate);
 
       this.navigateToSubscriptions();
+    },
+
+    setupNotification() {
+      this.notification.attraction = this.notificationHoldingArea.attraction;
+      this.notification.park = this.notificationHoldingArea.park;
+      this.notification.properties.attractionId = this.notification.attraction.attractionId;
+      this.notification.properties.parkId = this.notification.park.parkId;
+      this.notification.properties.typeId = this.notificationHoldingArea.type;
     }
   },
-  ionViewDidLeave() {
+  unmounted() {
     this.$store.commit('clearNotificationHoldingArea');
   },
+  beforeMount() {
+    this.setupNotification();
+  }
 
 })
 </script>

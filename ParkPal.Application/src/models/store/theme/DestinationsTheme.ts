@@ -24,9 +24,9 @@ export default class DestinationsTheme {
     }
 
     setDarkTheme() {
-        this.text = '#000000';
-        this.title = '#000000';
-        this.location = '#000000';
+        this.text = '#FFFFFF';
+        this.title = '#FFFFFF';
+        this.location = '#FFFFFF';
         this.buttonBackground = '#3f3f3f';
         this.buttonText = '#F2F2F2';
     }
