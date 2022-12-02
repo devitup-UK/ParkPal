@@ -145,10 +145,12 @@ export default defineComponent({
     },
 
     hideAdvertisement() {
+      this.$store.dispatch('setModalOpen', true);
       hideBannerAdvertisement();
     },
 
     resumeAdvertisement() {
+      this.$store.dispatch('setModalOpen', false);
       showBannerAdvertisement(this.settings.parkPalPlus);
     }
   }

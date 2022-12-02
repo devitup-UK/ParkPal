@@ -201,10 +201,12 @@ export default defineComponent({
     },
 
     hideBannerAdvertisement() {
+      this.$store.dispatch('setModalOpen', true);
       hideBannerAdvertisement();
     },
 
     resumeBannerAdvertisement() {
+      this.$store.dispatch('setModalOpen', false);
       resumeBannerAdvertisement(this.settings.parkPalPlus);
     },
 

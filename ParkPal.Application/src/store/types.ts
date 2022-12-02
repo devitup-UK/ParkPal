@@ -25,4 +25,5 @@ export interface RootState {
     products: Array<PurchasesPackage>;
     destinationSlideIndex: number;
     destinationSearchTerm: string;
+    modalOpen: boolean;
 }

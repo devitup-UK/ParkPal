@@ -8,7 +8,7 @@ import store from "@/store";
 import router from "@/router";
 import {NotificationType} from "@/models/enums/NotificationType";
 
-export function configureNotification(attraction: Attraction, park: Park, notificationAttractionIds: Array<string>, destinationId: string, notifications: Array<Notification>) {
+export async function configureNotification(attraction: Attraction, park: Park, notificationAttractionIds: Array<string>, destinationId: string, notifications: Array<Notification>) {
     const buttons: Array<ActionSheetButton> = [];
 
     if(attraction.attractionId) {
@@ -39,17 +39,17 @@ export function configureNotification(attraction: Attraction, park: Park, notifi
                 data: {
                     action: 'share',
                 },
-                handler: () => {
+                handler: async () => {
                     store.commit('setNotificationHoldingArea', new NotificationHoldingArea({attraction, park, type: NotificationType.Attraction}));
 
-                    router.push({
+                    await router.push({
                         name: 'notificationsEdit',
                         params: {
                             notificationId: notifications.filter((a: Notification) => a.properties?.attractionId == attraction.attractionId)[0].properties?.itemId,
                             transition: 'slide-right'
                         }
                     })
-
+                    await store.dispatch('setModalOpen', false);
                     resumeBannerAdvertisement(store.state.settings.parkPalPlus);
                 }
             })
@@ -61,7 +61,8 @@ export function configureNotification(attraction: Attraction, park: Park, notifi
             data: {
                 action: 'cancel',
             },
-            handler: () => {
+            handler: async () => {
+                await store.dispatch('setModalOpen', false);
                 resumeBannerAdvertisement(store.state.settings.parkPalPlus);
             }
         });
@@ -72,12 +73,13 @@ export function configureNotification(attraction: Attraction, park: Park, notifi
                 buttons: buttons
             });
 
+            await store.dispatch('setModalOpen', true);
             hideBannerAdvertisement();
 
             await actionSheet.present();
 
         }
 
-        presentActionSheet();
+        await presentActionSheet();
     }
 }

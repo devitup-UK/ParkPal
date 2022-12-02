@@ -207,7 +207,7 @@ export default defineComponent({
     RouterView
   },
   computed: {
-    ...mapState(['settings', 'isApp', 'notificationsEnabled'])
+    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen'])
   },
 
   methods: {
@@ -290,7 +290,9 @@ export default defineComponent({
           if(activeSubscriptions.length) {
             hideBannerAdvertisement();
           }else{
-            showBannerAdvertisement(activeSubscriptions.length > 0);
+            if(!this.modalOpen) {
+              showBannerAdvertisement(activeSubscriptions.length > 0);
+            }
           }
         })
       })

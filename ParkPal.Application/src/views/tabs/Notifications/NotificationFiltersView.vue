@@ -80,6 +80,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {mapState} from "vuex";
 import NotificationsFilter from "@/models/store/NotificationsFilter";
 import {hideBannerAdvertisement, showBannerAdvertisement} from "@/handlers/advertisements.handler";
+import store from "@/store";
 
 export default defineComponent({
   name: "NotificationFiltersView",
@@ -205,10 +206,12 @@ export default defineComponent({
     },
 
     hideAdvertisement() {
+      this.$store.dispatch('setModalOpen', true);
       hideBannerAdvertisement();
     },
 
     resumeAdvertisement() {
+      this.$store.dispatch('setModalOpen', false);
       showBannerAdvertisement(this.settings.parkPalPlus);
     }
   }

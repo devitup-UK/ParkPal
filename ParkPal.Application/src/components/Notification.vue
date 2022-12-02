@@ -184,6 +184,7 @@ export default defineComponent({
               }
             })
 
+            this.$store.dispatch('setModalOpen', false);
             resumeBannerAdvertisement(this.settings.parkPalPlus);
           }
         })
@@ -196,6 +197,7 @@ export default defineComponent({
           action: 'cancel',
         },
         handler: () => {
+          this.$store.dispatch('setModalOpen', false);
           resumeBannerAdvertisement(this.settings.parkPalPlus);
         }
       });
@@ -206,6 +208,7 @@ export default defineComponent({
           buttons: buttons
         });
 
+        this.$store.dispatch('setModalOpen', true);
         hideBannerAdvertisement();
 
         await actionSheet.present();

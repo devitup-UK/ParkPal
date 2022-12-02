@@ -139,6 +139,7 @@ export default defineComponent({
   },
   methods: {
     hideBannerAdvertisement() {
+      this.$store.dispatch('setModalOpen', true);
       hideBannerAdvertisement();
     },
     // Methods to go here.
@@ -151,6 +152,7 @@ export default defineComponent({
       })
     },
     closeModal() {
+      this.$store.dispatch('setModalOpen', false);
       resumeBannerAdvertisement(this.settings.parkPalPlus);
       this.$refs.modal.$el.dismiss(null, 'cancel');
     }

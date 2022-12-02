@@ -40,7 +40,8 @@ const store: StoreOptions<RootState> = {
     serverError: false,
     products: [],
     destinationSlideIndex: 0,
-    destinationSearchTerm: ''
+    destinationSearchTerm: '',
+    modalOpen: false
   },
   getters: {
     favourites(state) {
@@ -159,6 +160,9 @@ const store: StoreOptions<RootState> = {
     },
     setDestinationSearchTerm(state, searchTerm: string) {
       state.destinationSearchTerm = searchTerm;
+    },
+    setModalOpen(state, modalOpen: boolean) {
+      state.modalOpen = modalOpen;
     }
   },
   actions: {
@@ -315,6 +319,9 @@ const store: StoreOptions<RootState> = {
     },
     setDestinationSearchTerm({commit}, searchTerm: string) {
       commit('setDestinationSearchTerm', searchTerm);
+    },
+    setModalOpen({commit}, modalOpen: boolean) {
+      commit('setModalOpen', modalOpen);
     }
   },
 }
