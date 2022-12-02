@@ -81,7 +81,6 @@ import {
   IonSelectOption,
   IonTitle, pickerController
 } from "@ionic/vue";
-import AttractionComponent from '@/components/Attraction.vue';
 import Alert from '@/components/Alert.vue';
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -89,11 +88,10 @@ import {mapState} from "vuex";
 import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
 import {hideBannerAdvertisement, resumeBannerAdvertisement, showRewardAdvertisement} from "@/handlers/advertisements.handler";
 import {openAppNotificationSettings} from "@/handlers/notifications.handler";
-import {NotificationType} from "@/models/enums/NotificationType";
-import NotificationComponent from "@/components/Notification";
-import SelectBox from "@/components/custom-inputs/SelectBox";
+import NotificationComponent from "@/components/Notification.vue";
+import SelectBox from "@/components/custom-inputs/SelectBox.vue";
 import Notification from "@/models/api/Notification";
-import PickerComponent from "@/components/custom-inputs/Picker";
+import PickerComponent from "@/components/custom-inputs/Picker.vue";
 import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import Destination from "@/models/api/Destination";
@@ -147,7 +145,7 @@ export default defineComponent({
       return waitTimeOptions;
     }
   },
-  data() {
+  data() : { definitions: { criteria: Array<{ value: number, label: string }> }, adWatched: boolean, notification: Notification, destinations: Array<Destination> } {
     return {
       definitions: {
         criteria: [

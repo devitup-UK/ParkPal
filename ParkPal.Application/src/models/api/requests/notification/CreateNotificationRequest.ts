@@ -1,5 +1,5 @@
 export default class CreateNotificationRequest {
-    attractionId?: string;
+    attractionId?: string | null;
     type?: number;
     parkId?: string;
     minuteInterval?: number = 5;
