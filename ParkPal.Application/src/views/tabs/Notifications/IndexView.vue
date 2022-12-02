@@ -21,10 +21,10 @@
         <template v-if="notifications.length">
           <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInNotifications" @keyup.enter="dismissKeyboard" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
           <ul class="attractions" v-if="!waitTimeSearch.length">
-                <NotificationComponent v-for="notification in notifications" :key="notification.properties.itemId" :notification="notification"></NotificationComponent>
+                <NotificationComponent v-for="notification in notifications" :key="notification.properties.itemId" :notification="notification" :destinationName="getDestinationName(notification.properties.parkId)"></NotificationComponent>
           </ul>
           <ul class="attractions" v-if="waitTimeSearch.length">
-            <NotificationComponent v-for="notification in searchNotifications" :key="notification.properties.itemId" :notification="notification"></NotificationComponent>
+            <NotificationComponent v-for="notification in searchNotifications" :key="notification.properties.itemId" :notification="notification" :destinationName="getDestinationName(notification.properties.parkId)"></NotificationComponent>
           </ul>
           <div class="no-notifications" v-if="waitTimeSearch.length && !searchNotifications.length">
             <div class="no-notifications__image">
@@ -110,6 +110,9 @@ import ConnectionError from "@/components/ConnectionError.vue";
 import Notification from "@/models/api/Notification";
 import {Keyboard} from "@capacitor/keyboard";
 import NotificationComponent from "@/components/Notification.vue";
+import {themeparkService} from "@/services/themepark.service";
+import {AxiosResponse} from "axios";
+import Destination from "@/models/api/Destination";
 
 export default defineComponent({
   name: "NotificationsView",
@@ -134,11 +137,12 @@ export default defineComponent({
     ...mapState(['notifications', 'filters', 'settings', 'serverError']),
     ...mapGetters(['favourites', 'notificationIds'])
   },
-  data() {
+  data(): { loading: boolean, waitTimeSearch: string, searchNotifications: Array<Notification>, destinations: Array<Destination>} {
     return {
       loading: true,
       waitTimeSearch: '',
-      searchNotifications: []
+      searchNotifications: [],
+      destinations: []
     }
   },
   watch: {
@@ -147,10 +151,35 @@ export default defineComponent({
     }
   },
   beforeMount() {
+    this.getDestinations();
     // We need to pull in all the clients notifications, if they have any.
     this.getAllNotifications(null);
   },
   methods: {
+    getDestinations() {
+      this.$store.dispatch('setServerError', false);
+
+      // Get all the destinations first and mark them as hidden.
+      themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
+        response.data.forEach(destination => {
+            let transformedDestination = new Destination(destination);
+
+            this.destinations.push(transformedDestination);
+        });
+
+      }).catch(() => {
+        this.$store.dispatch('setServerError', true);
+      })
+    },
+    getDestinationName(parkId: string) {
+      let destination = this.destinations.find(a => a.parks.find(a => a.parkId == parkId));
+
+      if(destination) {
+        return destination.name;
+      }
+
+      return '';
+    },
     dismissKeyboard() {
       Keyboard.hide();
     },

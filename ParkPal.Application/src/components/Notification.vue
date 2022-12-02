@@ -15,7 +15,7 @@
         <!-- If this is an park-wide notification, then we can show all of the park details and options. -->
         <template v-if="isParkNotification">
           <ParkBackground :park="this.park"></ParkBackground>
-          <ParkDetails :park="this.park"></ParkDetails>
+          <ParkDetails :park="this.park" :destinationName="destinationName"></ParkDetails>
           <div class="notification__details" v-if="this.notification" :style="`background: ${settings.theme.waitTimes.text} !important;`">
             <p v-html="getNotificationMessage(notification)" :style="`color: ${settings.theme.waitTimes.background} !important;`"></p>
           </div>
@@ -114,6 +114,11 @@ export default defineComponent({
       type: Notification,
       required: true,
       default: null
+    },
+    destinationName: {
+      type: String,
+      required: true,
+      default: ''
     }
   },
   data() {

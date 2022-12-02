@@ -23,7 +23,7 @@
         </Alert>
         <IonRow>
           <IonCol class="attraction-wrapper">
-            <NotificationComponent :notification="notification"></NotificationComponent>
+            <NotificationComponent :notification="notification" :destinationName="getDestinationName(notification.properties.parkId)"></NotificationComponent>
           </IonCol>
         </IonRow>
 
@@ -97,6 +97,9 @@ import Settings from "@/models/store/Settings";
 import Park from "@/models/api/Park";
 import NotificationComponent from "@/components/Notification.vue";
 import SelectBox from "@/components/custom-inputs/SelectBox.vue";
+import {themeparkService} from "@/services/themepark.service";
+import {AxiosResponse} from "axios";
+import Destination from "@/models/api/Destination";
 
 export default defineComponent({
   name: "NotificationsEditView",
@@ -148,7 +151,7 @@ export default defineComponent({
       return waitTimeOptions;
     }
   },
-  data(): { definitions: { criteria: Array<{ value: string | number, label: string }> }, notification: Notification, adWatched: boolean } {
+  data(): { definitions: { criteria: Array<{ value: string | number, label: string }> }, notification: Notification, adWatched: boolean, destinations: Array<Destination> } {
     return {
       definitions: {
         criteria: [
@@ -167,7 +170,8 @@ export default defineComponent({
         ]
       },
       notification: new Notification(),
-      adWatched: false
+      adWatched: false,
+      destinations: []
     }
   },
   methods: {
@@ -214,9 +218,34 @@ export default defineComponent({
       this.$store.dispatch('editNotification', notificationToEdit);
 
       this.backToPreviousPage();
-    }
+    },
+    getDestinations() {
+      this.$store.dispatch('setServerError', false);
+
+      // Get all the destinations first and mark them as hidden.
+      themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
+        response.data.forEach(destination => {
+          let transformedDestination = new Destination(destination);
+          this.destinations.push(transformedDestination);
+        });
+
+      }).catch(() => {
+        this.$store.dispatch('setServerError', true);
+      })
+    },
+
+    getDestinationName(parkId: string) {
+      let destination = this.destinations.find(a => a.parks.find(a => a.parkId == parkId));
+
+      if(destination) {
+        return destination.name;
+      }
+
+      return '';
+    },
   },
   beforeMount() {
+    this.getDestinations();
     // Set the notification for the view.
     if(this.notifications.length) {
       let notificationId = ((this.$route.params.notificationId as unknown) as number);

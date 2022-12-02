@@ -23,7 +23,7 @@
         </Alert>
         <IonRow>
           <IonCol class="attraction-wrapper">
-            <NotificationComponent :notification="notification"></NotificationComponent>
+            <NotificationComponent :notification="notification" :destinationName="getDestinationName(notification.properties.parkId)"></NotificationComponent>
           </IonCol>
         </IonRow>
 
@@ -65,7 +65,7 @@
   </IonPage>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import {
   IonContent,
@@ -94,6 +94,9 @@ import NotificationComponent from "@/components/Notification";
 import SelectBox from "@/components/custom-inputs/SelectBox";
 import Notification from "@/models/api/Notification";
 import PickerComponent from "@/components/custom-inputs/Picker";
+import {themeparkService} from "@/services/themepark.service";
+import {AxiosResponse} from "axios";
+import Destination from "@/models/api/Destination";
 
 export default defineComponent({
   name: "NotificationsCreateView",
@@ -163,7 +166,8 @@ export default defineComponent({
         ]
       },
       adWatched: false,
-      notification: new Notification()
+      notification: new Notification(),
+      destinations: []
     }
   },
   methods: {
@@ -226,12 +230,38 @@ export default defineComponent({
       this.notification.properties.attractionId = this.notification.attraction.attractionId;
       this.notification.properties.parkId = this.notification.park.parkId;
       this.notification.properties.typeId = this.notificationHoldingArea.type;
-    }
+    },
+
+    getDestinations() {
+      this.$store.dispatch('setServerError', false);
+
+      // Get all the destinations first and mark them as hidden.
+      themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
+        response.data.forEach(destination => {
+          let transformedDestination = new Destination(destination);
+          this.destinations.push(transformedDestination);
+        });
+
+      }).catch(() => {
+        this.$store.dispatch('setServerError', true);
+      })
+    },
+
+    getDestinationName(parkId: string) {
+      let destination = this.destinations.find(a => a.parks.find(a => a.parkId == parkId));
+
+      if(destination) {
+        return destination.name;
+      }
+
+      return '';
+    },
   },
   unmounted() {
     this.$store.commit('clearNotificationHoldingArea');
   },
   beforeMount() {
+    this.getDestinations();
     this.setupNotification();
   }
 

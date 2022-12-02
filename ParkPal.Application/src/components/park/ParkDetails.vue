@@ -1,6 +1,6 @@
 <template>
   <div class="park-details">
-    <h1>{{ activeDestination.name }}</h1>
+    <h1>{{ destinationName }}</h1>
     <h2>{{ park.name }}</h2>
   </div>
 </template>
@@ -17,6 +17,11 @@ export default defineComponent({
       type: Park,
       required: true,
       default: new Park()
+    },
+    destinationName: {
+      type: String,
+      required: true,
+      default: ''
     }
   },
   computed: {
