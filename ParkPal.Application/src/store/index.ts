@@ -291,7 +291,7 @@ const store: StoreOptions<RootState> = {
         })).then(() => {
           dispatch('getAllNotifications', {
             filters: state.filters.notificationsFilter,
-            favouriteAttractionIds: state.settings.favourites
+            favouriteIds: state.settings.favourites
           });
           resolve(true);
         });
@@ -304,7 +304,7 @@ const store: StoreOptions<RootState> = {
         })).then(() => {
           dispatch('getAllNotifications', {
             filters: state.filters.notificationsFilter,
-            favouriteAttractionIds: state.settings.favourites
+            favouriteIds: state.settings.favourites
           })
           resolve(true);
         });
