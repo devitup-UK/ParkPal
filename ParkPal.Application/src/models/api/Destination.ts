@@ -2,8 +2,8 @@ import Park from "@/models/api/Park";
 import axios from "axios";
 
 export default class Destination {
-    destinationId?: string;
-    name?: string;
+    destinationId = '';
+    name = '';
     image?: string;
     location?: string;
     parks: Array<Park> = new Array<Park>();

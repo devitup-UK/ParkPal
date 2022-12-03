@@ -1,6 +1,12 @@
 <template>
   <div class="attraction-details" :class="this.class">
-    <h1>{{ attraction.name }}</h1>
+    <template v-if="destinationName.length">
+      <h1 v-if="destinationName.length" style="margin-right: 90px; white-space: break-spaces;">{{ destinationName }}</h1>
+      <h2>{{ attraction.name }}</h2>
+    </template>
+    <template v-else>
+      <h1>{{ attraction.name }}</h1>
+    </template>
     <div class="attraction-details__information">
       <p>{{ attraction.waitTime != null && attraction.waitTime >= 0 ? 'Operating' : attractionStatus[attraction.status] }}</p>
       <p v-if="attraction.waitTime != null">{{ getWaitTime(attraction.waitTime) }}</p>
@@ -21,6 +27,10 @@ export default defineComponent({
       required: true
     },
     class: {
+      type: String,
+      default: ''
+    },
+    destinationName: {
       type: String,
       default: ''
     }

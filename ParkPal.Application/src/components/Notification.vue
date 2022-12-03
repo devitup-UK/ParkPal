@@ -5,7 +5,7 @@
       <IonLabel>
         <!-- If this is an attraction notification, then we can show all of the attraction details and options. -->
         <template v-if="isAttractionNotification">
-          <AttractionDetails :attraction="this.attraction"></AttractionDetails>
+          <AttractionDetails :attraction="this.attraction" :destinationName="destinationName"></AttractionDetails>
           <div class="notification__details" v-if="this.notification" :style="`background: ${this.settings.theme.waitTimes.text} !important;`">
             <p v-html="getNotificationMessage(notification)" :style="`color: ${settings.theme.waitTimes.background} !important;`"></p>
           </div>
@@ -331,6 +331,7 @@ export default defineComponent({
       height: 100%;
       background: transparent;
       overflow: hidden;
+      padding-top: 10px;
     }
   }
 
