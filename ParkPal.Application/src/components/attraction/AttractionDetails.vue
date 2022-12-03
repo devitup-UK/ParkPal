@@ -1,7 +1,7 @@
 <template>
   <div class="attraction-details" :class="this.class">
     <template v-if="destinationName.length">
-      <h1 v-if="destinationName.length" style="margin-right: 90px; white-space: break-spaces;">{{ destinationName }}</h1>
+      <h1 v-if="destinationName.length" style="margin-right: 90px; margin-top: 0; white-space: break-spaces;">{{ destinationName }}</h1>
       <h2>{{ attraction.name }}</h2>
     </template>
     <template v-else>
