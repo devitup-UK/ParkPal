@@ -331,7 +331,6 @@ export default defineComponent({
       height: 100%;
       background: transparent;
       overflow: hidden;
-      padding-top: 10px;
     }
   }
 
