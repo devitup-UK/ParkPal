@@ -52,6 +52,7 @@ export default defineComponent({
   },
   methods: {
     async openPicker() {
+      this.$store.dispatch('setModalOpen', true)
       hideBannerAdvertisement();
 
       let internalButtons: PickerButton[] = [
@@ -60,12 +61,13 @@ export default defineComponent({
           handler: (value) => {
             this.internalValue = value.waitTime.value;
             this.$emit('update:modelValue', value.waitTime.value);
+            this.$store.dispatch('setModalOpen', false)
             resumeBannerAdvertisement(this.settings.parkPalPlus);
           },
-        }
+        },
       ];
 
-      internalButtons.concat(this.buttons as PickerButton[]);
+      internalButtons = internalButtons.concat(this.buttons as PickerButton[]);
 
       const picker = await pickerController.create({
         columns: this.columns as PickerColumn[],

@@ -41,6 +41,7 @@
             text: 'Cancel',
             role: 'cancel',
             handler: () => {
+              this.$store.dispatch('setModalOpen', false)
               resumeBannerAdvertisement(this.settings.parkPalPlus);
             }
           },
