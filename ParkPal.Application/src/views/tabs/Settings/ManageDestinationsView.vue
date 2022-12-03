@@ -58,6 +58,7 @@ import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import Destination from "@/models/api/Destination";
 import Loader from "@/components/Loader.vue";
+import {App} from "@capacitor/app";
 
 export default defineComponent({
   name: "SettingsManageDestinationsView",
@@ -85,18 +86,15 @@ export default defineComponent({
     }
   },
   beforeMount() {
-    // Get all the destinations first and mark them as hidden.
-    themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
-      response.data.forEach(destination => {
-        let transformedDestination = new Destination(destination);
+    this.getDestinations();
 
-        if(this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
-          transformedDestination.hidden = true;
-        }
-
-        this.destinations.push(transformedDestination);
-      })
+    App.addListener('resume',() => {
+      if(this.$route.name == 'settingsManageDestinations') {
+        this.getDestinations();
+      }
     })
+
+
   },
   methods: {
     // Methods to go here.
@@ -111,6 +109,21 @@ export default defineComponent({
 
     toggleDestination(destinationId: string) {
       this.$store.dispatch('toggleDestination', destinationId);
+    },
+
+    getDestinations() {
+      // Get all the destinations first and mark them as hidden.
+      themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
+        response.data.forEach(destination => {
+          let transformedDestination = new Destination(destination);
+
+          if(this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
+            transformedDestination.hidden = true;
+          }
+
+          this.destinations.push(transformedDestination);
+        })
+      })
     }
   }
 })

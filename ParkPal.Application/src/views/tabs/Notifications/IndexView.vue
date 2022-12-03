@@ -113,6 +113,7 @@ import NotificationComponent from "@/components/Notification.vue";
 import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import Destination from "@/models/api/Destination";
+import {App} from "@capacitor/app";
 
 export default defineComponent({
   name: "NotificationsView",
@@ -154,6 +155,15 @@ export default defineComponent({
     this.getDestinations();
     // We need to pull in all the clients notifications, if they have any.
     this.getAllNotifications(null);
+
+    App.addListener('resume',() => {
+      if(this.$route.name == 'notifications') {
+        this.loading = true;
+        this.getDestinations();
+        // We need to pull in all the clients notifications, if they have any.
+        this.getAllNotifications(null);
+      }
+    })
   },
   methods: {
     getDestinations() {

@@ -144,6 +144,11 @@ import store from "@/store";
 import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
 import {NotificationType} from "@/models/enums/NotificationType";
 import router from "@/router";
+import {App} from "@capacitor/app";
+import {PushNotifications} from "@capacitor/push-notifications";
+import {saveSubscriptionToDatabase, setupOneSignal} from "@/handlers/notifications.handler";
+import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
+import {hideBannerAdvertisement, showBannerAdvertisement} from "@/handlers/advertisements.handler";
 
 export default defineComponent({
   name: "WaitTimesView",
@@ -184,6 +189,13 @@ export default defineComponent({
     });
 
     this.getAttractions(null);
+
+    App.addListener('resume',() => {
+      if(this.$route.name == 'waitTimes') {
+        this.loading = true;
+        this.getAttractions(null);
+      }
+    })
   },
   methods: {
     createParkNotification() {
