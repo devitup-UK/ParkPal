@@ -89,30 +89,54 @@ public class TimerService : IHostedService, IDisposable
                             case (int)CriteriaType.EqualTo:
                                 if (attractionWaitTime == notification.WaitTime)
                                 {
-                                    // Send a notification that signifies the attraction's wait time is equal to.
-                                    _oneSignalService.SendPushNotificationToPlayer("ParkPal",
-                                        $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
-                                        notification.Subscription.PlayerId);
+                                    if (attractionWaitTime == 0 || attractionWaitTime == 1)
+                                    {
+                                        _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                            $"There is currently no wait time for {attractionData.Name}.",
+                                            notification.Subscription.PlayerId);
+                                    }
+                                    else
+                                    {
+                                        _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                            $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
+                                            notification.Subscription.PlayerId);
+                                    }
                                 }
 
                                 break;
                             case (int)CriteriaType.LessThan:
                                 if (attractionWaitTime <= notification.WaitTime)
                                 {
-                                    // Send a notification about wait time being less.
-                                    _oneSignalService.SendPushNotificationToPlayer("ParkPal",
-                                        $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
-                                        notification.Subscription.PlayerId);
+                                    if (attractionWaitTime == 0 || attractionWaitTime == 1)
+                                    {
+                                        _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                            $"There is currently no wait time for {attractionData.Name}.",
+                                            notification.Subscription.PlayerId);
+                                    }
+                                    else
+                                    {
+                                        _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                            $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
+                                            notification.Subscription.PlayerId);
+                                    }
                                 }
 
                                 break;
                             case (int)CriteriaType.MoreThan:
                                 if (attractionWaitTime >= notification.WaitTime)
                                 {
-                                    // Send a notification about wait time being more.
-                                    _oneSignalService.SendPushNotificationToPlayer("ParkPal",
-                                        $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
-                                        notification.Subscription.PlayerId);
+                                    if (attractionWaitTime == 0 || attractionWaitTime == 1)
+                                    {
+                                        _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                            $"There is currently no wait time for {attractionData.Name}.",
+                                            notification.Subscription.PlayerId);
+                                    }
+                                    else
+                                    {
+                                        _oneSignalService.SendPushNotificationToPlayer("ParkPal",
+                                            $"The wait time for {attractionData.Name} is at {attractionWaitTime} minutes right now.",
+                                            notification.Subscription.PlayerId);
+                                    }
                                 }
 
                                 break;
