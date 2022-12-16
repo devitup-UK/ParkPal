@@ -30,32 +30,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import {mapGetters, mapState} from "vuex";
-import {
-  ActionSheetButton,
-  actionSheetController,
-  IonItem,
-  IonItemOption, IonItemOptions,
-  IonItemSliding,
-  IonLabel
-} from "@ionic/vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
+import {IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel} from "@ionic/vue";
 import Attraction from "@/models/api/Attraction";
 import Park from "@/models/api/Park";
-import {AttractionStatus} from "@/models/enums/AttractionStatus";
 import Notification from "@/models/api/Notification";
 import {NotificationCriteria} from "@/models/enums/NotificationCriteria";
-import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
 import AttractionDetails from "@/components/attraction/AttractionDetails.vue";
 import AttractionFooter from "@/components/attraction/AttractionFooter.vue";
 import NotificationProperties from "@/models/api/NotificationProperties";
-import AttractionFeature from "@/components/FeatureComponent.vue";
 import {NotificationType} from "@/models/enums/NotificationType";
 import ParkDetails from "@/components/park/ParkDetails.vue";
 import ParkBackground from "@/components/park/ParkBackground.vue";
 import ParkFooter from "@/components/park/ParkFooter.vue";
+import {configureNotification} from "@/handlers/modals.handler";
 
 export default defineComponent({
   name: "NotificationComponent",
@@ -73,7 +62,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(['notifications', 'isApp', 'settings']),
-    ...mapGetters(['favourites', 'notificationAttractionIds', 'notificationParkIds']),
+    ...mapGetters(['favourites', 'notificationAttractionIds', 'notificationParkIds', 'notificationIds']),
     type() {
       if(this.isAttractionNotification) {
         return 'Attraction';
@@ -84,6 +73,13 @@ export default defineComponent({
       }
 
       return 'Attraction';
+    },
+    notificationType(): NotificationType {
+      if(this.isAttractionNotification) {
+        return NotificationType.Attraction;
+      }else{
+        return NotificationType.Park;
+      }
     },
     isAttractionNotification() {
       return this.notification.properties?.typeId === 1;
@@ -134,89 +130,10 @@ export default defineComponent({
 
     showNotificationOptions(attraction: Attraction, park: Park) {
       // if(this.notificationAttractionIds.includes(attraction.attractionId)) {
-        this.configureNotification(attraction, park);
+        configureNotification(attraction, park, this.notificationIds, this.notifications, this.notificationType);
       // }
     },
 
-    configureNotification(attraction: Attraction, park: Park) {
-      let buttons: Array<ActionSheetButton> = [];
-
-
-      // if(!this.notificationAttractionIds.includes(attraction.attractionId)) {
-      //   buttons.push({
-      //     text: 'Create Wait Time Notification',
-      //     data: {
-      //       action: 'share',
-      //     },
-      //     handler: () => {
-      //       this.$store.commit('setNotificationHoldingArea', new NotificationHoldingArea({ attraction, park, type: this.notification.properties.typeId }));
-      //
-      //       this.$router.push({
-      //         name: 'notificationsCreate',
-      //         params: {
-      //           transition: 'slide-right'
-      //         }
-      //       })
-      //
-      //       resumeBannerAdvertisement(this.settings.parkPalPlus);
-      //     }
-      //   })
-      // }else{
-        let header = attraction.name;
-
-        if(this.notification.properties.typeId == NotificationType.Park) {
-          header = park.name;
-        }
-
-        buttons.push({
-          text: 'Edit Wait Time Notification',
-          data: {
-            action: 'share',
-          },
-          handler: () => {
-            this.$store.commit('setNotificationHoldingArea', new NotificationHoldingArea({ attraction, park, type: this.notification.properties.typeId }));
-
-            this.$router.push({
-              name: 'notificationsEdit',
-              params: {
-                notificationId: this.notifications.find((a: Notification) => a.properties?.attractionId == attraction.attractionId).properties.itemId,
-                transition: 'slide-right'
-              }
-            })
-
-            this.$store.dispatch('setModalOpen', false);
-            resumeBannerAdvertisement(this.settings.parkPalPlus);
-          }
-        })
-      // }
-
-      buttons.push({
-        text: 'Cancel',
-        role: 'cancel',
-        data: {
-          action: 'cancel',
-        },
-        handler: () => {
-          this.$store.dispatch('setModalOpen', false);
-          resumeBannerAdvertisement(this.settings.parkPalPlus);
-        }
-      });
-
-      const presentActionSheet = async () => {
-        const actionSheet = await actionSheetController.create({
-          header,
-          buttons: buttons
-        });
-
-        this.$store.dispatch('setModalOpen', true);
-        hideBannerAdvertisement();
-
-        await actionSheet.present();
-
-      }
-
-      presentActionSheet();
-    },
     // Format our notification message.
     getNotificationMessage(notification: Notification) {
       if(notification.properties?.waitTime) {

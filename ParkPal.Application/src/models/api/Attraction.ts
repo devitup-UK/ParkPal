@@ -2,8 +2,8 @@ import {AttractionStatus} from "@/models/enums/AttractionStatus";
 import axios from "axios";
 
 export default class Attraction {
-    attractionId?: string;
-    name?: string;
+    attractionId = '';
+    name = '';
     image?: string;
     status?: AttractionStatus;
     thrill?: boolean;

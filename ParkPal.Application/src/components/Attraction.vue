@@ -1,30 +1,25 @@
 <template>
-  <li class="attraction" :class="{ 'attraction--favourite': isFavourite, 'attraction--notification': this.notificationProperties, 'attraction--options': this.options }" @click="showNotificationOptions(attraction, park)" :style="`background: ${settings.theme.waitTimes.background} !important; color: ${settings.theme.waitTimes.text} !important;`">
+  <li class="attraction" :class="{ 'attraction--favourite': isFavourite, 'attraction--notification': this.notificationProperties, 'attraction--options': this.options }" @click="configureNotification(attraction, park)" :style="`background: ${settings.theme.waitTimes.background} !important; color: ${settings.theme.waitTimes.text} !important;`">
     <AttractionDetails class="attraction-details--wait-time" :attraction="attraction"></AttractionDetails>
     <AttractionFooter :attraction="this.attraction" :notificationProperties="this.notificationProperties" :isFavourite="isFavourite">
-      <AttractionFeature icon="clock" :class="`feature--notification ${notificationAttractionIds.includes(attraction.attractionId) ? 'feature--has-notification': ''}`" @click.stop="configureNotification(attraction, park)" v-if="(settings.parkPalPlus || (!settings.parkPalPlus && notifications.length < 3)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && !this.$route.fullPath.includes('notifications')"></AttractionFeature>
+      <AttractionFeature icon="clock" :class="`feature--notification ${this.notificationAttractionIds.includes(attraction.attractionId) ? 'feature--has-notification': ''}`" @click.stop="configureNotification(attraction, park)" v-if="(settings.parkPalPlus || (!settings.parkPalPlus && notifications.length < 3)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && !this.$route.fullPath.includes('notifications')"></AttractionFeature>
     </AttractionFooter>
-
   </li>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import {mapGetters, mapState} from "vuex";
-import {ActionSheetButton, actionSheetController} from "@ionic/vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
 import Attraction from "@/models/api/Attraction";
 import Park from "@/models/api/Park";
 import {AttractionStatus} from "@/models/enums/AttractionStatus";
 import Notification from "@/models/api/Notification";
 import {NotificationCriteria} from "@/models/enums/NotificationCriteria";
-import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
 import AttractionDetails from "@/components/attraction/AttractionDetails.vue";
 import AttractionFooter from "@/components/attraction/AttractionFooter.vue";
-import NotificationProperties from "@/models/api/NotificationProperties";
 import AttractionFeature from "@/components/FeatureComponent.vue";
 import {configureNotification} from "@/handlers/modals.handler";
+import {NotificationType} from "@/models/enums/NotificationType";
 
 export default defineComponent({
   name: "AttractionComponent",
@@ -71,10 +66,6 @@ export default defineComponent({
     }
   },
   methods: {
-    deleteNotification(attraction: Attraction) {
-      this.$store.dispatch('deleteNotification', this.notifications.filter((a: Notification) => a.properties?.attractionId == attraction.attractionId)[0].timer.attractionTimerId);
-      resumeBannerAdvertisement(this.settings.parkPalPlus);
-    },
     toggleOptions(direction: string) {
       if(this.notificationProperties) {
 
@@ -90,15 +81,10 @@ export default defineComponent({
       }
     },
 
-    showNotificationOptions(attraction: Attraction, park: Park) {
-      if(this.notificationAttractionIds.includes(attraction.attractionId)) {
-        this.configureNotification(attraction, park);
-      }
+    configureNotification(attraction: Attraction, park: Park) {
+      configureNotification(attraction, park, this.notificationAttractionIds, this.notifications, NotificationType.Attraction);
     },
 
-    configureNotification(attraction: Attraction, park: Park) {
-      configureNotification(attraction, park, this.notificationAttractionIds, this.destinationId, this.notifications);
-    },
     getWaitTime(waitTime: number) {
       if(waitTime) {
         let returnMessage = waitTime + ' minute';

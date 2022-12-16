@@ -33,7 +33,7 @@
           {
             name: 'waitTime',
             options: this.waitTimeOptions,
-            selectedIndex: this.waitTimeOptions.findIndex(a => a.value == this.notification.properties?.waitTime)
+            selectedIndex: this.waitTimeOptions.findIndex(a => a.value === this.notification.properties?.waitTime)
 
           },
         ]" :buttons="[

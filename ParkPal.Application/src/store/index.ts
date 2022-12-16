@@ -50,6 +50,21 @@ const store: StoreOptions<RootState> = {
     notifications(state) {
       return state.notifications;
     },
+    notificationIds(state) {
+      const ids: Array<string> = [];
+
+      state.notifications.forEach(notification => {
+        if(notification.properties?.attractionId) {
+          ids.push(notification.properties.attractionId);
+        }
+
+        if(notification.properties?.parkId && notification.properties.attractionId == '') {
+          ids.push(notification.properties.parkId);
+        }
+      })
+
+      return ids;
+    },
     notificationAttractionIds(state) {
       const ids: Array<string> = [];
 
@@ -65,7 +80,7 @@ const store: StoreOptions<RootState> = {
       const ids: Array<string> = [];
 
       state.notifications.forEach(notification => {
-        if(notification.properties?.parkId) {
+        if(notification.properties?.parkId && notification.properties.attractionId == null) {
           ids.push(notification.properties.parkId);
         }
       })
@@ -163,6 +178,10 @@ const store: StoreOptions<RootState> = {
     },
     setModalOpen(state, modalOpen: boolean) {
       state.modalOpen = modalOpen;
+    },
+    setNotificationsRequested(state, value: boolean) {
+      state.settings.requestedNotifications = value;
+      storageService.storeSettingsInLocalStorage(state.settings);
     }
   },
   actions: {
@@ -322,6 +341,9 @@ const store: StoreOptions<RootState> = {
     },
     setModalOpen({commit}, modalOpen: boolean) {
       commit('setModalOpen', modalOpen);
+    },
+    setNotificationsRequested({commit}, value: boolean) {
+      commit('setNotificationsRequested', value);
     }
   },
 }

@@ -8,24 +8,45 @@ import store from "@/store";
 import router from "@/router";
 import {NotificationType} from "@/models/enums/NotificationType";
 
-export async function configureNotification(attraction: Attraction, park: Park, notificationAttractionIds: Array<string>, destinationId: string, notifications: Array<Notification>) {
+export async function configureNotification(attraction: Attraction, park: Park, notificationIds: Array<string>, notifications: Array<Notification>, type: NotificationType) {
     const buttons: Array<ActionSheetButton> = [];
+    let notificationId = 0;
+    let notificationEntityId = '';
+    let header = '';
 
-    if(attraction.attractionId) {
 
-        if (!notificationAttractionIds.includes(attraction.attractionId)) {
+    if(type == NotificationType.Attraction) {
+        notificationEntityId = attraction.attractionId;
+        header = attraction.name;
+
+        const attractionNotification = notifications.find((a: Notification) => a.properties?.attractionId == attraction.attractionId);
+        if(attractionNotification) {
+            notificationId = attractionNotification.properties.itemId;
+        }
+    }else{
+        notificationEntityId = park.parkId;
+        header = park.name;
+
+        const parkNotification = notifications.find((a: Notification) => !a.attraction.attractionId.length && a.properties?.parkId == park.parkId);
+        if(parkNotification) {
+            notificationId = parkNotification.properties.itemId;
+        }
+    }
+
+    console.log(notificationIds);
+
+        if (!notificationIds.includes(notificationEntityId)) {
             buttons.push({
                 text: 'Create Wait Time Notification',
                 data: {
                     action: 'share',
                 },
                 handler: () => {
-                    store.commit('setNotificationHoldingArea', new NotificationHoldingArea({attraction, park, type: NotificationType.Attraction}));
+                    store.commit('setNotificationHoldingArea', new NotificationHoldingArea({attraction, park, type}));
 
                     router.push({
                         name: 'notificationsCreate',
                         params: {
-                            destinationId,
                             transition: 'slide-right'
                         }
                     })
@@ -40,17 +61,25 @@ export async function configureNotification(attraction: Attraction, park: Park, 
                     action: 'share',
                 },
                 handler: async () => {
-                    store.commit('setNotificationHoldingArea', new NotificationHoldingArea({attraction, park, type: NotificationType.Attraction}));
+                    store.commit('setNotificationHoldingArea', new NotificationHoldingArea({attraction, park, type}));
 
                     await router.push({
                         name: 'notificationsEdit',
                         params: {
-                            notificationId: notifications.filter((a: Notification) => a.properties?.attractionId == attraction.attractionId)[0].properties?.itemId,
+                            notificationId,
                             transition: 'slide-right'
                         }
                     })
                     await store.dispatch('setModalOpen', false);
                     resumeBannerAdvertisement(store.state.settings.parkPalPlus);
+                }
+            })
+
+            buttons.push({
+                text: 'Delete Wait Time Notification',
+                role: 'destructive',
+                handler: async () => {
+                    await deleteNotification(notificationId);
                 }
             })
         }
@@ -69,7 +98,7 @@ export async function configureNotification(attraction: Attraction, park: Park, 
 
         const presentActionSheet = async () => {
             const actionSheet = await actionSheetController.create({
-                header: attraction.name,
+                header,
                 buttons: buttons
             });
 
@@ -81,5 +110,9 @@ export async function configureNotification(attraction: Attraction, park: Park, 
         }
 
         await presentActionSheet();
-    }
+    // }
+}
+
+export async function deleteNotification(notificationId: number) {
+    await store.dispatch('deleteNotification', notificationId);
 }

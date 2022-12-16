@@ -1,6 +1,31 @@
 <template>
 <!--  <nav>-->
   <IonApp>
+    <div class="notification-permissions-request" v-if="!settings.requestedNotifications">
+      <div class="notification-permissions-request__close" @click="denyPermissions">
+        <FontAwesomeIcon icon="times-circle" color="#000" size="2x"></FontAwesomeIcon>
+      </div>
+      <div class="notification-permissions-request__content">
+        <img src="@/assets/request-notification-permissions.svg">
+        <p :style="'color: ' + settings.theme.text + ' !important;'">Before using ParkPal, you must enable Push Notifications to receive wait time notifications, click the button below to accept Push Notifications. You can disable these later if you wish.</p>
+        <div class="filter-button">
+          <IonRow class="filter-button">
+            <IonCol>
+              <IonButton expand="full" @click="requestPermissions" color="transparent" :style="`color: ${settings.theme.actionButtonText} !important; background: ${settings.theme.actionButtonBackground} !important;`">
+                ENABLE PUSH NOTIFICATIONS
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow class="filter-button">
+            <IonCol>
+              <IonButton expand="full" @click="denyPermissions" color="transparent" :style="`color: ${settings.theme.resetButtonText} !important; background: ${settings.theme.resetButtonBackground} !important;`">
+                NO THANKS, MAYBE LATER
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </div>
+      </div>
+    </div>
     <div class="content" :class="{ 'content--ads': !this.settings.parkPalPlus && this.isApp }">
       <RouterView v-slot="{ Component, route }">
         <transition :name="route.params.transition">
@@ -169,10 +194,48 @@ ion-content {
     }
   }
 }
+
+.filter-button {
+
+  ion-col {
+    padding: 0;
+
+    ion-button {
+      margin: 0;
+      font-weight: 300;
+      font-size: 14px;
+    }
+  }
+}
+
+.notification-permissions-request {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  background: #FCFCFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  .notification-permissions-request__close {
+    position: absolute;
+    top: calc(var(--ion-safe-area-top, 0) + 10px);
+    right: 10px;
+  }
+
+  p {
+    margin: 10px 20px 20px;
+    font-size: 14px;
+  }
+}
 </style>
 
 <script lang="ts">
-import {IonApp, IonLabel, IonTabBar, IonTabButton} from '@ionic/vue';
+import {IonApp, IonButton, IonLabel, IonTabBar, IonTabButton, IonRow, IonCol} from '@ionic/vue';
 import {PushNotifications} from '@capacitor/push-notifications';
 import {ScreenOrientation} from "@awesome-cordova-plugins/screen-orientation";
 import {defineComponent} from 'vue';
@@ -204,6 +267,9 @@ export default defineComponent({
     IonTabButton,
     IonLabel,
     FontAwesomeIcon,
+    IonButton,
+    IonRow,
+    IonCol,
     RouterView
   },
   computed: {
@@ -231,6 +297,28 @@ export default defineComponent({
           active: false
         }
       }
+    },
+
+    requestPermissions() {
+      // Setup OneSignal with all of our details, this could be a first ever launch of our app or a user opening the app after closing it.
+      setupOneSignal().then(() => {
+        // OneSignal setup complete and verified.
+        requestNotificationPermissions().then(() => {
+          // We have received word that they have accepted permissions, we will now save the OneSignal subscription to the database.
+          saveSubscriptionToDatabase().then(() => {
+            this.$store.dispatch('setNotificationsEnabled', true);
+            this.$store.dispatch('setNotificationsRequested', true);
+          }).catch(() => {
+            this.$store.dispatch('setNotificationsEnabled', false);
+          });
+        }).catch(() => {
+          this.$store.dispatch('setNotificationsEnabled', false);
+        })
+      });
+    },
+
+    denyPermissions() {
+      this.$store.dispatch('setNotificationsRequested', true);
     }
   },
 
@@ -250,21 +338,6 @@ export default defineComponent({
       ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
       parkpalplusHandler.setDebugLogLevel();
       parkpalplusHandler.initialisePurchases();
-
-      // Setup OneSignal with all of our details, this could be a first ever launch of our app or a user opening the app after closing it.
-      setupOneSignal().then(() => {
-        // OneSignal setup complete and verified.
-        requestNotificationPermissions().then(() => {
-          // We have received word that they have accepted permissions, we will now save the OneSignal subscription to the database.
-          saveSubscriptionToDatabase().then(() => {
-            this.$store.dispatch('setNotificationsEnabled', true);
-          }).catch(() => {
-            this.$store.dispatch('setNotificationsEnabled', false);
-          });
-        }).catch(() => {
-          this.$store.dispatch('setNotificationsEnabled', false);
-        })
-      });
 
 
       // If the app has been resumed and PushNotifications are no longer granted, we can set the notifications flag to false.

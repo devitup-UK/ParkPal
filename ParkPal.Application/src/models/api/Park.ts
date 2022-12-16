@@ -2,8 +2,8 @@ import Attraction from "@/models/api/Attraction";
 import axios from "axios";
 
 export default class Park {
-    parkId?: string;
-    name?: string;
+    parkId = '';
+    name = '';
     image?: string;
     attractions: Array<Attraction> = new Array<Attraction>();
     hidden?: boolean;
