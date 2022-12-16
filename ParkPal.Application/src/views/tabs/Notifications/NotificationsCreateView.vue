@@ -88,7 +88,11 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {mapState} from "vuex";
 import CreateNotificationRequest from "@/models/api/requests/notification/CreateNotificationRequest";
 import {hideBannerAdvertisement, resumeBannerAdvertisement, showRewardAdvertisement} from "@/handlers/advertisements.handler";
-import {openAppNotificationSettings} from "@/handlers/notifications.handler";
+import {
+  openAppNotificationSettings,
+  requestNotificationPermissions, saveSubscriptionToDatabase,
+  setupOneSignal
+} from "@/handlers/notifications.handler";
 import NotificationComponent from "@/components/Notification.vue";
 import SelectBox from "@/components/custom-inputs/SelectBox.vue";
 import Notification from "@/models/api/Notification";
@@ -96,6 +100,7 @@ import PickerComponent from "@/components/custom-inputs/Picker.vue";
 import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import Destination from "@/models/api/Destination";
+import {PushNotifications} from "@capacitor/push-notifications";
 
 export default defineComponent({
   name: "NotificationsCreateView",
@@ -178,7 +183,21 @@ export default defineComponent({
     },
 
     requestNotificationPermissions() {
-      openAppNotificationSettings();
+      // requestPermissions() {
+      PushNotifications.requestPermissions().then((permissions) => {
+        if(permissions.receive == 'granted') {
+          setupOneSignal().then(() => {
+            saveSubscriptionToDatabase().then(() => {
+              this.$store.dispatch('setNotificationsEnabled', true);
+            }).catch(() => {
+              this.$store.dispatch('setNotificationsEnabled', false);
+            });
+          });
+        }else{
+          openAppNotificationSettings()
+        }
+      })
+      // },
     },
 
     navigateToSubscriptions() {
