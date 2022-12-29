@@ -25,5 +25,12 @@ steps:
 
 - task: Npm@1
   inputs:
-    customCommand: 'install and build'
+    command: 'install'
     workingDir: 'ParkPal.Website'
+  displayName:  'Install Project'
+
+- task: Npm@1
+  inputs:
+    customCommand: 'build'
+    workingDir: 'ParkPal.Website'
+  displayName: 'Build Project'
