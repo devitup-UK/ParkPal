@@ -1,0 +1,464 @@
+@import "_dependencies";
+@import "_variables";
+
+.content {
+  padding: 0;
+  overflow: hidden;
+
+  &.content--footer {
+    color: $color-white;
+    background: $color-verydarkgrey;
+  }
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: $color-grey;
+  padding: 0;
+  z-index: 100;
+
+  .navbar-toggler {
+    border: 0;
+
+    .navbar-toggler-icon {
+      color: $color-white;
+    }
+  }
+
+  .navbar-brand {
+    margin-left: 10px;
+  }
+
+  .navbar-nav {
+    margin-right: 10px;
+
+    .nav-item {
+
+      .nav-link {
+        padding: 10px;
+        color: $color-white;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        &.active {
+          background: $color-darkgrey;
+        }
+
+        .svg-inline--fa {
+          font-size: 32px;
+        }
+
+        span {
+          margin-left: 10px;
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+  }
+}
+
+.destinations {
+  @extend .mt-2;
+  @extend .mt-lg-0;
+  @extend .pt-0;
+  @extend .pt-lg-5;
+
+  .destinations__description {
+    @extend .p-4;
+    background: $color-lightgrey;
+
+    h1 {
+      font-size: 48px;
+    }
+
+    h2 {
+      font-size: 28px;
+    }
+
+    p {
+      @extend .mx-3;
+      @extend .mx-lg-0;
+      @extend .mb-0;
+      @extend .mb-lg-5;
+      font-size: 20px;
+    }
+
+    .btn {
+      @extend .py-3;
+      @extend .px-4;
+      @extend .mx-auto;
+      @extend .mx-lg-0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: $color-verydarkgrey;
+
+      .svg-inline--fa {
+        font-size: 32px;
+        margin-right: 5px;
+      }
+
+      span {
+        font-size: 24px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.theme-parks {
+  background: $color-verydarkgrey;
+  color: $color-white;
+  @extend .py-5;
+
+  h1 {
+    margin-bottom: 0;
+  }
+
+  .theme-parks__featured {
+    @extend .mx-auto;
+    @extend .mt-4;
+    @extend .mt-lg-5;
+    width: 50%;
+    display: flex;
+    @extend .d-flex;
+    align-items: center;
+    justify-content: space-around;
+
+    img {
+      @extend .mt-5;
+      @extend .mt-lg-0;
+    }
+  }
+
+  .theme-parks__more {
+    @extend .mt-5;
+    font-size: 18px;
+  }
+}
+
+.features {
+  justify-content: center;
+
+  .feature {
+    margin: 20px;
+    background: $color-lightgrey;
+    height: 350px;
+    width: 350px;
+    color: $color-white;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    svg {
+      display: block;
+      font-size: 112px;
+    }
+
+    img {
+      height: 112px;
+    }
+
+    span {
+      display: block;
+      font-size: 28px;
+      margin-top: 20px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  }
+}
+
+.screenshots-slider {
+  @extend .mt-4;
+
+  padding-left: 50px;
+  padding-right: 50px;
+
+  .swiper-button-prev, .swiper-button-next {
+    color: black;
+  }
+
+  .screenshots-slider__screenshot {
+
+    img {
+      width: 100%;
+    }
+
+    p {
+      @extend .mt-2;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+}
+
+.theming {
+
+  .theming__dark-mode, .theming__light-mode {
+    @extend .py-5;
+
+    h1 {
+      @extend .mb-4;
+    }
+  }
+
+  .theming__dark-mode {
+    background: $color-verydarkgrey;
+    color: $color-white;
+  }
+}
+
+.parkpal-input {
+  background: $input-grey;
+  border-radius: 0;
+  border-width: 0;
+  padding: 12px 18px 10px;
+
+  .parkpal-input__select {
+    background: transparent;
+    border: 0;
+  }
+
+  &:focus, &:active {
+    outline-color: transparent;
+    outline-width: 0;
+    outline-style: none;
+    border-color: transparent;
+    box-shadow: unset;
+    background: $input-grey;
+  }
+}
+
+.parkpal-button {
+  border-radius: 0;
+  border: 0;
+  padding: 12px 18px 10px;
+
+  &.parkpal-button--primary {
+    background: $input-darkgrey;
+  }
+
+  &.parkpal-button--secondary {
+    background: $input-grey;
+    color: $input-text;
+  }
+}
+
+.loader {
+  margin: 20px auto 0;
+  width: 5em;
+  height: 2.5em;
+  position: relative;
+  overflow: hidden;
+}
+
+.loader__message {
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.loader__rail,
+.loader__loop {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.loader__rail {
+  width: inherit;
+  height: 0.2em;
+  background-color: hsl(0, 7%, 19%);
+}
+
+.loader__loop {
+  box-sizing: border-box;
+  width: 50%;
+  height: inherit;
+  border: 0.2em solid hsl(0, 7%, 19%);
+  border-radius: 50%;
+  left: 25%;
+}
+
+.loader span {
+  position: absolute;
+  width: 5%;
+  height: 10%;
+  background-color: #948c8c;
+  border-radius: 50%;
+  bottom: 0.2em;
+  left: -5%;
+  animation: 2s linear infinite;
+  transform-origin: 50% -0.85em;
+  animation-name: run, rotating;
+}
+
+.loader span:nth-child(2) {animation-delay: 0.075s;}
+.loader span:nth-child(3) {animation-delay: 0.15s;}
+
+@keyframes run {
+  0% {left: -5%;}
+  10%, 60% {left: calc((100% - 5%) / 2);}
+  70%, 100% {left: 100%;}
+}
+
+@keyframes rotating {
+  0%, 10% {transform: rotate(0deg);}
+  60%, 100% {transform: rotate(-1turn);}
+}
+
+.footer {
+  @extend .my-5;
+}
+
+.footer-navigation, .footer-socials {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  @extend .mt-3;
+
+}
+
+.footer-navigation {
+  @extend .d-flex;
+  @extend .align-items-center;
+  @extend .flex-column;
+  @extend .flex-lg-row;
+  @extend .justify-content-center;
+  @extend .justify-content-lg-between;
+}
+
+.footer-socials {
+  @extend .d-flex;
+  @extend .align-items-center;
+  @extend .justify-content-center;
+
+  .footer-socials__link {
+    @extend .mx-2;
+    font-size: 32px;
+
+    a {
+      &:active, &:visited, &:hover, &:link {
+        color: inherit;
+      }
+    }
+  }
+}
+
+.copyright {
+  @extend .my-3;
+  @extend .d-flex;
+  @extend .align-items-center;
+  @extend .flex-column;
+  @extend .flex-lg-row;
+  @extend .justify-content-center;
+  @extend .justify-content-lg-between;
+  @extend .px-5;
+
+  .copyright__notice {
+    @extend .mb-3;
+    @extend .mb-lg-0;
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.parkpal-alert {
+  border-radius: 0;
+  text-align: left;
+  @extend .mb-2;
+
+  &.parkpal-alert--sent {
+    p {
+      @extend .mb-0;
+    }
+  }
+
+  ul {
+    margin: 0;
+  }
+}
+
+// Desktop styles.
+@include media-breakpoint-up(lg) {
+  .content {
+    &.content--theming {
+      background: url('@/assets/theming-background.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+  }
+
+  .navbar {
+    .navbar-collapse {
+      height: 100%;
+    }
+
+    .navbar-nav {
+      height: 100%;
+
+      .nav-item {
+        height: 100%;
+        margin-left: 10px;
+
+        .nav-link {
+          height: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+
+  .destinations {
+    background: url('@/assets/destinations-background.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin-top: 100px;
+
+    .destinations__description {
+      margin-top: unset;
+      background: transparent;
+      justify-content: center;
+      align-items: self-start;
+      display: flex;
+      flex-direction: column;
+
+      p {
+        //@extend .mx-3;
+        text-align: left;
+        width: 75%;
+      }
+    }
+  }
+
+  .theme-parks {
+
+    .theme-parks__featured {
+      img {
+        width: 100%;
+      }
+    }
+  }
+
+  .theming {
+
+    .theming__dark-mode {
+      background: unset;
+    }
+
+    .theming__light-mode {
+      background: unset;
+    }
+  }
+}
