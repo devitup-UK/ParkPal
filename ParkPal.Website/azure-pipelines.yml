@@ -1,47 +1,23 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# Node.js with Vue
+# Build a Node.js project that uses Vue.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
   paths:
     include:
-    - ParkPal.Website/*
+      - ParkPal.Website/*
 
 pool:
   name: 'Linux Pool'
 
-
-variables:
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-
 steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.x'
+    displayName: 'Install Node.js'
 
-- task: DownloadPipelineArtifact@2
-  inputs:
-    buildType: 'current'
-    targetPath: '$(Pipeline.Workspace)'
-
-- task: NuGetToolInstaller@1
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: '$(Build.SourcesDirectory)/ParkPal.NotificationService/ParkPal.NotificationService.sln'
-
-    
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    arguments: '-c Release --os linux'
-    publishWebProjects: false
-    projects: '$(Build.SourcesDirectory)/ParkPal.NotificationService/ParkPal.NotificationService.sln'
-    
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.NotificationService/bin/Release/net6.0/linux-x64/'
-    Contents: '**'
-    TargetFolder: '/staging/'
-    OverWrite: true
-    CleanTargetFolder: true
+  - script: |
+      npm install
+      npm run build
+    displayName: 'npm install and build'
