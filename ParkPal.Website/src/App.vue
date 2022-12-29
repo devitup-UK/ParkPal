@@ -202,8 +202,7 @@
         </b-col>
       </b-row>
       <b-row class="mt-4">
-        <b-row>
-        <b-col>
+        <b-col class="mx-2 mx-lg-0">
           <b-alert variant="success" :show="contact.sent" class="parkpal-alert parkpal-alert--sent">
             <p>Your message has been sent successfully and we will aim to reply within 72 hours.</p>
           </b-alert>
@@ -214,9 +213,8 @@
             </ul>
           </b-alert>
         </b-col>
-        </b-row>
       </b-row>
-      <b-row class="get-in-touch">
+      <div class="get-in-touch mx-2 mx-lg-0">
         <b-row>
           <b-col lg="7">
             <b-input type="text" placeholder="Name" class="parkpal-input mb-2" v-model="contact.form.name"></b-input>
@@ -247,7 +245,7 @@
         <b-row>
           <VueRecaptcha size="invisible" :loadRecaptchaScript="true" ref="invisibleRecaptcha" sitekey="6LfgGrcjAAAAAP3dHY7-V_rNkFUnxCtjzOEfXvQC" @verify="sendContactMessage"></VueRecaptcha>
         </b-row>
-      </b-row>
+      </div>
     </b-container>
 
     <b-container class="content mt-5 content--footer" fluid>

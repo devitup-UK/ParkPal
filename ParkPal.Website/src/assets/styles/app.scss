@@ -224,6 +224,15 @@
   .parkpal-input__select {
     background: transparent;
     border: 0;
+
+    &:focus, &:active {
+      outline-color: transparent;
+      outline-width: 0;
+      outline-style: none;
+      border-color: transparent;
+      box-shadow: unset;
+      background: $input-grey;
+    }
   }
 
   &:focus, &:active {
