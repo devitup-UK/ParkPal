@@ -35,3 +35,11 @@ steps:
     customCommand: 'run-script build'
     workingDir: 'ParkPal.Website'
   displayName: 'Build Project'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Website/dist/'
+    Contents: '**'
+    TargetFolder: '/staging/ParkPal.Website/'
+    OverWrite: true
+    CleanTargetFolder: true
