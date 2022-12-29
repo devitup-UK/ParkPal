@@ -12,12 +12,17 @@ pool:
   name: 'Linux Pool'
 
 steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '10.x'
-    displayName: 'Install Node.js'
+- task: CmdLine@2
+  inputs:
+    script: |
+      ls
 
-  - script: |
-      npm install
-      npm run build
-    displayName: 'npm install and build'
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install
+    npm run build
+  displayName: 'npm install and build'
