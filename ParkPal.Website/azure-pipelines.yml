@@ -31,6 +31,7 @@ steps:
 
 - task: Npm@1
   inputs:
-    customCommand: 'run build'
+    command: 'custom'
+    customCommand: 'run-script build'
     workingDir: 'ParkPal.Website'
   displayName: 'Build Project'
