@@ -4,10 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- main
+  paths:
+    include:
+    - ParkPal.Website/*
 
 pool:
-  vmImage: ubuntu-latest
+  name: 'Linux Pool'
 
 steps:
 - task: NodeTool@0
