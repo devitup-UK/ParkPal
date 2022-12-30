@@ -306,17 +306,21 @@ export default defineComponent({
           saveSubscriptionToDatabase().then(() => {
             this.$store.dispatch('setNotificationsEnabled', true);
             this.$store.dispatch('setNotificationsRequested', true);
+            initialiseAdvertisements();
           }).catch(() => {
             this.$store.dispatch('setNotificationsEnabled', false);
+            initialiseAdvertisements();
           });
         }).catch(() => {
           this.$store.dispatch('setNotificationsEnabled', false);
+          initialiseAdvertisements();
         })
       });
     },
 
     denyPermissions() {
       this.$store.dispatch('setNotificationsRequested', true);
+      initialiseAdvertisements();
     }
   },
 
@@ -369,7 +373,9 @@ export default defineComponent({
       })
 
       // Initialise our advertisements right at the start of the application.
-      initialiseAdvertisements();
+      if(this.settings.requestedNotifications) {
+        initialiseAdvertisements();
+      }
 
       parkpalplusHandler.getProducts().then((products: Array<PurchasesPackage>) => {
         this.$store.dispatch('setProducts', products);
