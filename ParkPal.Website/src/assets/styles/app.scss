@@ -396,6 +396,23 @@
   }
 }
 
+.documents {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  .documents__link {
+    font-size: 14px;
+    color: $color-lightgrey;
+    cursor: pointer;
+  }
+}
+
+.close {
+  background: transparent;
+  border: 0;
+}
+
 // Desktop styles.
 @include media-breakpoint-up(lg) {
   .content {
