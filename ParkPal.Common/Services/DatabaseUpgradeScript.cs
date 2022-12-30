@@ -153,6 +153,10 @@ namespace ParkPal.Common.Services {
                     return new DatabaseVersion(Convert.ToInt32(rdr[0]), Convert.ToInt32(rdr[1]), Convert.ToInt32(rdr[2]));
                 }
             }
+            else
+            {
+                return new DatabaseVersion(0, 0, 0);
+            }
 
             rdr.Close();
             
