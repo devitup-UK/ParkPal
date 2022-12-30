@@ -42,6 +42,6 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/ParkPal.NotificationService/bin/Release/net6.0/linux-x64/'
     Contents: '**'
-    TargetFolder: '/staging/'
+    TargetFolder: '/staging/ParkPal.NotificationService/'
     OverWrite: true
     CleanTargetFolder: true
