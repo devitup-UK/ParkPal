@@ -40,6 +40,6 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)/ParkPal.API/ParkPal.API/bin/Release/net6.0/linux-x64/'
     Contents: '**'
-    TargetFolder: '/staging/'
+    TargetFolder: '/staging/ParkPal.API-dev/'
     OverWrite: true
     CleanTargetFolder: true
