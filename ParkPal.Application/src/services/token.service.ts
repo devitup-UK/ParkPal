@@ -1,7 +1,7 @@
 import axios, {AxiosResponse} from "axios";
 
 const instance = axios.create({
-    baseURL: 'https://api-dev.parkpal.co.uk/token/',
+    baseURL: 'https://api.parkpal.co.uk/token/',
     timeout: 10000
 });
 

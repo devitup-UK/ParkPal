@@ -4,7 +4,7 @@ import SaveSubscriptionRequest from "@/models/api/requests/subscription/SaveSubs
 import Subscription from "@/models/api/Subscription";
 
 const instance = axios.create({
-    baseURL: 'https://api-dev.parkpal.co.uk/subscription/',
+    baseURL: 'https://api.parkpal.co.uk/subscription/',
     timeout: 10000
 });
 
