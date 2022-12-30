@@ -41,7 +41,8 @@ const store: StoreOptions<RootState> = {
     products: [],
     destinationSlideIndex: 0,
     destinationSearchTerm: '',
-    modalOpen: false
+    modalOpen: false,
+    adHeight: 60
   },
   getters: {
     favourites(state) {
@@ -182,6 +183,11 @@ const store: StoreOptions<RootState> = {
     setNotificationsRequested(state, value: boolean) {
       state.settings.requestedNotifications = value;
       storageService.storeSettingsInLocalStorage(state.settings);
+    },
+    setAdHeight(state, value: number) {
+      console.log('settingAdHeight through mutation', value);
+      state.adHeight = value;
+      console.log('adHeight is now in state', value);
     }
   },
   actions: {
@@ -344,6 +350,10 @@ const store: StoreOptions<RootState> = {
     },
     setNotificationsRequested({commit}, value: boolean) {
       commit('setNotificationsRequested', value);
+    },
+    setAdHeight({commit}, value: number) {
+      console.log('settingAdHeight through dispatch', value);
+      commit('setAdHeight', value);
     }
   },
 }

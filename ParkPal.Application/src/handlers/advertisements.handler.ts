@@ -1,9 +1,4 @@
-import {
-    AdMob,
-    BannerAdPosition,
-    BannerAdSize,
-    RewardAdOptions
-} from "@capacitor-community/admob";
+import {AdMob, BannerAdPluginEvents, BannerAdPosition, BannerAdSize, RewardAdOptions} from "@capacitor-community/admob";
 import store from '@/store';
 
 export function initialiseAdvertisements() {
@@ -13,6 +8,11 @@ export function initialiseAdvertisements() {
             initializeForTesting: true,
             testingDevices: ['6B7DE437-F8B2-455D-901B-B637520D19EB']
         }).then()
+
+        AdMob.addListener(BannerAdPluginEvents.SizeChanged, (bannerSize) => {
+            // Whenever the banner size changes, we need to set our ad banner height in the store.
+            store.dispatch('setAdHeight', bannerSize.height).then();
+        })
     }
 }
 
@@ -26,7 +26,7 @@ export function showBannerAdvertisement(parkPalPlus: boolean) {
                 // Place banner ads above tab bar.
                 const bannerOptions = {
                     adId: 'ca-app-pub-1263240325581067/3458363938',
-                    adSize: BannerAdSize.FULL_BANNER,
+                    adSize: BannerAdSize.ADAPTIVE_BANNER,
                     position: BannerAdPosition.BOTTOM_CENTER,
                     margin,
                     isTesting: true

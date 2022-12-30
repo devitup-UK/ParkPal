@@ -26,13 +26,13 @@
         </div>
       </div>
     </div>
-    <div class="content" :class="{ 'content--ads': !this.settings.parkPalPlus && this.isApp }">
+    <div class="content" :class="{ 'content--noads': this.settings.parkPalPlus }" :style="`margin-bottom: ${adHeight}px;`">
       <RouterView v-slot="{ Component, route }">
         <transition :name="route.params.transition">
           <component :is="Component" />
         </transition>
       </RouterView>
-      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp">
+      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp" :style="`bottom: -${adHeight}px; height: ${adHeight}px`">
         <div class="ph-item">
             <div class="ph-row">
               <div class="ph-col-12"></div>
@@ -118,8 +118,8 @@ ion-label {
   position: relative;
   height: 100%;
 
-  &.content--ads {
-    margin-bottom: 60px;
+  &.content--noads {
+    margin-bottom: 0 !important;
   }
 }
 
@@ -180,8 +180,6 @@ ion-content {
 .advertisement-placeholder {
   position: absolute;
   width: 100%;
-  bottom: -60px;
-  height: 60px;
   background: #FFF;
 
   .ph-item {
@@ -273,7 +271,7 @@ export default defineComponent({
     RouterView
   },
   computed: {
-    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen'])
+    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight'])
   },
 
   methods: {

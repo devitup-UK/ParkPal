@@ -241,6 +241,7 @@ export default defineComponent({
     --inner-padding-end: 0;
     --ion-safe-area-right: 0;
     overflow: hidden;
+    width: 100%;
 
     ion-label {
       margin: 0;

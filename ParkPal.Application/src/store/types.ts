@@ -26,4 +26,5 @@ export interface RootState {
     destinationSlideIndex: number;
     destinationSearchTerm: string;
     modalOpen: boolean;
+    adHeight: number;
 }
