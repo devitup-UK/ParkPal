@@ -42,7 +42,7 @@ const store: StoreOptions<RootState> = {
     destinationSlideIndex: 0,
     destinationSearchTerm: '',
     modalOpen: false,
-    adHeight: 60
+    adHeight: 0
   },
   getters: {
     favourites(state) {
