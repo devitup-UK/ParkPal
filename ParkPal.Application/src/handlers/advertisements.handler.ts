@@ -2,18 +2,18 @@ import {AdMob, BannerAdPluginEvents, BannerAdPosition, BannerAdSize, RewardAdOpt
 import store from '@/store';
 
 export function initialiseAdvertisements() {
-    // if(store.state.isApp) {
-    //     AdMob.initialize({
-    //         requestTrackingAuthorization: false,
-    //         initializeForTesting: true,
-    //         testingDevices: ['6B7DE437-F8B2-455D-901B-B637520D19EB']
-    //     }).then()
-    //
-    //     AdMob.addListener(BannerAdPluginEvents.SizeChanged, (bannerSize) => {
-    //         // Whenever the banner size changes, we need to set our ad banner height in the store.
-    //         store.dispatch('setAdHeight', bannerSize.height).then();
-    //     })
-    // }
+    if(store.state.isApp) {
+        AdMob.initialize({
+            requestTrackingAuthorization: true,
+            initializeForTesting: true,
+            testingDevices: ['6B7DE437-F8B2-455D-901B-B637520D19EB']
+        }).then()
+
+        AdMob.addListener(BannerAdPluginEvents.SizeChanged, (bannerSize) => {
+            // Whenever the banner size changes, we need to set our ad banner height in the store.
+            store.dispatch('setAdHeight', bannerSize.height).then();
+        })
+    }
 }
 
 export function showBannerAdvertisement(parkPalPlus: boolean) {
