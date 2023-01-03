@@ -15,9 +15,9 @@
         <Alert mode="warning" v-if="!notificationsEnabled" @click="requestNotificationPermissions">
           You must have Notifications enabled to receive Wait Time Notifications. Click here to enable them.
         </Alert>
-<!--        <Alert v-if="!settings.parkPalPlus && !adWatched" @click="watchAd">-->
-<!--          <span>Subscribe to ParkPal+ to set wait time notifications below 30 minutes or click here to watch an advertisement to set this notification below 30 minutes.</span>-->
-<!--        </Alert>-->
+        <Alert v-if="!settings.parkPalPlus && !adWatched" @click="watchAd">
+          <span>Subscribe to ParkPal+ to set wait time notifications below 30 minutes or click here to watch an advertisement to set this notification below 30 minutes.</span>
+        </Alert>
         <Alert v-if="!settings.parkPalPlus && adWatched" mode="success">
           <span>You've watched an ad and now have access to setting a wait time notification below 30 minutes.<br>Subscribe to ParkPal+ to avoid ads altogether!</span>
         </Alert>
