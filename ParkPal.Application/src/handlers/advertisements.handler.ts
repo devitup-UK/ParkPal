@@ -4,9 +4,7 @@ import store from '@/store';
 export function initialiseAdvertisements() {
     if(store.state.isApp) {
         AdMob.initialize({
-            requestTrackingAuthorization: true,
-            initializeForTesting: true,
-            testingDevices: ['6B7DE437-F8B2-455D-901B-B637520D19EB']
+            requestTrackingAuthorization: true
         }).then()
 
         AdMob.addListener(BannerAdPluginEvents.SizeChanged, (bannerSize) => {
@@ -28,8 +26,7 @@ export function showBannerAdvertisement(parkPalPlus: boolean) {
                     adId: 'ca-app-pub-1263240325581067/3458363938',
                     adSize: BannerAdSize.ADAPTIVE_BANNER,
                     position: BannerAdPosition.BOTTOM_CENTER,
-                    margin,
-                    isTesting: true
+                    margin
                 }
 
                 AdMob.showBanner(bannerOptions).then();
@@ -56,8 +53,7 @@ export function showRewardAdvertisement() {
     return new Promise(function(resolve) {
         if(store.state.isApp) {
             const options: RewardAdOptions = {
-                adId: 'ca-app-pub-1263240325581067/4493109970',
-                isTesting: true
+                adId: 'ca-app-pub-1263240325581067/4493109970'
             };
 
             AdMob.prepareRewardVideoAd(options).then(() => {
