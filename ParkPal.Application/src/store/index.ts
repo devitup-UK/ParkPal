@@ -166,12 +166,10 @@ const store: StoreOptions<RootState> = {
       state.products = products;
     },
     setDarkMode(state) {
-      state.settings.theme.darkMode = true;
       state.settings.theme.setDarkTheme();
       storageService.storeSettingsInLocalStorage(state.settings);
     },
     setLightMode(state) {
-      state.settings.theme.darkMode = false;
       state.settings.theme.setLightTheme();
       storageService.storeSettingsInLocalStorage(state.settings);
     },

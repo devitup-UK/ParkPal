@@ -66,6 +66,7 @@ export default class Theme {
         this.searchBoxBackground = '#d3d3d3';
         this.searchBoxText = '#747474';
         this.searchBoxIcons = '#666666';
+        this.darkMode = false;
         this.header.setLightTheme();
         this.navigation.setLightTheme();
         this.destinations.setLightTheme();
@@ -87,6 +88,7 @@ export default class Theme {
         this.searchBoxBackground = '#575757';
         this.searchBoxText = '#FFFFFF';
         this.searchBoxIcons = '#FFFFFF';
+        this.darkMode = true;
         this.header.setDarkTheme();
         this.navigation.setDarkTheme();
         this.destinations.setDarkTheme();
