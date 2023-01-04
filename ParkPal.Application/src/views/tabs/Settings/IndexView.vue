@@ -45,6 +45,17 @@
         </IonItem>
       </IonList>
 
+      <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="book" color="#f7adf1" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Terms of Use</IonLabel>
+        </IonItem>
+        <IonItem @click="privacyPolicy" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="user-secret" color="#668593" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Privacy Policy</IonLabel>
+        </IonItem>
+      </IonList>
+
 
       <IonModal ref="modal" trigger="open-modal" :can-dismiss="true" :presenting-element="presentingElement">
         <IonHeader :style="'background: ' + settings.theme.header.background + ' !important;'">
@@ -200,6 +211,27 @@ export default defineComponent({
             role: 'confirm',
             handler: () => {
               window.location = 'https://parkpal.co.uk/#getintouch'
+            },
+          },
+        ],
+      });
+
+      await alert.present();
+    },
+    async privacyPolicy() {
+      const alert = await alertController.create({
+        header: 'Privacy Policy',
+        message: 'You will be redirected to the ParkPal website to view the Privacy Policy, this can be found in the footer, would you like to continue?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'OK',
+            role: 'confirm',
+            handler: () => {
+              window.location = 'https://parkpal.co.uk'
             },
           },
         ],
