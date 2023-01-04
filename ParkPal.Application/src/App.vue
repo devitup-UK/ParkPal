@@ -32,13 +32,9 @@
           <component :is="Component" />
         </transition>
       </RouterView>
-      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp" :style="`bottom: -${adHeight}px; height: ${adHeight}px`">
-        <div class="ph-item">
-            <div class="ph-row">
-              <div class="ph-col-12"></div>
-              <div class="ph-col-6"></div>
-            </div>
-        </div>
+      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
+        <FontAwesomeIcon icon="spinner" spin fixed-width></FontAwesomeIcon>
+        <p>Loading advertisements...</p>
       </div>
     </div>
     <div class="tabs" ref="tabs">
@@ -180,16 +176,15 @@ ion-content {
 .advertisement-placeholder {
   position: absolute;
   width: 100%;
-  background: #FFF;
+  display: flex;
+  font-size: 12px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-  .ph-item {
-    height: 100%;
-    padding: 0;
-    margin: 0;
-
-    .ph-row {
-      margin: 0;
-    }
+  p {
+    margin-bottom: 0;
+    margin-top: 4px;
   }
 }
 
