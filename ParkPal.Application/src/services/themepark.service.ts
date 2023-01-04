@@ -3,7 +3,7 @@ import {authHeader} from "@/helpers/authHeaders.helper";
 import AttractionsRequest from "@/models/api/requests/themepark/AttractionsRequest";
 
 const instance = axios.create({
-    baseURL: 'http://192.168.1.96:5002/themepark/',
+    baseURL: 'https://api-dev.parkpal.co.uk/themepark/',
     timeout: 10000
 });
 
