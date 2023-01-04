@@ -42,7 +42,7 @@ const store: StoreOptions<RootState> = {
     destinationSlideIndex: 0,
     destinationSearchTerm: '',
     modalOpen: false,
-    adHeight: 0
+    adHeight: 60
   },
   getters: {
     favourites(state) {
@@ -196,6 +196,10 @@ const store: StoreOptions<RootState> = {
       console.log('settingAdHeight through mutation', value);
       state.adHeight = value;
       console.log('adHeight is now in state', value);
+    },
+    setVoucher(state, value: string | undefined) {
+      state.settings.voucher = value;
+      storageService.storeSettingsInLocalStorage(state.settings);
     }
   },
   actions: {
@@ -369,6 +373,12 @@ const store: StoreOptions<RootState> = {
     disableAllDestinations({commit}, destinations: Array<Destination>) {
       commit('disableAllDestinations', destinations);
     },
+    setVoucher({commit}, value: string) {
+      commit('setVoucher', value);
+    },
+    removeVoucher({commit}) {
+      commit('setVoucher', undefined);
+    }
   },
 }
 

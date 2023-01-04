@@ -357,7 +357,9 @@ export default defineComponent({
     saveTheme() {
       let themeValue = JSON.stringify(this.theme);
       let theme = JSON.parse(themeValue);
-      this.$store.dispatch('setTheme', new Theme(theme));
+      let customThemeObject = new Theme(theme);
+      customThemeObject.setCustom(true);
+      this.$store.dispatch('setTheme', customThemeObject);
     },
     navigate(route) {
       this.$router.push({

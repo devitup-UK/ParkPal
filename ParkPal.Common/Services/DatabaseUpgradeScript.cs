@@ -24,7 +24,7 @@ namespace ParkPal.Common.Services {
         public DatabaseUpgradeService(string databaseConnectionString, string scriptsLocation) {
             _databaseConnectionString = databaseConnectionString;
             _scriptsLocation = scriptsLocation;
-            _targetVersion = new DatabaseVersion(1, 0, 3);
+            _targetVersion = new DatabaseVersion(1, 0, 4);
             _sqlConnection = new SqlConnection(_databaseConnectionString);
         }
 

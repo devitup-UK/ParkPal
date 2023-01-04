@@ -25,8 +25,9 @@ export default class Theme {
     settings = new SettingsTheme();
 
     darkMode = false;
+    custom = false;
 
-    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "searchBoxBackground" | "searchBoxText" | "searchBoxIcons" | "header" | "navigation" | "destinations" | "waitTimes" | "settings" | "darkMode"> | null = null) {
+    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "searchBoxBackground" | "searchBoxText" | "searchBoxIcons" | "header" | "navigation" | "destinations" | "waitTimes" | "settings" | "darkMode" | "custom"> | null = null) {
         if(data) {
             this.background = data.background;
             this.text = data.text;
@@ -47,6 +48,7 @@ export default class Theme {
             this.waitTimes = new WaitTimes(data.waitTimes);
             this.settings = new SettingsTheme(data.settings);
             this.darkMode = data.darkMode;
+            this.custom = data.custom;
         }
     }
 
@@ -90,5 +92,9 @@ export default class Theme {
         this.destinations.setDarkTheme();
         this.waitTimes.setDarkTheme();
         this.settings.setDarkTheme();
+    }
+
+    setCustom(value: boolean) {
+        this.custom = value;
     }
 }

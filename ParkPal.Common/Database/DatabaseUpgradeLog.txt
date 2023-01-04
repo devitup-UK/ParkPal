@@ -1,6 +1,13 @@
 This file is used to dictate the latest database version updates
 and what the database has been updated for.
 ================================================================
+Database Version: 1.0.4
+Updated By: Tom Alderson
+----------------------------------------------------------------
+Changes in Database from this version:
+----------------------------------------------------------------
+1. Add redeemable vouchers to the database.
+================================================================
 Database Version: 1.0.3
 Updated By: Tom Alderson
 ----------------------------------------------------------------

@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ParkPal.API.Models.Requests.Subscription;
 using ParkPal.API.Models.Requests.Token;
+using ParkPal.API.Models.Responses.Subscription;
 using ParkPal.API.Services.Interfaces;
 using ParkPal.Common.Models.Database.Entities.Device;
 using ParkPal.Common.Models.Database.Entities.Notification;
+using ParkPal.Common.Models.Database.Entities.Subscription;
 
 namespace ParkPal.API.Controllers;
 
@@ -57,6 +59,37 @@ public class SubscriptionController : ControllerBase
                     return Ok(newSubscription);
                 }
             }
+        }
+
+        return NotFound();
+    }
+
+    [HttpPost("voucher/redeem")]
+    public IActionResult RedeemVoucher([FromBody] VoucherRequest request)
+    {
+        Voucher? redeemedVoucher = _subscriptionService.RedeemVoucher(request.Code);
+
+        if (redeemedVoucher != null)
+        {
+            VoucherResponse response = new VoucherResponse()
+            {
+                Code = redeemedVoucher.Code
+            };
+            
+            return Ok(response);
+        }
+
+        return NotFound();
+    }
+    
+    [HttpPost("voucher/verify")]
+    public IActionResult VerifyVoucher([FromBody] VoucherRequest request)
+    {
+        bool verifiedVoucher = _subscriptionService.VerifyVoucher(request.Code);
+
+        if (verifiedVoucher)
+        {
+            return Ok();
         }
 
         return NotFound();

@@ -61,7 +61,8 @@
         <p>Take personalisation to the next level by being able to set your own custom app theme.</p>
       </div>
     </div>
-    <div class="parkpal-plus-purchase" :style="'background: ' + settings.theme.header.background + ' !important;'" v-if="product != null && !settings.parkPalPlus">
+    <template v-if="product != null">
+    <div class="parkpal-plus-purchase" :style="'background: ' + settings.theme.header.background + ' !important;'" v-if="!settings.parkPalPlus">
       <p class="parkpal-plus-purchase__cost" :style="'color: ' + settings.theme.header.text + ' !important;'" v-if="!loading">{{ product.product.priceString }} per {{ product.packageType === 'MONTHLY' ? 'month' : 'year' }}</p>
       <div class="parkpal-plus-purchase__button" v-if="!loading">
         <IonButton expand="block" @click="purchase" color="transparent" :style="`color: ${settings.theme.actionButtonText} !important; background: ${settings.theme.actionButtonBackground} !important; border-radius: 8px;`">Purchase</IonButton>
@@ -70,13 +71,22 @@
         <LoaderComponent mode="small">Processing Purchase...</LoaderComponent>
       </div>
       <div class="parkpal-plus-purchase__options" v-if="!loading" :style="'color: ' + settings.theme.header.text + ' !important;'">
-        <span @click="changeProduct">{{ alternativeSubscriptionPeriod }}</span>
-        <span @click="restorePurchase">Restore Purchases</span>
+        <span @click="changeProduct" :style="'color: ' + settings.theme.header.text + ' !important;'">{{ alternativeSubscriptionPeriod }}</span>
+        <span @click="restorePurchase" :style="'color: ' + settings.theme.header.text + ' !important;'">Restore Purchases</span>
+      </div>
+      <div class="parkpal-plus-purchase__voucher" v-if="!loading" :style="'color: ' + settings.theme.header.text + ' !important;'">
+        <span @click="voucherAlert" :style="'color: ' + settings.theme.header.text + ' !important;'">Redeem Voucher</span>
       </div>
     </div>
     <div class="parkpal-plus-purchase" :style="'background: ' + settings.theme.header.background + ' !important;'" v-else>
       <p :style="'color: ' + settings.theme.header.text + ' !important;margin-bottom: 5px;'">Thank you for subscribing to ParkPal+, please enjoy all of the above features!</p>
     </div>
+    </template>
+    <template v-else>
+      <div class="parkpal-plus-purchase" :style="'background: ' + settings.theme.header.background + ' !important;'">
+        <p :style="'color: ' + settings.theme.header.text + ' !important;margin-bottom: 5px;'">No products were returned from the App Store, please report this issue to the Application Developer.</p>
+      </div>
+    </template>
   </IonContent>
 </template>
 
@@ -92,7 +102,13 @@ import {mapState} from "vuex";
 import {Package} from "@capgo/capacitor-purchases";
 import LoaderComponent from "@/components/Loader.vue";
 import store from "@/store";
-import {PurchasesPackage} from "cordova-plugin-purchases";
+import {
+  PACKAGE_TYPE,
+  PurchasesPackage
+} from "cordova-plugin-purchases";
+import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
+import {subscriptionService} from "@/services/subscription.service";
+import Voucher from "@/models/api/Voucher";
 
 export default defineComponent({
   name: "ParkPalPlus",
@@ -123,9 +139,7 @@ export default defineComponent({
   },
   beforeMount() {
     // Get the monthly product.
-    console.log('ParkPalPlus Products', this.products);
     this.product = this.products.find((a: PurchasesPackage) => a.product.identifier == "parkpalplus_monthly");
-    console.log('ParkPalPlus Product', this.product);
   },
   methods: {
     changeProduct() {
@@ -176,6 +190,53 @@ export default defineComponent({
           this.loading = false;
         });
       }
+    },
+    async voucherAlert() {
+      const alert = await alertController.create({
+        header: 'Redeem Voucher',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Redeem',
+            role: 'confirm',
+            handler: (data) => {
+              this.loading = true;
+
+              console.log('Entered code', data.code);
+
+              // Send an API request to redeem the voucher.
+              subscriptionService.redeemVoucher(new VoucherRequest({
+                code: data.code
+              })).then((voucher: Voucher) => {
+                // We have redeemed the code and verified it, therefore we can enable ParkPalPlus.
+                store.dispatch('setVoucher', voucher.code);
+                store.dispatch('setParkPalPlus', true);
+              }).catch(async () => {
+                const alert = await alertController.create({
+                  header: 'No Voucher Found',
+                  message: 'There was no voucher matching that code or it has already been redeemed.',
+                  buttons: ['OK'],
+                });
+
+                await alert.present();
+              }).finally(() => {
+                this.loading = false;
+              })
+            },
+          },
+        ],
+        inputs: [
+          {
+            name: 'code',
+            placeholder: 'Voucher Code'
+          },
+        ],
+      });
+
+      await alert.present();
     }
   }
 })
@@ -258,7 +319,17 @@ export default defineComponent({
 
     span {
       font-size: 14px;
-      color: #A8A8A8;
+    }
+  }
+
+  .parkpal-plus-purchase__voucher {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px 10px;
+
+    span {
+      font-size: 14px;
     }
   }
 

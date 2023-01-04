@@ -1,10 +1,19 @@
 import Settings from "@/models/store/Settings";
 import Destination from "@/models/api/Destination";
 import Park from "@/models/api/Park";
+import Theme from "@/models/store/theme/Theme";
 
 function getSettingsFromLocalStorage(): Settings {
     const settingsAsJson = localStorage.getItem('settings') ?? 'null';
     const settings: Settings = new Settings(JSON.parse(settingsAsJson));
+    // Check if the theme has been customised, if it has then we do NOT want to overwrite the theme, otherwise we do.
+    if(!settings.theme.custom) {
+        settings.theme = new Theme();
+        // Then we need to check if this user has had the dark theme enabled before and if they have, then enable it.
+        if(settings.theme.darkMode) {
+            settings.theme.setDarkTheme();
+        }
+    }
     return settings;
 }
 

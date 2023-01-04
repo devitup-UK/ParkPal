@@ -25,6 +25,9 @@ namespace ParkPal.Common.Database.Contexts
         
         // Log Schema
         public DbSet<ParkPal.Common.Models.Database.Entities.Log.Item>? LogItems { get; set; }
+        
+        // Subscription Schema
+        public DbSet<ParkPal.Common.Models.Database.Entities.Subscription.Voucher>? Vouchers { get; set; }
 
         public DatabaseContext(IConfiguration configuration)
         {

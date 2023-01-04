@@ -248,6 +248,8 @@ import parkpalplusHandler from "@/handlers/parkpalPlus.handler";
 import {CapacitorPurchases, Package, PurchaserInfo} from "@capgo/capacitor-purchases";
 import {PurchasesPackage} from "cordova-plugin-purchases";
 import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
+import {subscriptionService} from "@/services/subscription.service";
+import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
 
 
 export default defineComponent({
@@ -324,7 +326,6 @@ export default defineComponent({
 
     this.$store.dispatch('configureStorage');
 
-
     // First we need to check if we have an API token set in our settings, this would have come from our localStorage if this is a returning user.
     if(!this.settings.apiToken) {
       this.generateAndSaveToken();
@@ -379,6 +380,20 @@ export default defineComponent({
       parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
         this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
       })
+
+      console.log('Voucher', this.settings.voucher);
+
+      // If we have a voucher in our settings, we need to verify it.
+      if(this.settings.voucher != undefined) {
+        subscriptionService.verifyVoucher({
+          code: this.settings.voucher
+        }).then(() => {
+          this.$store.dispatch('setParkPalPlus', true);
+          hideBannerAdvertisement();
+        }).catch(() => {
+          this.$store.dispatch('setParkPalPlus', false);
+        })
+      }
 
       StatusBar.setStyle({
         style: Style.Light

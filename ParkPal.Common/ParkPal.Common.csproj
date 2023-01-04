@@ -25,6 +25,9 @@
       <None Update="Database\Scripts\UpgradeScript_1.0.2.dbu">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Database\Scripts\UpgradeScript_1.0.4.dbu">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

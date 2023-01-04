@@ -1,4 +1,4 @@
-class Token {
+export default class Token {
     tokenId?: number;
     value?: string;
 

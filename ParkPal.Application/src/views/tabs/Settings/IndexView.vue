@@ -22,7 +22,7 @@
         </IonItem>
         <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <FontAwesomeIcon icon="plus" color="#F76C6C" class="settings-icon" fixed-width></FontAwesomeIcon>
-          <IonLabel id="open-modal" @click="hideBannerAdvertisement">ParkPal+</IonLabel>
+          <IonLabel id="open-modal" @click="hideBannerAdvertisement">Subscribe to ParkPal+</IonLabel>
         </IonItem>
       </IonList>
 

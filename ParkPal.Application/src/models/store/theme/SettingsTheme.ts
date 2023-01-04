@@ -1,6 +1,6 @@
 export default class SettingsTheme {
     settingBackground = '#FFFFFF';
-    settingText = '#b4b4b4';
+    settingText = '#404040';
     settingArrow = '#c0c0c0';
     settingBorder = '#c8c7cc';
 
@@ -15,7 +15,7 @@ export default class SettingsTheme {
 
     setLightTheme() {
         this.settingBackground = '#FFFFFF';
-        this.settingText = '#b4b4b4';
+        this.settingText = '#404040';
         this.settingArrow = '#c0c0c0';
         this.settingBorder = '#c8c7cc';
     }

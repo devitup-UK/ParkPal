@@ -1,4 +1,5 @@
 import NotificationProperties from "@/models/api/NotificationProperties";
+import Token from "@/models/api/Token";
 
 export default class Subscription {
     subscriptionId?: number;
