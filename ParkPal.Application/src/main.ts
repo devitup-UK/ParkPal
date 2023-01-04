@@ -28,7 +28,10 @@ import {
     faTrash,
     faBell,
     faBellSlash,
-    faSpinner
+    faSpinner,
+    faLink,
+    faStar,
+    faComments
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faMapMarkerAlt,
@@ -51,7 +54,10 @@ library.add(faMapMarkerAlt,
     faTrash,
     faBell,
     faBellSlash,
-    faSpinner)
+    faSpinner,
+    faLink,
+    faStar,
+    faComments)
 
 
 

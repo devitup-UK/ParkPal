@@ -145,6 +145,14 @@ const store: StoreOptions<RootState> = {
         state.settings.hiddenDestinations.push(destinationId);
       }
     },
+    enableAllDestinations(state) {
+      state.settings.hiddenDestinations = [];
+    },
+    disableAllDestinations(state, destinations: Array<Destination>) {
+      destinations.forEach((destination: Destination) => {
+        state.settings.hiddenDestinations.push(destination.destinationId);
+      })
+    },
     setNotificationsEnabled(state, notificationsEnabled: boolean) {
       state.notificationsEnabled = notificationsEnabled;
     },
@@ -354,7 +362,13 @@ const store: StoreOptions<RootState> = {
     setAdHeight({commit}, value: number) {
       console.log('settingAdHeight through dispatch', value);
       commit('setAdHeight', value);
-    }
+    },
+    enableAllDestinations({commit}) {
+      commit('enableAllDestinations');
+    },
+    disableAllDestinations({commit}, destinations: Array<Destination>) {
+      commit('disableAllDestinations', destinations);
+    },
   },
 }
 

@@ -183,6 +183,8 @@ export default defineComponent({
     }
   },
   beforeMount() {
+    this.$store.dispatch('setServerError', false);
+
     this.$store.dispatch('getAllNotifications', {
       filters: this.filters.notificationsFilter,
       favouriteIds: this.favourites

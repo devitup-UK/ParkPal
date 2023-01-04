@@ -31,6 +31,18 @@
           <FontAwesomeIcon icon="at" color="#97A9AF" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>About & FAQs</IonLabel>
         </IonItem>
+        <IonItem href="https://parkpal.co.uk" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="link" color="#5eaf6d" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>ParkPal Website</IonLabel>
+        </IonItem>
+        <IonItem @click="feedbackMessage" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="comments" color="#3f3f54" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Leave Feedback</IonLabel>
+        </IonItem>
+        <IonItem @click="rateApplication" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="star" color="#ede6a0" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Rate the App</IonLabel>
+        </IonItem>
       </IonList>
 
 
@@ -88,10 +100,25 @@ ion-item::part(detail-icon) {
 <script>
 import { defineComponent } from "vue";
 import {mapState} from "vuex";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonList, IonLabel, IonItem, IonModal, IonToggle } from "@ionic/vue";
+import {
+  IonPage,
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonList,
+  IonLabel,
+  IonItem,
+  IonModal,
+  IonToggle,
+  alertController
+} from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import ParkPalPlus from "@/components/Settings/ParkPalPlus.vue";
 import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
+import { RateApp } from 'capacitor-rate-app';
+
 
 export default defineComponent({
   name: "SettingsIndexView",
@@ -155,6 +182,30 @@ export default defineComponent({
       this.$store.dispatch('setModalOpen', false);
       resumeBannerAdvertisement(this.settings.parkPalPlus);
       this.$refs.modal.$el.dismiss(null, 'cancel');
+    },
+    rateApplication() {
+      RateApp.requestReview();
+    },
+    async feedbackMessage() {
+      const alert = await alertController.create({
+        header: 'Give Feedback',
+        message: 'You will be redirected to the ParkPal website to leave feedback  using the feedback form, would you like to continue?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'OK',
+            role: 'confirm',
+            handler: () => {
+              window.location = 'https://parkpal.co.uk/#getintouch'
+            },
+          },
+        ],
+      });
+
+      await alert.present();
     }
   }
 })

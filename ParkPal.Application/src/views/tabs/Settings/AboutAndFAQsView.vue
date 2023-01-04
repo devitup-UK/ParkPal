@@ -18,7 +18,7 @@
         </IonItem>
         <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <IonLabel slot="start">Version</IonLabel>
-          <IonLabel slot="end">1.0</IonLabel>
+          <IonLabel slot="end">1.1.1</IonLabel>
         </IonItem>
       </IonList>
 
@@ -68,7 +68,7 @@
             <IonLabel>Why should I subscribe to ParkPal+?</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            ParkPal+ offers you the ability to use the application with no advertisements, set less than wait time notifications below 35 minutes, removes any limits on the amount of notifications you can have at one time, offers you the ability to theme your ParkPal experience in anyway you like. You can access all features without ParkPal+ except custom theming by watching advertisements.
+            ParkPal+ offers you the ability to use the application with no advertisements, set less than wait time notifications below 35 minutes, removes any limits on the amount of notifications you can have at one time, offers you the ability to theme your ParkPal experience in anyway you like. You can access all features without ParkPal+ except custom theming and unlimited notifications by watching advertisements.
           </div>
         </IonAccordion>
         <IonAccordion>
@@ -84,7 +84,7 @@
             <IonLabel>I have an idea that can improve ParkPal!</IonLabel>
           </IonItem>
           <div class="ion-padding faq-answer" slot="content">
-            Submit your idea to <strong>ideas@parkpal.co.uk</strong> and we will certainly have a look and if it sounds promising, we will work our hardest to get it implemented as soon as we can.
+            Submit your idea to <strong>support@parkpal.co.uk</strong> and we will certainly have a look and if it sounds promising, we will work our hardest to get it implemented as soon as we can.
           </div>
         </IonAccordion>
       </IonAccordionGroup>
