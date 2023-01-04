@@ -6,7 +6,7 @@ import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
 import Voucher from "@/models/api/Voucher";
 
 const instance = axios.create({
-    baseURL: 'https://api-dev.parkpal.co.uk/subscription/',
+    baseURL: 'https://api.parkpal.co.uk/subscription/',
     timeout: 10000
 });
 
