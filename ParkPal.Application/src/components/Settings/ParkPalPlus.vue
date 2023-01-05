@@ -203,7 +203,7 @@ export default defineComponent({
             text: 'Redeem',
             role: 'confirm',
             handler: (data: { code: string }) => {
-              this.loading = true;
+              // this.loading = true;
 
               // Send an API request to redeem the voucher.
               // subscriptionService.redeemVoucher(new VoucherRequest({
