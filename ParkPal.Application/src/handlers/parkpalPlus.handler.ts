@@ -11,6 +11,10 @@ function initialisePurchases() {
     Purchases.configureWith({
         apiKey: 'appl_JepMvmLMlmTIhyDKESvccQiEIpz'
     })
+
+    Purchases.onCustomerInfoUpdated().subscribe((customerInfo: CustomerInfo) => {
+        store.dispatch('setParkPalPlus', customerInfo.activeSubscriptions.length).then();
+    })
 }
 
 function getProducts(): PromiseLike<Array<PurchasesPackage>> {

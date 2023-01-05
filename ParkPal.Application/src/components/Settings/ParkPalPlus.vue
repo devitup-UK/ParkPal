@@ -202,29 +202,29 @@ export default defineComponent({
           {
             text: 'Redeem',
             role: 'confirm',
-            handler: (data) => {
+            handler: (data: { code: string }) => {
               this.loading = true;
 
-              console.log('Entered code', data.code);
-
               // Send an API request to redeem the voucher.
-              subscriptionService.redeemVoucher(new VoucherRequest({
-                code: data.code
-              })).then((voucher: Voucher) => {
-                // We have redeemed the code and verified it, therefore we can enable ParkPalPlus.
-                store.dispatch('setVoucher', voucher.code);
-                store.dispatch('setParkPalPlus', true);
-              }).catch(async () => {
-                const alert = await alertController.create({
-                  header: 'No Voucher Found',
-                  message: 'There was no voucher matching that code or it has already been redeemed.',
-                  buttons: ['OK'],
-                });
+              // subscriptionService.redeemVoucher(new VoucherRequest({
+              //   code: data.code
+              // })).then((voucher: Voucher) => {
+              //   // We have redeemed the code and verified it, therefore we can enable ParkPalPlus.
+              //   store.dispatch('setVoucher', voucher.code);
+              //   store.dispatch('setParkPalPlus', true);
+              // }).catch(async () => {
+              //   const alert = await alertController.create({
+              //     header: 'No Voucher Found',
+              //     message: 'There was no voucher matching that code or it has already been redeemed.',
+              //     buttons: ['OK'],
+              //   });
+              //
+              //   await alert.present();
+              // }).finally(() => {
+              //   this.loading = false;
+              // })
 
-                await alert.present();
-              }).finally(() => {
-                this.loading = false;
-              })
+              window.location.href = `https://apps.apple.com/redeem?ctx=offercodes&id=6444361624&code=${data.code}`;
             },
           },
         ],
