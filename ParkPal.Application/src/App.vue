@@ -321,7 +321,7 @@ export default defineComponent({
     }
   },
 
-  // We need to check if our local storage has our Settings before, this is where all of our data is stored even after the app has been force closed.
+  // We need to check if our local storage has our settings before, this is where all of our data is stored even after the app has been force closed.
   beforeMount() {
 
     this.$store.dispatch('configureStorage');

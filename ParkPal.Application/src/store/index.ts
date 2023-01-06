@@ -221,7 +221,7 @@ const store: StoreOptions<RootState> = {
     },
     configureStorage({ commit }) {
       // This function sets up our store using Local Storage.
-      // Settings
+      // settings
       const settings: Settings = storageService.getSettingsFromLocalStorage();
       commit('setSettings', settings);
 

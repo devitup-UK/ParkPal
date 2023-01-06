@@ -50,7 +50,7 @@
           <FontAwesomeIcon icon="book" color="#f7adf1" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>Terms of Use</IonLabel>
         </IonItem>
-        <IonItem @click="privacyPolicy" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem href="https://parkpal.co.uk/#privacy-policy" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <FontAwesomeIcon icon="user-secret" color="#668593" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>Privacy Policy</IonLabel>
         </IonItem>
@@ -126,7 +126,7 @@ import {
   alertController
 } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import ParkPalPlus from "@/components/Settings/ParkPalPlus.vue";
+import ParkPalPlus from "@/components/settings/ParkPalPlus.vue";
 import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
 import { RateApp } from 'capacitor-rate-app';
 
@@ -218,27 +218,6 @@ export default defineComponent({
 
       await alert.present();
     },
-    async privacyPolicy() {
-      const alert = await alertController.create({
-        header: 'Privacy Policy',
-        message: 'You will be redirected to the ParkPal website to view the Privacy Policy, this can be found in the footer, would you like to continue?',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel'
-          },
-          {
-            text: 'OK',
-            role: 'confirm',
-            handler: () => {
-              window.location = 'https://parkpal.co.uk'
-            },
-          },
-        ],
-      });
-
-      await alert.present();
-    }
   }
 })
 </script>
