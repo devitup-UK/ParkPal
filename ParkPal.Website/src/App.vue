@@ -422,6 +422,14 @@ export default {
       }
     }
   },
+  mounted() {
+    let target = document.location.hash.replace("#", "");
+    if (target.length) {
+      if (target == "privacy-policy") {
+        this.$bvModal.show('privacy-policy');
+      }
+    }
+  },
   methods: {
     contactFormValid() {
       this.contact.errors = [];

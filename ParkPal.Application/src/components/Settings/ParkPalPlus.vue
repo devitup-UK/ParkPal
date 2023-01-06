@@ -75,7 +75,7 @@
         <span @click="restorePurchase" :style="'color: ' + settings.theme.header.text + ' !important;'">Restore Purchases</span>
       </div>
       <div class="parkpal-plus-purchase__voucher" v-if="!loading" :style="'color: ' + settings.theme.header.text + ' !important;'">
-        <span @click="voucherAlert" :style="'color: ' + settings.theme.header.text + ' !important;'">Redeem Voucher</span>
+        <span @click="redeemVoucher" :style="'color: ' + settings.theme.header.text + ' !important;'">Redeem Voucher</span>
       </div>
     </div>
     <div class="parkpal-plus-purchase" :style="'background: ' + settings.theme.header.background + ' !important;'" v-else>
@@ -191,52 +191,8 @@ export default defineComponent({
         });
       }
     },
-    async voucherAlert() {
-      const alert = await alertController.create({
-        header: 'Redeem Voucher',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel'
-          },
-          {
-            text: 'Redeem',
-            role: 'confirm',
-            handler: (data: { code: string }) => {
-              // this.loading = true;
-
-              // Send an API request to redeem the voucher.
-              // subscriptionService.redeemVoucher(new VoucherRequest({
-              //   code: data.code
-              // })).then((voucher: Voucher) => {
-              //   // We have redeemed the code and verified it, therefore we can enable ParkPalPlus.
-              //   store.dispatch('setVoucher', voucher.code);
-              //   store.dispatch('setParkPalPlus', true);
-              // }).catch(async () => {
-              //   const alert = await alertController.create({
-              //     header: 'No Voucher Found',
-              //     message: 'There was no voucher matching that code or it has already been redeemed.',
-              //     buttons: ['OK'],
-              //   });
-              //
-              //   await alert.present();
-              // }).finally(() => {
-              //   this.loading = false;
-              // })
-
-              window.location.href = `https://apps.apple.com/redeem?ctx=offercodes&id=6444361624&code=${data.code}`;
-            },
-          },
-        ],
-        inputs: [
-          {
-            name: 'code',
-            placeholder: 'Voucher Code'
-          },
-        ],
-      });
-
-      await alert.present();
+    redeemVoucher() {
+      parkpalPlusHandler.presentVoucherAlert();
     }
   }
 })

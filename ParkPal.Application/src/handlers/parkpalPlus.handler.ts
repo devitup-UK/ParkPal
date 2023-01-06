@@ -68,11 +68,16 @@ function getPurchases(): PromiseLike<Array<string>> {
     });
 }
 
+function presentVoucherAlert() {
+    Purchases.presentCodeRedemptionSheet();
+}
+
 export default {
     setDebugLogLevel,
     initialisePurchases,
     getProducts,
     getPurchases,
     purchaseProduct,
-    restorePurchases
+    restorePurchases,
+    presentVoucherAlert
 }
