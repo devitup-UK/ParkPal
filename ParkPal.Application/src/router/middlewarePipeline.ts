@@ -1,8 +1,6 @@
-import { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
-import { RootState } from '@/store/types'
-import { Store } from 'vuex'
+import PipelineContext from '@/models/router/PipelineContext';
 
-function middlewarePipeline (context: { to: RouteLocationNormalized; from: RouteLocationNormalized; next: NavigationGuardNext; store: Store<RootState>}, middleware: Array<any>, index: number) {
+function middlewarePipeline(context: PipelineContext, middleware: Array<(context: PipelineContext) => void | undefined>, index: number) {
     const nextMiddleware = middleware[index]
 
     if(!nextMiddleware){
@@ -14,7 +12,9 @@ function middlewarePipeline (context: { to: RouteLocationNormalized; from: Route
             context, middleware, index + 1
         )
 
-        nextMiddleware({ ...context, next: nextPipeline })
+        if(nextMiddleware) {
+            nextMiddleware({...context, next: nextPipeline})
+        }
 
     }
 }

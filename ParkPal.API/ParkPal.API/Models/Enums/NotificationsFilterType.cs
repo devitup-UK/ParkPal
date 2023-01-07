@@ -2,6 +2,8 @@ namespace ParkPal.API.Models.Enums;
 
 public enum NotificationsFilterType
 {
-    AllAttractions,
+    All,
+    Attractions,
+    Parks,
     Favourites
 }

@@ -1,8 +1,41 @@
 <template>
 <!--  <nav>-->
   <IonApp>
-    <div class="content" :class="{ 'content--ads': !this.settings.parkPalPlus && this.isApp }">
-      <RouterView></RouterView>
+    <div class="notification-permissions-request" v-if="!settings.requestedNotifications">
+      <div class="notification-permissions-request__close" @click="denyPermissions">
+        <FontAwesomeIcon icon="times-circle" color="#000" size="2x"></FontAwesomeIcon>
+      </div>
+      <div class="notification-permissions-request__content">
+        <img src="@/assets/request-notification-permissions.svg">
+        <p :style="'color: ' + settings.theme.text + ' !important;'">Before using ParkPal, you must enable Push Notifications to receive wait time notifications, click the button below to accept Push Notifications. You can disable these later if you wish.</p>
+        <div class="filter-button">
+          <IonRow class="filter-button">
+            <IonCol>
+              <IonButton expand="full" @click="requestPermissions" color="transparent" :style="`color: ${settings.theme.actionButtonText} !important; background: ${settings.theme.actionButtonBackground} !important;`">
+                ENABLE PUSH NOTIFICATIONS
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow class="filter-button">
+            <IonCol>
+              <IonButton expand="full" @click="denyPermissions" color="transparent" :style="`color: ${settings.theme.resetButtonText} !important; background: ${settings.theme.resetButtonBackground} !important;`">
+                NO THANKS, MAYBE LATER
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </div>
+      </div>
+    </div>
+    <div class="content" :class="{ 'content--noads': this.settings.parkPalPlus }" :style="`margin-bottom: ${adHeight}px;`">
+      <RouterView v-slot="{ Component, route }">
+        <transition :name="route.params.transition">
+          <component :is="Component" />
+        </transition>
+      </RouterView>
+      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
+        <FontAwesomeIcon icon="spinner" spin fixed-width></FontAwesomeIcon>
+        <p>Loading advertisements...</p>
+      </div>
     </div>
     <div class="tabs" ref="tabs">
       <IonTabBar :style="'background:' + settings.theme.navigation.background + ' !important; border-color: ' + settings.theme.navigation.border + ' !important;'">
@@ -25,11 +58,16 @@
         </IonTabButton>
       </IonTabBar>
     </div>
-<!--    <Advertisements></Advertisements>-->
   </IonApp>
 </template>
 
 <style lang="scss">
+@import "~placeholder-loading/src/scss/placeholder-loading";
+
+.ph-row {
+  flex-direction: inherit;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -47,6 +85,15 @@
 
 ion-label {
   margin-top: 6px;
+}
+
+.ion-page {
+  height: 100%;
+  width: 100%;
+  top: unset !important;
+  right: unset !important;
+  bottom: unset !important;
+  left: unset !important;
 }
 
 .tab-selected {
@@ -67,8 +114,8 @@ ion-label {
   position: relative;
   height: 100%;
 
-  &.content--ads {
-    margin-bottom: 60px;
+  &.content--noads {
+    margin-bottom: 0 !important;
   }
 }
 
@@ -83,10 +130,105 @@ ion-label {
 ion-content {
   --background: transparent !important;
 }
+
+
+.slide-right-enter-active,
+.slide-right-leave-active,
+.slide-left-enter-active,
+.slide-left-leave-active{
+  transition: all 0.15s ease-out;
+}
+
+.slide-right-enter-to {
+  position: absolute;
+  right: 0 !important;
+}
+.slide-right-enter-from {
+  position: absolute;
+  right: -100% !important;
+}
+.slide-right-leave-to {
+  position: absolute;
+  left: -100% !important;
+}
+.slide-right-leave-from {
+  position: absolute;
+  left: 0 !important;
+}
+
+.slide-left-enter-to {
+  position: absolute;
+  left: 0 !important;
+}
+.slide-left-enter-from {
+  position: absolute;
+  left: -100% !important;
+}
+.slide-left-leave-to {
+  position: absolute;
+  right: -100% !important;
+}
+.slide-left-leave-from {
+  position: absolute;
+  right: 0 !important;
+}
+
+.advertisement-placeholder {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  font-size: 12px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  p {
+    margin-bottom: 0;
+    margin-top: 4px;
+  }
+}
+
+.filter-button {
+
+  ion-col {
+    padding: 0;
+
+    ion-button {
+      margin: 0;
+      font-weight: 300;
+      font-size: 14px;
+    }
+  }
+}
+
+.notification-permissions-request {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  background: #FCFCFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  .notification-permissions-request__close {
+    position: absolute;
+    top: calc(var(--ion-safe-area-top, 0) + 10px);
+    right: 10px;
+  }
+
+  p {
+    margin: 10px 20px 20px;
+    font-size: 14px;
+  }
+}
 </style>
 
 <script lang="ts">
-import {IonApp, IonLabel, IonTabBar, IonTabButton} from '@ionic/vue';
+import {IonApp, IonButton, IonLabel, IonTabBar, IonTabButton, IonRow, IonCol} from '@ionic/vue';
 import {PushNotifications} from '@capacitor/push-notifications';
 import {ScreenOrientation} from "@awesome-cordova-plugins/screen-orientation";
 import {defineComponent} from 'vue';
@@ -94,8 +236,7 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {mapState} from 'vuex';
 import {tokenService} from "@/services/token.service";
 import {RouterView} from "vue-router";
-// import Advertisements from '@/components/Advertisements.vue';
-import {hideBannerAdvertisement, initialiseAdvertisements, showBannerAdvertisement} from '@/events/advertisements.bus';
+import {hideBannerAdvertisement, initialiseAdvertisements, showBannerAdvertisement} from '@/handlers/advertisements.handler';
 import {
   requestNotificationPermissions,
   saveSubscriptionToDatabase,
@@ -103,11 +244,12 @@ import {
 } from "@/handlers/notifications.handler";
 import {App} from '@capacitor/app';
 import {StatusBar, Style} from "@capacitor/status-bar";
-import OneSignal from "onesignal-cordova-plugin";
-import store from "@/store";
-import {IAPProduct, InAppPurchase2} from "@ionic-native/in-app-purchase-2";
-import parkpalplusHandler from "@/handlers/parkpalplus.handler";
+import parkpalplusHandler from "@/handlers/parkpalPlus.handler";
 import {CapacitorPurchases, Package, PurchaserInfo} from "@capgo/capacitor-purchases";
+import {PurchasesPackage} from "cordova-plugin-purchases";
+import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
+import {subscriptionService} from "@/services/subscription.service";
+import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
 
 
 export default defineComponent({
@@ -120,10 +262,13 @@ export default defineComponent({
     IonTabButton,
     IonLabel,
     FontAwesomeIcon,
+    IonButton,
+    IonRow,
+    IonCol,
     RouterView
   },
   computed: {
-    ...mapState(['settings', 'isApp', 'notificationsEnabled'])
+    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight'])
   },
 
   methods: {
@@ -147,14 +292,39 @@ export default defineComponent({
           active: false
         }
       }
+    },
+
+    requestPermissions() {
+      // Setup OneSignal with all of our details, this could be a first ever launch of our app or a user opening the app after closing it.
+      setupOneSignal().then(() => {
+        // OneSignal setup complete and verified.
+        requestNotificationPermissions().then(() => {
+          // We have received word that they have accepted permissions, we will now save the OneSignal subscription to the database.
+          saveSubscriptionToDatabase().then(() => {
+            this.$store.dispatch('setNotificationsEnabled', true);
+            this.$store.dispatch('setNotificationsRequested', true);
+            initialiseAdvertisements();
+          }).catch(() => {
+            this.$store.dispatch('setNotificationsEnabled', false);
+            initialiseAdvertisements();
+          });
+        }).catch(() => {
+          this.$store.dispatch('setNotificationsEnabled', false);
+          initialiseAdvertisements();
+        })
+      });
+    },
+
+    denyPermissions() {
+      this.$store.dispatch('setNotificationsRequested', true);
+      initialiseAdvertisements();
     }
   },
 
-  // We need to check if our local storage has our Settings before, this is where all of our data is stored even after the app has been force closed.
+  // We need to check if our local storage has our settings before, this is where all of our data is stored even after the app has been force closed.
   beforeMount() {
 
-    this.$store.dispatch('configureSettings');
-
+    this.$store.dispatch('configureStorage');
 
     // First we need to check if we have an API token set in our settings, this would have come from our localStorage if this is a returning user.
     if(!this.settings.apiToken) {
@@ -167,90 +337,61 @@ export default defineComponent({
       parkpalplusHandler.setDebugLogLevel();
       parkpalplusHandler.initialisePurchases();
 
-      // Setup OneSignal with all of our details, this could be a first ever launch of our app or a user opening the app after closing it.
-      setupOneSignal().then(() => {
-        console.log('One Signal has been setup.');
-        // OneSignal setup complete and verified.
-        requestNotificationPermissions().then(() => {
-          console.log('Notifications permissions have been accepted.');
-          // We have received word that they have accepted permissions, we will now save the OneSignal subscription to the database.
-          saveSubscriptionToDatabase().then(() => {
-            console.log('Subscription saved to database.');
-            this.$store.dispatch('setNotificationsEnabled', true);
-          }).catch(() => {
-            console.log('Error saving subscription token to database.');
-            this.$store.dispatch('setNotificationsEnabled', false);
-          });
-        }).catch(() => {
-          console.log('Notifications permissions have been declined.');
-          this.$store.dispatch('setNotificationsEnabled', false);
-        })
-      });
-
 
       // If the app has been resumed and PushNotifications are no longer granted, we can set the notifications flag to false.
       App.addListener('resume',() => {
-        parkpalplusHandler.restorePurchases().then((hasParkPalPlus: boolean) => {
-          if(hasParkPalPlus) {
-            hideBannerAdvertisement();
-          }else{
-            showBannerAdvertisement(hasParkPalPlus);
-          }
-          this.$store.dispatch('setParkPalPlus', hasParkPalPlus);
-        });
-
-
-        console.log('App has been resumed, checking the users permissions in case they have changed.');
+        // Check the permissions.
         PushNotifications.checkPermissions().then((permissions) => {
           if(permissions.receive == 'granted') {
-            console.log('Permissions have been granted.');
             setupOneSignal().then(() => {
-              console.log('One Signal has been setup after app has been resumed.');
               saveSubscriptionToDatabase().then(() => {
-                console.log('Subscription saved to the database after app has been resumed.');
                 this.$store.dispatch('setNotificationsEnabled', true);
               }).catch(() => {
-                console.log('Saving subscription to the database has failed after app has been resumed.');
                 this.$store.dispatch('setNotificationsEnabled', false);
               });
             });
           }else{
-            console.log('Permissions have been disabled or are still disabled from original denial after app has been resumed.');
             this.$store.dispatch('setNotificationsEnabled', false);
+          }
+        })
+
+        // See if the user still has a subscription active.
+        parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
+          this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
+          if(activeSubscriptions.length) {
+            hideBannerAdvertisement();
+          }else{
+            if(!this.modalOpen) {
+              showBannerAdvertisement(activeSubscriptions.length > 0);
+            }
           }
         })
       })
 
-
-      PushNotifications.addListener('pushNotificationReceived', notification => {
-        console.log('Push notification received: ', notification);
-      });
-
       // Initialise our advertisements right at the start of the application.
-      initialiseAdvertisements();
+      if(this.settings.requestedNotifications) {
+        initialiseAdvertisements();
+      }
 
-      // Initialise our store and find out if the Apple ID has already subscribed.
-      // parkpalplusHandler.initialisePurchases().then((products: {[p: string]: IAPProduct}) => {
-      //   // this.products = products;
-      //   this.$store.dispatch('setProducts', products);
-      // });
-
-      parkpalplusHandler.getProducts().then((products: Array<Package>) => {
+      parkpalplusHandler.getProducts().then((products: Array<PurchasesPackage>) => {
         this.$store.dispatch('setProducts', products);
       });
 
-      parkpalplusHandler.restorePurchases().then((hasParkPalPlus: boolean) => {
-        if(hasParkPalPlus) {
-          hideBannerAdvertisement();
-        }else{
-          showBannerAdvertisement(hasParkPalPlus);
-        }
-        this.$store.dispatch('setParkPalPlus', hasParkPalPlus);
-      });
-
-      CapacitorPurchases.addListener('purchasesUpdate', (data: { purchases: Package; purchaserInfo: PurchaserInfo; }) => {
-        console.log('Purchase update', data);
+      parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
+        this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
       })
+
+      // If we have a voucher in our settings, we need to verify it.
+      // if(this.settings.voucher != undefined) {
+      //   subscriptionService.verifyVoucher({
+      //     code: this.settings.voucher
+      //   }).then(() => {
+      //     this.$store.dispatch('setParkPalPlus', true);
+      //     hideBannerAdvertisement();
+      //   }).catch(() => {
+      //     this.$store.dispatch('setParkPalPlus', false);
+      //   })
+      // }
 
       StatusBar.setStyle({
         style: Style.Light
@@ -263,7 +404,9 @@ export default defineComponent({
   },
   mounted() {
     // Setup our banner advertisements.
-    showBannerAdvertisement(this.settings.parkPalPlus);
+    setTimeout(() => {
+      showBannerAdvertisement(this.settings.parkPalPlus);
+    }, 400);
   },
 });
 </script>

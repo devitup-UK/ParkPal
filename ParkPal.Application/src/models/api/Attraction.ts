@@ -2,8 +2,8 @@ import {AttractionStatus} from "@/models/enums/AttractionStatus";
 import axios from "axios";
 
 export default class Attraction {
-    attractionId?: string;
-    name?: string;
+    attractionId = '';
+    name = '';
     image?: string;
     status?: AttractionStatus;
     thrill?: boolean;
@@ -20,22 +20,5 @@ export default class Attraction {
             this.hidden = data.hidden;
             this.waitTime = data.waitTime;
         }
-    }
-
-    checkImageExists() {
-        return new Promise((resolve, reject) => {
-            if(this.image) {
-                // console.log('Image', this.image);
-                axios.get('/img/' + this.image).then((response) => {
-                    // console.log('Response', response);
-                    resolve(true);
-                }).catch((error) => {
-                    // console.log('Error', error);
-                    resolve(false);
-                });
-            }else{
-                resolve(true);
-            }
-        })
     }
 }

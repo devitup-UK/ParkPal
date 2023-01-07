@@ -1,8 +1,9 @@
 <template>
   <div class="destination">
-    <div class="destination__background" :style="'background-image:url(/img/' + destination.image + '), url(/img/destination-no-image.svg)'"></div>
+    <div class="destination__background" :style="'background-image:url(/img/' + destination.image + ')'"></div>
     <div class="destination__details">
-      <p :style="`color: ${settings.theme.destinations.text} !important;`">Explore our range of destinations by swiping through.</p>
+      <div class="destination-details-background" :style="`background: ${settings.theme.background} !important; opacity: .7`"></div>
+      <p :style="`color: ${settings.theme.destinations.text} !important;`">Explore our range of destinations by swiping through or use the search bar to filter all destinations.</p>
       <h1 :style="`color: ${settings.theme.destinations.title} !important;`">{{ destination.name }}</h1>
       <h2 :style="`color: ${settings.theme.destinations.location} !important;`">
         <FontAwesomeIcon icon="location-dot" size="1x" fixed-width></FontAwesomeIcon>
@@ -10,7 +11,6 @@
       </h2>
     </div>
     <div class="destination__elements">
-      <img src="@/assets/logo.png">
       <IonButton class="destination-button" color="transparent" expand="block" @click="navigateToParksOrAttractions(destination)" :style="`color: ${settings.theme.destinations.buttonText} !important; background: ${settings.theme.destinations.buttonBackground} !important; border-radius: 10px;`">
         Explore {{ destination.name }}
       </IonButton>
@@ -49,20 +49,36 @@
   }
 
   .destination__details {
-    margin-top: var(--ion-safe-area-top, 0);
+    position: relative;
+    margin: 10px 0;
 
+    .destination-details-background {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 2;
+    }
 
     p {
+      position: relative;
+      z-index: 3;
       color: #bbbbbb;
       font-size: 12px;
+      padding: 0 16px;
     }
 
     h1 {
+      position: relative;
+      z-index: 3;
       font-size: 20px;
       color: #FFF;
     }
 
     h2 {
+      position: relative;
+      z-index: 3;
       margin-top: 6px;
       color: #FFF;
       font-size: 17px;
@@ -97,9 +113,21 @@ export default defineComponent({
     navigateToParksOrAttractions(destination: Destination) {
       this.$store.dispatch('setActiveDestination', destination);
 
-      if(destination.parks?.length) {
+      if(destination.parks?.length > 1) {
         this.$router.push({
-          name: 'parks'
+          name: 'parks',
+          params: {
+            transition: 'slide-right'
+          }
+        });
+      }else{
+        this.$store.dispatch('setActivePark', destination.parks[0]);
+
+        this.$router.push({
+          name: 'waitTimes',
+          params: {
+            transition: 'slide-right'
+          }
         });
       }
     }

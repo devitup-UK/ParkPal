@@ -75,20 +75,16 @@
 
 <script>
 import {defineComponent} from "vue";
-import { IonToolbar, IonPage, IonContent, IonButtons, IonButton, IonTitle, IonHeader, IonList, IonItem, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol } from "@ionic/vue";
+import { IonToolbar, IonPage, IonContent, IonButtons, IonButton, IonTitle, IonHeader, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import WaitTimeFilter from "@/models/store/WaitTimeFilter";
-import {WaitTimeFilterSort} from "@/models/enums/WaitTimeFilterSort";
-import {WaitTimeFilterType} from "@/models/enums/WaitTimeFilterType";
 import {mapState} from "vuex";
 import NotificationsFilter from "@/models/store/NotificationsFilter";
-import TimerWithAttraction from "@/models/api/TimerWithAttraction";
-import {hideBannerAdvertisement, showBannerAdvertisement} from "@/events/advertisements.bus";
+import {hideBannerAdvertisement, showBannerAdvertisement} from "@/handlers/advertisements.handler";
+import store from "@/store";
 
 export default defineComponent({
   name: "NotificationFiltersView",
   components: {
-    // IonLabel,
     FontAwesomeIcon,
     IonPage,
     IonContent,
@@ -100,8 +96,6 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    // IonList,
-    // IonItem,
     IonSelect,
     IonSelectOption
   },
@@ -114,10 +108,18 @@ export default defineComponent({
         type: [
           {
             value: 0,
-            label: 'All Attractions'
+            label: 'All'
           },
           {
             value: 1,
+            label: 'Attractions'
+          },
+          {
+            value: 2,
+            label: 'Parks'
+          },
+          {
+            value: 3,
             label: 'Favourites'
           }
         ],
@@ -183,7 +185,10 @@ export default defineComponent({
       this.$store.commit('setNotificationsFilter', this.filters);
 
       this.$router.push({
-        name: 'notifications'
+        name: 'notifications',
+        params: {
+          transition: 'slide-left'
+        }
       })
     },
 
@@ -193,15 +198,20 @@ export default defineComponent({
 
     backToNotifications() {
       this.$router.push({
-        name: 'notifications'
+        name: 'notifications',
+        params: {
+          transition: 'slide-left'
+        }
       })
     },
 
     hideAdvertisement() {
+      this.$store.dispatch('setModalOpen', true);
       hideBannerAdvertisement();
     },
 
     resumeAdvertisement() {
+      this.$store.dispatch('setModalOpen', false);
       showBannerAdvertisement(this.settings.parkPalPlus);
     }
   }

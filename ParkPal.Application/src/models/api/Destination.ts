@@ -2,8 +2,8 @@ import Park from "@/models/api/Park";
 import axios from "axios";
 
 export default class Destination {
-    destinationId?: string;
-    name?: string;
+    destinationId = '';
+    name = '';
     image?: string;
     location?: string;
     parks: Array<Park> = new Array<Park>();
@@ -25,14 +25,11 @@ export default class Destination {
     }
 
     checkImageExists() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if(this.image) {
-                // console.log('Image', this.image);
-                axios.get('/img/' + this.image).then((response) => {
-                    // console.log('Response', response);
+                axios.get('/img/' + this.image).then(() => {
                     resolve(true);
-                }).catch((error) => {
-                    // console.log('Error', error);
+                }).catch(() => {
                     resolve(false);
                 });
             }else{

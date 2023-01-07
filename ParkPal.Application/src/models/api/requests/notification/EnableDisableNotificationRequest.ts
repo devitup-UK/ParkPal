@@ -1,9 +1,9 @@
 export default class EnableDisableNotificationRequest {
-    attractionTimerId?: number;
+    notificationId?: number;
 
-    constructor(data: Pick<EnableDisableNotificationRequest, "attractionTimerId"> | null = null) {
+    constructor(data: Pick<EnableDisableNotificationRequest, "notificationId"> | null = null) {
         if(data != null) {
-            this.attractionTimerId = data.attractionTimerId;
+            this.notificationId = data.notificationId;
         }
     }
 }

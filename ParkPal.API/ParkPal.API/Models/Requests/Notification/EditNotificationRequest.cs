@@ -4,7 +4,7 @@ namespace ParkPal.API.Models.Requests.Notification;
 
 public class EditNotificationRequest
 {
-    public int AttractionTimerId { get; set; }
+    public int NotificationId { get; set; }
     public CriteriaType CriteriaType { get; set; }
     public int WaitTime { get; set; }
 }

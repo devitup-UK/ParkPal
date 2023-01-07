@@ -1,4 +1,5 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import {CapacitorConfig} from '@capacitor/cli';
+import {KeyboardResize} from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'DevItUp.ParkPal.Application',
@@ -8,6 +9,10 @@ const config: CapacitorConfig = {
   plugins: {
     PushNotifications: {
       "presentationOptions": ["badge", "sound", "alert"]
+    },
+    Keyboard: {
+      resize: KeyboardResize.None,
+      resizeOnFullScreen: false
     }
   }
 };

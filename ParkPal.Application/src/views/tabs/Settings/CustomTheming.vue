@@ -83,6 +83,24 @@
             <input type="color" v-model="theme.selectionBoxText" class="color-picker">
           </IonLabel>
         </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Search Box Background</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.searchBoxBackground" class="color-picker">
+          </IonLabel>
+        </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Search Box Icons</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.searchBoxIcons" class="color-picker">
+          </IonLabel>
+        </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Search Box Text</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.searchBoxText" class="color-picker">
+          </IonLabel>
+        </IonItem>
       </IonList>
       <h3 :style="`color:${settings.theme.text} !important;`" class="ion-text-start ion-padding-start">Header</h3>
       <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
@@ -180,6 +198,21 @@
           <IonLabel>Button Text</IonLabel>
           <IonLabel>
             <input type="color" v-model="theme.destinations.buttonText" class="color-picker">
+          </IonLabel>
+        </IonItem>
+      </IonList>
+      <h3 :style="`color:${settings.theme.text} !important;`" class="ion-text-start ion-padding-start">Wait Times</h3>
+      <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Text</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.waitTimes.text" class="color-picker">
+          </IonLabel>
+        </IonItem>
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <IonLabel>Background</IonLabel>
+          <IonLabel>
+            <input type="color" v-model="theme.waitTimes.background" class="color-picker">
           </IonLabel>
         </IonItem>
       </IonList>
@@ -284,14 +317,10 @@ ion-item::part(detail-icon) {
 
 <script>
 import { defineComponent } from "vue";
-import AttractionComponent from "../../../components/Attraction.vue";
-import {mapGetters, mapState} from "vuex";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonLabel, IonItem, IonGrid, IonRow, IonCol, IonModal, IonToggle } from "@ionic/vue";
+import {mapState} from "vuex";
+import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonLabel, IonItem, IonRow, IonCol } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import ParkPalPlus from "@/components/Settings/ParkPalPlus.vue";
-import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/events/advertisements.bus";
 import Theme from "@/models/store/theme/Theme";
-import InputColorPicker from 'vue-native-color-picker/src/components/InputColorPicker.vue';
 
 
 export default defineComponent({
@@ -305,16 +334,11 @@ export default defineComponent({
     IonTitle,
     IonItem,
     IonList,
-    // IonToggle,
     IonButtons,
     IonButton,
-
-    // IonGrid,
     IonCol,
     IonRow,
-    // AttractionComponent,
-    FontAwesomeIcon,
-    // InputColorPicker
+    FontAwesomeIcon
   },
   computed: {
     ...mapState(['settings'])
@@ -333,7 +357,9 @@ export default defineComponent({
     saveTheme() {
       let themeValue = JSON.stringify(this.theme);
       let theme = JSON.parse(themeValue);
-      this.$store.dispatch('setTheme', new Theme(theme));
+      let customThemeObject = new Theme(theme);
+      customThemeObject.setCustom(true);
+      this.$store.dispatch('setTheme', customThemeObject);
     },
     navigate(route) {
       this.$router.push({
@@ -342,7 +368,10 @@ export default defineComponent({
     },
     backToSettings() {
       this.$router.push({
-        name: 'settings'
+        name: 'settings',
+        params: {
+          transition: 'slide-left'
+        }
       })
     }
   }

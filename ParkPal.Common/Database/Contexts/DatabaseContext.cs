@@ -21,9 +21,13 @@ namespace ParkPal.Common.Database.Contexts
         // Notification Schema
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<AttractionTimer> AttractionTimers { get; set; }
+        public DbSet<ParkPal.Common.Models.Database.Entities.Notification.Item> Notifications { get; set; }
         
         // Log Schema
-        public DbSet<Item>? LogItems { get; set; }
+        public DbSet<ParkPal.Common.Models.Database.Entities.Log.Item>? LogItems { get; set; }
+        
+        // Subscription Schema
+        public DbSet<ParkPal.Common.Models.Database.Entities.Subscription.Voucher>? Vouchers { get; set; }
 
         public DatabaseContext(IConfiguration configuration)
         {

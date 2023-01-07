@@ -1,8 +1,9 @@
-import OneSignal from 'onesignal-cordova-plugin';
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import * as Sentry from "@sentry/vue";
+import { BrowserTracing } from "@sentry/tracing";
 
 import { IonicVue } from '@ionic/vue';
 
@@ -23,7 +24,16 @@ import {
     faPlus,
     faAt,
     faWallet,
-    faPaintRoller, faPaintBrush
+    faPaintRoller,
+    faTrash,
+    faBell,
+    faBellSlash,
+    faSpinner,
+    faLink,
+    faStar,
+    faComments,
+    faBook,
+    faUserSecret
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faMapMarkerAlt,
@@ -42,7 +52,16 @@ library.add(faMapMarkerAlt,
     faAt,
     faWallet,
     faTimesCircle,
-    faPaintRoller)
+    faPaintRoller,
+    faTrash,
+    faBell,
+    faBellSlash,
+    faSpinner,
+    faLink,
+    faStar,
+    faComments,
+    faBook,
+    faUserSecret)
 
 
 
@@ -65,7 +84,26 @@ import '@ionic/vue/css/display.css';
 /* Index variables */
 import './theme/variables.css';
 
-const app = createApp(App).use(IonicVue).use(router).use(store);
+import Vue3TouchEvents from "vue3-touch-events";
+
+const app = createApp(App).use(IonicVue).use(router).use(store).use(Vue3TouchEvents, {
+    swipeTolerance: 3
+});
+
+Sentry.init({
+    app,
+    dsn: "https://452cf5e9dd8445ac912605f95c64fbc2@o261761.ingest.sentry.io/4504207472721920",
+    integrations: [
+        new BrowserTracing({
+            routingInstrumentation: Sentry.vueRouterInstrumentation(router),
+            tracePropagationTargets: ["localhost", "capacitor", /^\//],
+        }),
+    ],
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+});
 
 router.isReady().then(() => {
     app.mount('#app');

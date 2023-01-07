@@ -17,7 +17,12 @@
       <Loader v-if="!parks.length && !serverError">Fetching Parks...</Loader>
       <ul class="parks" v-if="parks.filter(a => !a.hidden).length">
         <li v-for="park in parks.filter(a => !a.hidden)" :key="park.parkId" :style="'background: url(/img/' + park.image + ')'" @click="navigateToWaitTimes(park)">
-          <p>{{ park.name }}</p>
+          <div class="park-details">
+            <p :class="{ 'no-premium' : !settings.parkPalPlus }">{{ parkName(park.name) }}</p>
+            <div class="favourite" :class="{ 'favourite--active': isFavourite(park.parkId) }" v-if="settings.parkPalPlus">
+              <FontAwesomeIcon icon="heart" size="2x" @click.stop="favouritePark(park.parkId)" fixed-width></FontAwesomeIcon>
+            </div>
+          </div>
         </li>
       </ul>
     </IonContent>
@@ -37,18 +42,30 @@
     padding: 0 16px;
     height: 150px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     background-size: cover !important;
     background-position: center !important;
     color: #FFF;
     position: relative;
 
-    p {
+    .park-details {
       position: relative;
       z-index: 4;
-      font-size: 28px;
-      font-weight: 400;
+
+      p {
+        margin-top: 0;
+        font-size: 24px;
+        font-weight: 400;
+      }
+
+      .favourite {
+        font-size: 12px;
+
+        &.favourite--active {
+          color: #FF4141;
+        }
+      }
     }
 
     &::before {
@@ -63,12 +80,16 @@
     }
   }
 }
+
+.no-premium {
+  margin: 0;
+}
 </style>
 
 <script lang="ts">
 import {defineComponent} from "vue";
 import { IonContent, IonPage, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons } from "@ionic/vue";
-import {mapState} from "vuex";
+import {mapGetters, mapState} from "vuex";
 import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -92,7 +113,8 @@ export default defineComponent({
     Loader
   },
   computed: {
-    ...mapState(['destinations', 'activeDestination', 'settings', 'serverError'])
+    ...mapState(['destinations', 'activeDestination', 'settings', 'serverError']),
+    ...mapGetters(['favourites'])
   },
   data(): { parks: Array<Park> } {
     return {
@@ -103,6 +125,9 @@ export default defineComponent({
       this.getParks();
   },
   methods: {
+    isFavourite(parkId: string): boolean {
+      return this.favourites.includes(parkId);
+    },
     getParks() {
       themeparkService.getParks(this.activeDestination.destinationId).then(
           (response: AxiosResponse<Destination>) => {
@@ -117,22 +142,38 @@ export default defineComponent({
 
             this.$store.dispatch('setServerError', false);
           })
-          .catch((error) => {
+          .catch(() => {
             this.$store.dispatch('setServerError', true);
           });
     },
+    parkName(name: string) {
+      return name.replace('Theme', '').replace('Park', '');
+    },
     backToDestinations() {
       this.$router.push({
-        name: 'destinations'
+        name: 'destinations',
+        params: {
+          transition: 'slide-left'
+        }
       })
     },
     navigateToWaitTimes(park: Park) {
       this.$store.dispatch('setActivePark', park);
 
       this.$router.push({
-        name: 'waitTimes'
+        name: 'waitTimes',
+        params: {
+          transition: 'slide-right'
+        }
       })
-    }
+    },
+    favouritePark(id: string) {
+      if (this.favourites.includes(id)) {
+        this.$store.dispatch('removeFavourite', id);
+      } else {
+        this.$store.dispatch('addFavourite', id);
+      }
+    },
   },
 })
 </script>

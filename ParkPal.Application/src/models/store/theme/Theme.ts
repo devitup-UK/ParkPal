@@ -2,6 +2,7 @@ import Navigation from "@/models/store/theme/Navigation";
 import SettingsTheme from "@/models/store/theme/SettingsTheme";
 import Header from "@/models/store/theme/Header";
 import DestinationsTheme from "@/models/store/theme/DestinationsTheme";
+import WaitTimes from "@/models/store/theme/WaitTimes";
 
 export default class Theme {
     background = '#e3e3e3';
@@ -14,13 +15,19 @@ export default class Theme {
     selectionBoxBackground = '#FFFFFF';
     selectionBoxText = '#9d9d9d';
     selectionBoxBorder = '#d5d5d5';
+    searchBoxBackground = '#d3d3d3';
+    searchBoxText = '#747474';
+    searchBoxIcons = '#666666';
     header = new Header();
     navigation = new Navigation();
     destinations = new DestinationsTheme();
+    waitTimes = new WaitTimes();
     settings = new SettingsTheme();
-    darkMode = false;
 
-    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "header" | "navigation" | "destinations" | "settings" | "darkMode"> | null = null) {
+    darkMode = false;
+    custom = false;
+
+    constructor(data: Pick<Theme, "background" | "text" | "loadingIcon" | "actionButtonBackground" | "actionButtonText" | "resetButtonBackground" | "resetButtonText" | "selectionBoxBackground" | "selectionBoxBorder" | "selectionBoxText" | "searchBoxBackground" | "searchBoxText" | "searchBoxIcons" | "header" | "navigation" | "destinations" | "waitTimes" | "settings" | "darkMode" | "custom"> | null = null) {
         if(data) {
             this.background = data.background;
             this.text = data.text;
@@ -32,11 +39,16 @@ export default class Theme {
             this.selectionBoxBackground = data.selectionBoxBackground;
             this.selectionBoxText = data.selectionBoxText;
             this.selectionBoxBorder = data.selectionBoxBorder;
+            this.searchBoxBackground = data.searchBoxBackground;
+            this.searchBoxText = data.searchBoxText;
+            this.searchBoxIcons = data.searchBoxIcons;
             this.header = new Header(data.header);
             this.navigation = new Navigation(data.navigation);
             this.destinations = new DestinationsTheme(data.destinations);
+            this.waitTimes = new WaitTimes(data.waitTimes);
             this.settings = new SettingsTheme(data.settings);
             this.darkMode = data.darkMode;
+            this.custom = data.custom;
         }
     }
 
@@ -51,9 +63,14 @@ export default class Theme {
         this.selectionBoxBackground = '#FFFFFF';
         this.selectionBoxText = '#9d9d9d';
         this.selectionBoxBorder = '#d5d5d5';
+        this.searchBoxBackground = '#d3d3d3';
+        this.searchBoxText = '#747474';
+        this.searchBoxIcons = '#666666';
+        this.darkMode = false;
         this.header.setLightTheme();
         this.navigation.setLightTheme();
         this.destinations.setLightTheme();
+        this.waitTimes.setLightTheme();
         this.settings.setLightTheme();
     }
 
@@ -68,9 +85,18 @@ export default class Theme {
         this.selectionBoxBackground = '#000000';
         this.selectionBoxText = '#FFFFFF';
         this.selectionBoxBorder = '#464646';
+        this.searchBoxBackground = '#575757';
+        this.searchBoxText = '#FFFFFF';
+        this.searchBoxIcons = '#FFFFFF';
+        this.darkMode = true;
         this.header.setDarkTheme();
         this.navigation.setDarkTheme();
         this.destinations.setDarkTheme();
+        this.waitTimes.setDarkTheme();
         this.settings.setDarkTheme();
+    }
+
+    setCustom(value: boolean) {
+        this.custom = value;
     }
 }

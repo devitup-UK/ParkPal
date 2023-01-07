@@ -1,0 +1,5 @@
+IF COL_LENGTH('Notification.Item','AttractionId') IS NOT NULL
+BEGIN
+ALTER TABLE [Notification].[Item] ALTER COLUMN [AttractionId] NVARCHAR(1000) NULL
+END
+GO

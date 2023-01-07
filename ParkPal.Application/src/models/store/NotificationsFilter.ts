@@ -4,7 +4,7 @@ import {NotificationsFilterSort} from "@/models/enums/NotificationsFilterSort";
 
 export default class NotificationsFilter {
     criteria: NotificationsFilterCriteria = NotificationsFilterCriteria.Any;
-    type: NotificationsFilterType = NotificationsFilterType.AllAttractions;
+    type: NotificationsFilterType = NotificationsFilterType.All;
     sort: NotificationsFilterSort = NotificationsFilterSort.HighestWaitTime;
     parkId: string | null = null;
 

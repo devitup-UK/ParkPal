@@ -1,4 +1,6 @@
 export enum NotificationsFilterType {
-    AllAttractions = 0,
-    Favourites = 1
+    All = 0,
+    Attractions = 1,
+    Parks = 2,
+    Favourites = 3
 }

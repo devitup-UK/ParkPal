@@ -18,9 +18,26 @@
       <Loader v-if="loading && !serverError">Fetching Notifications...</Loader>
       <template v-else>
         <AlertComponent v-if="!settings.parkPalPlus">You can only have a maximum of 3 notifications. Subscribe to ParkPal+ to set an unlimited amount of notifications.</AlertComponent>
-        <ul class="attractions" v-if="notifications.length">
-          <AttractionComponent v-for="notification in notifications" :key="notification.timer.attractionTimerId" :attraction="notification.attraction" :park="notification.park" :notification="notification"></AttractionComponent>
-        </ul>
+        <template v-if="notifications.length">
+          <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInNotifications" @keyup.enter="dismissKeyboard" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
+          <ul class="attractions" v-if="!waitTimeSearch.length">
+                <NotificationComponent v-for="notification in notifications" :key="notification.properties.itemId" :notification="notification" :destinationName="getDestinationName(notification.properties.parkId)"></NotificationComponent>
+          </ul>
+          <ul class="attractions" v-if="waitTimeSearch.length">
+            <NotificationComponent v-for="notification in searchNotifications" :key="notification.properties.itemId" :notification="notification" :destinationName="getDestinationName(notification.properties.parkId)"></NotificationComponent>
+          </ul>
+          <div class="no-notifications" v-if="waitTimeSearch.length && !searchNotifications.length">
+            <div class="no-notifications__image">
+              <img src="@/assets/no-notifications.svg">
+            </div>
+            <p :style="'color: ' + settings.theme.text + ' !important;'">There are no notifications that match your search criteria, please change your search term and try again.</p>
+            <div class="filter-button">
+              <IonButton expand="full" @click="waitTimeSearch = ''" color="transparent" :style="`color: ${settings.theme.resetButtonText} !important; background: ${settings.theme.resetButtonBackground} !important;`">
+                RESET SEARCH
+              </IonButton>
+            </div>
+          </div>
+        </template>
         <div class="no-notifications" v-else>
           <div class="no-notifications__image">
             <img src="@/assets/no-notifications.svg">
@@ -36,7 +53,7 @@
 .attractions {
   list-style: none;
   padding: 0;
-  margin: 16px 0 0;
+  margin: 0;
 }
 
 .no-notifications {
@@ -57,6 +74,16 @@
   font-size: 12px !important;
   color: #3f3f3f;
 }
+
+.filter-button {
+  width: 100%;
+
+  ion-button {
+    margin: 0;
+    font-weight: 300;
+    font-size: 14px;
+  }
+}
 </style>
 
 <script lang="ts">
@@ -73,16 +100,25 @@ import {
   IonButtons,
   RefresherCustomEvent,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    IonSearchbar
 } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import Loader from "../../../components/Loader.vue";
 import AlertComponent from "@/components/Alert.vue";
 import ConnectionError from "@/components/ConnectionError.vue";
+import Notification from "@/models/api/Notification";
+import {Keyboard} from "@capacitor/keyboard";
+import NotificationComponent from "@/components/Notification.vue";
+import {themeparkService} from "@/services/themepark.service";
+import {AxiosResponse} from "axios";
+import Destination from "@/models/api/Destination";
+import {App} from "@capacitor/app";
 
 export default defineComponent({
   name: "NotificationsView",
   components: {
+    NotificationComponent,
     AlertComponent,
     IonButtons,
     IonButton,
@@ -91,20 +127,23 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonTitle,
-    AttractionComponent,
     FontAwesomeIcon,
     Loader,
     ConnectionError,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    IonSearchbar
   },
   computed: {
     ...mapState(['notifications', 'filters', 'settings', 'serverError']),
     ...mapGetters(['favourites', 'notificationIds'])
   },
-  data() {
+  data(): { loading: boolean, waitTimeSearch: string, searchNotifications: Array<Notification>, destinations: Array<Destination>} {
     return {
-      loading: true
+      loading: true,
+      waitTimeSearch: '',
+      searchNotifications: [],
+      destinations: []
     }
   },
   watch: {
@@ -113,21 +152,64 @@ export default defineComponent({
     }
   },
   beforeMount() {
+    this.getDestinations();
     // We need to pull in all the clients notifications, if they have any.
     this.getAllNotifications(null);
+
+    App.addListener('resume',() => {
+      if(this.$route.name == 'notifications') {
+        this.loading = true;
+        this.getDestinations();
+        // We need to pull in all the clients notifications, if they have any.
+        this.getAllNotifications(null);
+      }
+    })
   },
   methods: {
+    getDestinations() {
+      this.$store.dispatch('setServerError', false);
+
+      // Get all the destinations first and mark them as hidden.
+      themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
+        response.data.forEach(destination => {
+            let transformedDestination = new Destination(destination);
+
+            this.destinations.push(transformedDestination);
+        });
+
+      }).catch(() => {
+        this.$store.dispatch('setServerError', true);
+      })
+    },
+    getDestinationName(parkId: string) {
+      let destination = this.destinations.find(a => a.parks.find(a => a.parkId == parkId));
+
+      if(destination) {
+        return destination.name;
+      }
+
+      return '';
+    },
+    dismissKeyboard() {
+      Keyboard.hide();
+    },
     getAllNotifications(event: RefresherCustomEvent | null) {
       this.$store.dispatch('getAllNotifications', {
         filters: this.filters.notificationsFilter,
-        favouriteAttractionIds: this.favourites
+        favouriteIds: this.favourites
       });
       event?.target?.complete();
     },
     filterNotifications() {
       this.$router.push({
-        name: 'notificationFilters'
+        name: 'notificationFilters',
+        params: {
+          transition: 'slide-right'
+        }
       })
+    },
+    searchInNotifications() {
+      this.searchNotifications = this.notifications.filter((a: Notification) => JSON.stringify(a).toLowerCase().includes(this.waitTimeSearch.toLowerCase()));
     },
   }
 })

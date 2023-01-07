@@ -3,6 +3,7 @@ using ParkPal.API.Services.Interfaces;
 using ParkPal.Common.Database.Contexts;
 using ParkPal.Common.Models.Database.Entities.Device;
 using ParkPal.Common.Models.Database.Entities.Notification;
+using ParkPal.Common.Models.Database.Entities.Subscription;
 
 namespace ParkPal.API.Services;
 
@@ -56,6 +57,39 @@ public class SubscriptionService: ISubscriptionService
         if (subscriptionToOverwrite?.TokenId == token.TokenId)
         {
             return true;
+        }
+
+        return false;
+    }
+
+    public Voucher? RedeemVoucher(string code)
+    {
+        Voucher? voucher = _context.Vouchers?.FirstOrDefault(a => a.Code == code);
+
+        if (voucher != null)
+        {
+            if (!voucher.Redeemed)
+            {
+                voucher.Redeemed = true;
+                _context.SaveChanges();
+            }
+
+            return voucher;
+        }
+
+        return null;
+    }
+
+    public bool VerifyVoucher(string code)
+    {
+        Voucher? voucher = _context.Vouchers?.FirstOrDefault(a => a.Code == code);
+
+        if (voucher != null)
+        {
+            if (voucher.Redeemed)
+            {
+                return true;
+            }
         }
 
         return false;

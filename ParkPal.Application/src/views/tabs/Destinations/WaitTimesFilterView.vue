@@ -55,18 +55,15 @@
 
 <script>
 import {defineComponent} from "vue";
-import { IonToolbar, IonPage, IonContent, IonButtons, IonButton, IonTitle, IonHeader, IonList, IonItem, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol } from "@ionic/vue";
+import { IonToolbar, IonPage, IonContent, IonButtons, IonButton, IonTitle, IonHeader, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol } from "@ionic/vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import WaitTimeFilter from "@/models/store/WaitTimeFilter";
-import {WaitTimeFilterSort} from "@/models/enums/WaitTimeFilterSort";
-import {WaitTimeFilterType} from "@/models/enums/WaitTimeFilterType";
 import {mapState} from "vuex";
-import {hideBannerAdvertisement, resumeBannerAdvertisement, showBannerAdvertisement} from "@/events/advertisements.bus";
+import {hideBannerAdvertisement, showBannerAdvertisement} from "@/handlers/advertisements.handler";
 
 export default defineComponent({
   name: "WaitTimesFilterView",
   components: {
-    // IonLabel,
     FontAwesomeIcon,
     IonPage,
     IonContent,
@@ -78,8 +75,6 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    // IonList,
-    // IonItem,
     IonSelect,
     IonSelectOption
   },
@@ -129,7 +124,10 @@ export default defineComponent({
       this.$store.commit('setWaitTimeFilter', this.filters);
 
       this.$router.push({
-        name: 'waitTimes'
+        name: 'waitTimes',
+        params: {
+          transition: 'slide-left'
+        }
       })
     },
 
@@ -139,15 +137,20 @@ export default defineComponent({
 
     backToWaitTimes() {
       this.$router.push({
-        name: 'waitTimes'
+        name: 'waitTimes',
+        params: {
+          transition: 'slide-left'
+        }
       })
     },
 
     hideAdvertisement() {
+      this.$store.dispatch('setModalOpen', true);
       hideBannerAdvertisement();
     },
 
     resumeAdvertisement() {
+      this.$store.dispatch('setModalOpen', false);
       showBannerAdvertisement(this.settings.parkPalPlus);
     }
   }

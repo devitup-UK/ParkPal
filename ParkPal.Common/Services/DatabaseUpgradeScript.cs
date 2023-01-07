@@ -24,7 +24,7 @@ namespace ParkPal.Common.Services {
         public DatabaseUpgradeService(string databaseConnectionString, string scriptsLocation) {
             _databaseConnectionString = databaseConnectionString;
             _scriptsLocation = scriptsLocation;
-            _targetVersion = new DatabaseVersion(1, 0, 1);
+            _targetVersion = new DatabaseVersion(1, 0, 4);
             _sqlConnection = new SqlConnection(_databaseConnectionString);
         }
 
@@ -152,6 +152,10 @@ namespace ParkPal.Common.Services {
                     // Find out the current version and run DBU scripts to bring the database up to date.
                     return new DatabaseVersion(Convert.ToInt32(rdr[0]), Convert.ToInt32(rdr[1]), Convert.ToInt32(rdr[2]));
                 }
+            }
+            else
+            {
+                return new DatabaseVersion(0, 0, 0);
             }
 
             rdr.Close();

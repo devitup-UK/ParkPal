@@ -20,5 +20,6 @@ namespace ParkPal.Common.Models.Database.Entities.Notification
         public string PlayerId { get; set; }
         
         public virtual IEnumerable<AttractionTimer> AttractionTimers { get; set; }
+        public virtual IEnumerable<Item> Notifications { get; set; }
     }
 }

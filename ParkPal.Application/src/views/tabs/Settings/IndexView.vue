@@ -22,7 +22,7 @@
         </IonItem>
         <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <FontAwesomeIcon icon="plus" color="#F76C6C" class="settings-icon" fixed-width></FontAwesomeIcon>
-          <IonLabel id="open-modal" @click="hideBannerAdvertisement">ParkPal+</IonLabel>
+          <IonLabel id="open-modal" @click="hideBannerAdvertisement">Subscribe to ParkPal+</IonLabel>
         </IonItem>
       </IonList>
 
@@ -30,6 +30,29 @@
         <IonItem button @click="navigate('settingsAboutAndFAQs')" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <FontAwesomeIcon icon="at" color="#97A9AF" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>About & FAQs</IonLabel>
+        </IonItem>
+        <IonItem href="https://parkpal.co.uk" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="link" color="#5eaf6d" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>ParkPal Website</IonLabel>
+        </IonItem>
+        <IonItem @click="feedbackMessage" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="comments" color="#3f3f54" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Leave Feedback</IonLabel>
+        </IonItem>
+        <IonItem @click="rateApplication" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="star" color="#ede6a0" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Rate the App</IonLabel>
+        </IonItem>
+      </IonList>
+
+      <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="book" color="#f7adf1" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Terms of Use</IonLabel>
+        </IonItem>
+        <IonItem href="https://parkpal.co.uk/#privacy-policy" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="user-secret" color="#668593" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Privacy Policy</IonLabel>
         </IonItem>
       </IonList>
 
@@ -87,12 +110,26 @@ ion-item::part(detail-icon) {
 
 <script>
 import { defineComponent } from "vue";
-import AttractionComponent from "../../../components/Attraction.vue";
-import {mapGetters, mapState} from "vuex";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonLabel, IonItem, IonGrid, IonRow, IonCol, IonModal, IonToggle } from "@ionic/vue";
+import {mapState} from "vuex";
+import {
+  IonPage,
+  IonContent,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonList,
+  IonLabel,
+  IonItem,
+  IonModal,
+  IonToggle,
+  alertController
+} from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import ParkPalPlus from "@/components/Settings/ParkPalPlus.vue";
-import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/events/advertisements.bus";
+import ParkPalPlus from "@/components/settings/ParkPalPlus.vue";
+import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
+import { RateApp } from 'capacitor-rate-app';
+
 
 export default defineComponent({
   name: "SettingsIndexView",
@@ -109,11 +146,6 @@ export default defineComponent({
     IonToggle,
     IonModal,
     ParkPalPlus,
-
-    // IonGrid,
-    // IonCol,
-    // IonRow
-    // AttractionComponent,
     FontAwesomeIcon
   },
   computed: {
@@ -145,18 +177,47 @@ export default defineComponent({
   },
   methods: {
     hideBannerAdvertisement() {
+      this.$store.dispatch('setModalOpen', true);
       hideBannerAdvertisement();
     },
     // Methods to go here.
     navigate(route) {
       this.$router.push({
-        name: route
+        name: route,
+        params: {
+          transition: 'slide-right'
+        }
       })
     },
     closeModal() {
+      this.$store.dispatch('setModalOpen', false);
       resumeBannerAdvertisement(this.settings.parkPalPlus);
       this.$refs.modal.$el.dismiss(null, 'cancel');
-    }
+    },
+    rateApplication() {
+      RateApp.requestReview();
+    },
+    async feedbackMessage() {
+      const alert = await alertController.create({
+        header: 'Give Feedback',
+        message: 'You will be redirected to the ParkPal website to leave feedback  using the feedback form, would you like to continue?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'OK',
+            role: 'confirm',
+            handler: () => {
+              window.location = 'https://parkpal.co.uk/#getintouch'
+            },
+          },
+        ],
+      });
+
+      await alert.present();
+    },
   }
 })
 </script>

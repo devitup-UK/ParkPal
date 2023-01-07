@@ -1,13 +1,11 @@
 import Settings from "@/models/store/Settings";
 import WaitTimeFilter from "@/models/store/WaitTimeFilter";
-import AttractionTimer from "@/models/api/AttractionTimer";
 import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
-import TimerWithAttraction from "@/models/api/TimerWithAttraction";
+import Notification from "@/models/api/Notification";
 import Destination from "@/models/api/Destination";
 import NotificationsFilter from "@/models/store/NotificationsFilter";
 import Park from "@/models/api/Park";
-import {IAPProduct} from "@ionic-native/in-app-purchase-2";
-import {Package} from "@capgo/capacitor-purchases";
+import {PurchasesPackage} from "cordova-plugin-purchases";
 
 export interface RootState {
     destinations: Array<Destination>;
@@ -22,7 +20,11 @@ export interface RootState {
     loading: boolean;
     isApp: boolean;
     notificationsEnabled: boolean;
-    notifications: Array<TimerWithAttraction>;
+    notifications: Array<Notification>;
     serverError: boolean;
-    products: Array<Package>;
+    products: Array<PurchasesPackage>;
+    destinationSlideIndex: number;
+    destinationSearchTerm: string;
+    modalOpen: boolean;
+    adHeight: number;
 }

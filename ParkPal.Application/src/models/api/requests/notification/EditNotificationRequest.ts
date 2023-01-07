@@ -1,11 +1,11 @@
 export default class EditNotificationRequest {
-    attractionTimerId?: number;
+    notificationId?: number;
     criteriaType?: number;
     waitTime?: number;
 
-    constructor(data: Pick<EditNotificationRequest, "attractionTimerId" | "criteriaType" | "waitTime"> | null = null) {
+    constructor(data: Pick<EditNotificationRequest, "notificationId" | "criteriaType" | "waitTime"> | null = null) {
         if(data != null) {
-            this.attractionTimerId = data.attractionTimerId;
+            this.notificationId = data.notificationId;
             this.criteriaType = data.criteriaType;
             this.waitTime = data.waitTime;
         }
