@@ -24,3 +24,5 @@ ParkPal.API/.idea/
 ParkPal.API/ParkPal.API/bin/
 
 ParkPal.API/ParkPal.API/obj/
+
+ParkPal.Application/.env

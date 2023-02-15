@@ -8,7 +8,6 @@ function getSettingsFromLocalStorage(): Settings {
     const settings: Settings = new Settings(JSON.parse(settingsAsJson));
     const originalTheme: Theme = settings.theme;
 
-    console.log('Theme', settings.theme);
     // Check if the theme has been customised, if it has then we do NOT want to overwrite the theme, otherwise we do.
     if(!settings.theme.custom) {
         settings.theme = new Theme();
@@ -47,7 +46,7 @@ function storeActiveParkInLocalStorage(park: Park) {
     localStorage.setItem('activePark', parkAsJsonString);
 }
 
-export const storageService = {
+export const storageHandler = {
     getSettingsFromLocalStorage,
     storeSettingsInLocalStorage,
     getActiveDestinationFromLocalStorage,

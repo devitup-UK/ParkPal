@@ -5,6 +5,11 @@
         <IonTitle :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
           Destinations
         </IonTitle>
+        <IonButtons slot="end">
+          <IonButton @click="filterDestinations">
+            <FontAwesomeIcon icon="arrow-down-wide-short" :color="settings.theme.header.icons" fixed-width></FontAwesomeIcon>
+          </IonButton>
+        </IonButtons>
       </IonToolbar>
       <IonSearchbar placeholder="Search" v-model="searchTerm" @ionChange="search" @keyup.enter="dismissKeyboard" debounce="400" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`" class="destination-searchbar"></IonSearchbar>
     </IonHeader>
@@ -48,7 +53,17 @@
 
 <script lang="ts">
 import {defineComponent} from "vue";
-import {IonContent, IonPage, IonHeader, IonTitle, IonToolbar, IonSearchbar, IonButton} from "@ionic/vue";
+import {
+  IonContent,
+  IonPage,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonSearchbar,
+  IonButton,
+  IonButtons,
+  actionSheetController
+} from "@ionic/vue";
 import DestinationComponent from "@/components/Destination.vue";
 import {mapState} from "vuex";
 import Loader from "@/components/Loader.vue";
@@ -65,6 +80,12 @@ import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import {SwiperModule} from "swiper/types";
 import { Keyboard } from "@capacitor/keyboard";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import store from "@/store";
+import {hideBannerAdvertisement} from "@/handlers/advertisements.handler";
+import {deleteNotification} from "@/handlers/modals.handler";
+import {DestinationSort} from "@/models/enums/DestinationSort";
+import sortArray from "sort-array";
 
 export default defineComponent({
   name: "IndexView",
@@ -81,19 +102,22 @@ export default defineComponent({
     IonTitle,
     IonSearchbar,
     MiniDestination,
-    IonButton
+    IonButton,
+    IonButtons,
+    FontAwesomeIcon
   },
   computed: {
     ...mapState(['settings', 'serverError', 'destinationSlideIndex', 'destinationSearchTerm']),
   },
-  data(): { Virtual: SwiperModule, destinations: Array<Destination>, swiper: typeof Swiper | null, loading: boolean, searchTerm: string, searchDestinations: Array<Destination> } {
+  data(): { Virtual: SwiperModule, destinations: Array<Destination>, swiper: typeof Swiper | null, loading: boolean, searchTerm: string, searchDestinations: Array<Destination>, sort: DestinationSort } {
     return {
       Virtual,
       destinations: [],
       swiper: null,
       loading: true,
       searchTerm: '',
-      searchDestinations: []
+      searchDestinations: [],
+      sort: DestinationSort.Default
     }
   },
   watch: {
@@ -146,6 +170,9 @@ export default defineComponent({
             if(this.destinations.length == response.data.length) {
               resolve(true);
             }
+
+
+
           })
         });
 
@@ -161,6 +188,58 @@ export default defineComponent({
       }).catch(() => {
         this.$store.dispatch('setServerError', true);
       })
+    },
+    sortDestinations() {
+      switch(this.sort) {
+        case DestinationSort.Alphabetical:
+          this.destinations = sortArray(this.destinations, {
+            by: "name",
+            order: "asc"
+          });
+          break;
+        case DestinationSort.ReverseAlphabetical:
+          this.destinations = sortArray(this.destinations, {
+            by: "name",
+            order: "desc"
+          });
+          break;
+        case DestinationSort.Default:
+          this.destinations = sortArray(this.destinations, {
+            by: "defaultOrder",
+            order: "asc"
+          });
+          break;
+      }
+    },
+    async filterDestinations() {
+        const actionSheet = await actionSheetController.create({
+          header: 'Sort Destinations',
+          buttons: [
+            {
+              text: 'Default',
+              handler: async () => {
+                this.sort = DestinationSort.Default;
+                this.sortDestinations();
+              }
+            },
+            {
+              text: "A-Z",
+              handler: () => {
+                this.sort = DestinationSort.Alphabetical;
+                this.sortDestinations();
+              }
+            },
+            {
+              text: "Z-A",
+              handler: () => {
+                this.sort = DestinationSort.ReverseAlphabetical;
+                this.sortDestinations();
+              }
+            },
+          ]
+        });
+
+        await actionSheet.present();
     },
     navigateToParksOrAttractions(destination: Destination) {
       this.$store.dispatch('setActiveDestination', destination);

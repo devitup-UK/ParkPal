@@ -5,8 +5,11 @@ import Subscription from "@/models/api/Subscription";
 import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
 import Voucher from "@/models/api/Voucher";
 
+
+
 const instance = axios.create({
-    baseURL: 'https://api.parkpal.co.uk/subscription/',
+    // baseURL: 'https://api.parkpal.co.uk/subscription/',
+    baseURL: `${process.env.VUE_APP_API}/subscription/`,
     timeout: 10000
 });
 
