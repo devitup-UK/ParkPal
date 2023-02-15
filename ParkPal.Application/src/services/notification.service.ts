@@ -8,7 +8,8 @@ import Notification from "@/models/api/Notification";
 import GetNotificationsRequest from "@/models/api/requests/notification/GetNotificationsRequest";
 
 const instance = axios.create({
-    baseURL: 'https://api.parkpal.co.uk/notification/',
+    // baseURL: 'https://api.parkpal.co.uk/notification/',
+    baseURL: `${process.env.VUE_APP_API}/notification/`,
     timeout: 10000
 });
 

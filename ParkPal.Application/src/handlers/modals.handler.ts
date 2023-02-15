@@ -33,7 +33,6 @@ export async function configureNotification(attraction: Attraction, park: Park, 
         }
     }
 
-    console.log(notificationIds);
 
         if (!notificationIds.includes(notificationEntityId)) {
             buttons.push({

@@ -8,15 +8,17 @@ export default class Destination {
     location?: string;
     parks: Array<Park> = new Array<Park>();
     hidden?: boolean;
+    defaultOrder?: number;
 
 
-    constructor(data: Pick<Destination, "destinationId" | "name" | "image" | "location" | "parks" | "hidden"> | null = null) {
+    constructor(data: Pick<Destination, "destinationId" | "name" | "image" | "location" | "parks" | "hidden" | "defaultOrder"> | null = null) {
         if(data != null) {
             this.destinationId = data.destinationId;
             this.name = data.name;
             this.image = data.image;
             this.location = data.location;
             this.hidden = data.hidden;
+            this.defaultOrder = data.defaultOrder;
 
             data.parks?.forEach((park: Park) => {
                 this.parks.push(new Park(park))

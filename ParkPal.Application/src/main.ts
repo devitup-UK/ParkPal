@@ -33,7 +33,8 @@ import {
     faStar,
     faComments,
     faBook,
-    faUserSecret
+    faUserSecret,
+    faArrowDownWideShort
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faMapMarkerAlt,
@@ -61,7 +62,8 @@ library.add(faMapMarkerAlt,
     faStar,
     faComments,
     faBook,
-    faUserSecret)
+    faUserSecret,
+    faArrowDownWideShort)
 
 
 

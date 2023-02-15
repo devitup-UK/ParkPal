@@ -67,7 +67,7 @@ public class TimerService : IHostedService, IDisposable
             // Get the live data response for this specific park for this notification.
             EntityLiveDataResponse parkResponseForNotification = parksLiveData[notification.ParkId];
 
-            if (notification.AttractionId != null)
+            if (notification.AttractionId != "")
             {
                 EntityLiveData? attractionData =
                     parkResponseForNotification.LiveData.FirstOrDefault(a =>

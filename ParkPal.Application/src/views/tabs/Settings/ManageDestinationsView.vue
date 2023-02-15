@@ -8,6 +8,11 @@
           </IonButton>
         </IonButtons>
         <IonTitle :style="'background: ' + settings.theme.header.background + ' !important; border-width: 0 0px 2px; border-style: solid;border-color: ' + settings.theme.header.border + ' !important; color: '+ settings.theme.header.text + ' !important;'">Manage Destinations</IonTitle>
+        <IonButtons slot="end">
+          <IonButton @click="displaySortSheet">
+            <FontAwesomeIcon icon="arrow-down-wide-short" :color="settings.theme.header.icons" fixed-width></FontAwesomeIcon>
+          </IonButton>
+        </IonButtons>
       </IonToolbar>
     </IonHeader>
     <IonContent :style="`background:${settings.theme.background} !important;`">
@@ -26,7 +31,7 @@
         <IonList lines="full" class="settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <IonItem v-for="destination in destinations" :key="destination.destinationId" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
             <IonLabel>{{ destination.name }}</IonLabel>
-            <IonToggle color="success" :checked="!this.settings.hiddenDestinations.includes(destination.destinationId)" @click="toggleDestination(destination.destinationId)"></IonToggle>
+            <IonToggle color="success" :checked="!destination.hidden" @click="toggleDestination(destination.destinationId)"></IonToggle>
           </IonItem>
         </IonList>
       </template>
@@ -72,15 +77,34 @@ ion-item::part(detail-icon) {
 </style>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import {mapState} from "vuex";
-import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonItem, IonLabel, IonToggle, IonRow, IonCol } from "@ionic/vue";
+import {
+  actionSheetController,
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPage,
+  IonRow,
+  IonTitle,
+  IonToggle,
+  IonToolbar
+} from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {themeparkService} from "@/services/themepark.service";
 import {AxiosResponse} from "axios";
 import Destination from "@/models/api/Destination";
 import Loader from "@/components/Loader.vue";
 import {App} from "@capacitor/app";
+import {DestinationSort} from "@/models/enums/DestinationSort";
+import sortArray from "sort-array";
+import store from "@/store";
+import {hideBannerAdvertisement} from "@/handlers/advertisements.handler";
 
 export default defineComponent({
   name: "SettingsManageDestinationsView",
@@ -104,9 +128,10 @@ export default defineComponent({
   computed: {
     ...mapState(['settings', 'settings'])
   },
-  data(): { destinations: Array<Destination> } {
+  data(): { destinations: Array<Destination>, sort: DestinationSort } {
     return {
-      destinations: []
+      destinations: [],
+      sort: DestinationSort.Default
     }
   },
   beforeMount() {
@@ -137,25 +162,114 @@ export default defineComponent({
 
     enableAllDestinations() {
       this.$store.dispatch('enableAllDestinations');
+      this.markDestinationsAsHidden(this.destinations);
     },
 
     disableAllDestinations() {
       this.$store.dispatch('disableAllDestinations', this.destinations);
+      this.markDestinationsAsHidden(this.destinations);
     },
 
     getDestinations() {
       // Get all the destinations first and mark them as hidden.
       themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
-        response.data.forEach(destination => {
-          let transformedDestination = new Destination(destination);
+        this.markDestinationsAsHidden(response.data);
+      })
+    },
 
-          if(this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
+    markDestinationsAsHidden(destinations: Array<Destination>) {
+      let defaultOrder = 1;
+
+      destinations.forEach(destination => {
+        let transformedDestination = new Destination(destination);
+
+        let targetDestination = this.destinations.find(a => a.destinationId == destination.destinationId);
+
+        if(this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
+          if(targetDestination) {
+              targetDestination.hidden = true;
+          }else{
             transformedDestination.hidden = true;
           }
+        }else{
+          if(targetDestination) {
+            targetDestination.hidden = false;
+          }else{
+            transformedDestination.hidden = false;
+          }
+        }
 
+        if(!targetDestination) {
+          transformedDestination.defaultOrder = defaultOrder;
           this.destinations.push(transformedDestination);
-        })
+        }
+
+        defaultOrder++;
+
       })
+
+      this.sortDestinations();
+    },
+
+    sortDestinations() {
+      switch(this.sort) {
+        case DestinationSort.Alphabetical:
+          this.destinations = sortArray(this.destinations, {
+            by: "name",
+            order: "asc"
+          });
+          break;
+        case DestinationSort.ReverseAlphabetical:
+          this.destinations = sortArray(this.destinations, {
+            by: "name",
+            order: "desc"
+          });
+          break;
+        case DestinationSort.Default:
+          this.destinations = sortArray(this.destinations, {
+            by: "defaultOrder",
+            order: "asc"
+          });
+          break;
+      }
+    },
+
+    async displaySortSheet() {
+      const presentActionSheet = async () => {
+        const actionSheet = await actionSheetController.create({
+          header: "Sort Destinations",
+          buttons: [
+            {
+              text: "Default",
+              handler: () => {
+                this.sort = DestinationSort.Default;
+                this.sortDestinations();
+              }
+            },
+            {
+              text: "A-Z",
+              handler: () => {
+                this.sort = DestinationSort.Alphabetical;
+                this.sortDestinations();
+              }
+            },
+            {
+              text: "Z-A",
+              handler: () => {
+                this.sort = DestinationSort.ReverseAlphabetical;
+                this.sortDestinations();
+              }
+            },
+          ]
+        });
+
+        hideBannerAdvertisement();
+
+        await actionSheet.present();
+
+      }
+
+      await presentActionSheet();
     }
   }
 })
