@@ -82,7 +82,7 @@ import {SwiperModule} from "swiper/types";
 import { Keyboard } from "@capacitor/keyboard";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import store from "@/store";
-import {hideBannerAdvertisement} from "@/handlers/advertisements.handler";
+import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
 import {deleteNotification} from "@/handlers/modals.handler";
 import {DestinationSort} from "@/models/enums/DestinationSort";
 import sortArray from "sort-array";
@@ -239,8 +239,12 @@ export default defineComponent({
                 this.sortDestinations();
               }
             },
-          ]
+          ],
         });
+
+        actionSheet.onDidDismiss().then(() => {
+          resumeBannerAdvertisement(this.settings.parkPalPlus);
+        })
 
       hideBannerAdvertisement();
 

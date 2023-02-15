@@ -104,7 +104,11 @@ import {App} from "@capacitor/app";
 import {DestinationSort} from "@/models/enums/DestinationSort";
 import sortArray from "sort-array";
 import store from "@/store";
-import {hideBannerAdvertisement} from "@/handlers/advertisements.handler";
+import {
+  hideBannerAdvertisement,
+  resumeBannerAdvertisement,
+  showBannerAdvertisement
+} from "@/handlers/advertisements.handler";
 
 export default defineComponent({
   name: "SettingsManageDestinationsView",
@@ -262,6 +266,10 @@ export default defineComponent({
             },
           ]
         });
+
+        actionSheet.onDidDismiss().then(() => {
+          resumeBannerAdvertisement(this.settings.parkPalPlus);
+        })
 
         hideBannerAdvertisement();
 
