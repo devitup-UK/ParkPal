@@ -5,7 +5,7 @@ export function authHeader(): RawAxiosRequestHeaders {
     const headers: RawAxiosRequestHeaders = {};
 
     // Get the user object, containing the token from local storage.
-    const settingsObject = localStorage.getItem(`${process.env}-settings`);
+    const settingsObject = localStorage.getItem(`${process.env.VUE_APP_ENVIRONMENT}-settings`);
 
     // If we have the token, set our header.
     if(settingsObject) {
