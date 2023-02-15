@@ -158,8 +158,12 @@ export default defineComponent({
       themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
 
         let destinationStored = new Promise((resolve) => {
+          let defaultOrder = 1;
+
+
           response.data.forEach(destination => {
             let transformedDestination = new Destination(destination);
+            transformedDestination.defaultOrder = defaultOrder;
 
             if (this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
               transformedDestination.hidden = true;
@@ -171,8 +175,7 @@ export default defineComponent({
               resolve(true);
             }
 
-
-
+            defaultOrder++;
           })
         });
 
@@ -239,7 +242,9 @@ export default defineComponent({
           ]
         });
 
-        await actionSheet.present();
+      hideBannerAdvertisement();
+
+      await actionSheet.present();
     },
     navigateToParksOrAttractions(destination: Destination) {
       this.$store.dispatch('setActiveDestination', destination);
