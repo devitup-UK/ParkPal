@@ -31,7 +31,7 @@
         <IonList lines="full" class="settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <IonItem v-for="destination in destinations" :key="destination.destinationId" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
             <IonLabel>{{ destination.name }}</IonLabel>
-            <IonToggle color="success" :checked="!destination.hidden" @click="toggleDestination(destination.destinationId)"></IonToggle>
+            <IonToggle color="success" v-model="destination.visible" @click="toggleDestination(destination.destinationId)"></IonToggle>
           </IonItem>
         </IonList>
       </template>
@@ -165,13 +165,15 @@ export default defineComponent({
     },
 
     enableAllDestinations() {
-      this.$store.dispatch('enableAllDestinations');
-      this.markDestinationsAsHidden(this.destinations);
+      this.$store.dispatch('enableAllDestinations').then(() => {
+        this.markDestinationsAsHidden(this.destinations);
+      });
     },
 
     disableAllDestinations() {
-      this.$store.dispatch('disableAllDestinations', this.destinations);
-      this.markDestinationsAsHidden(this.destinations);
+      this.$store.dispatch('disableAllDestinations', this.destinations).then(() => {
+        this.markDestinationsAsHidden(this.destinations);
+      });
     },
 
     getDestinations() {
@@ -192,14 +194,18 @@ export default defineComponent({
         if(this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
           if(targetDestination) {
               targetDestination.hidden = true;
+              targetDestination.visible = false;
           }else{
             transformedDestination.hidden = true;
+            transformedDestination.visible = false;
           }
         }else{
           if(targetDestination) {
             targetDestination.hidden = false;
+            targetDestination.visible = true;
           }else{
             transformedDestination.hidden = false;
+            transformedDestination.visible = true;
           }
         }
 

@@ -167,6 +167,7 @@ export default defineComponent({
 
             if (this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
               transformedDestination.hidden = true;
+              transformedDestination.visible = false;
             }
 
             this.destinations.push(transformedDestination);
