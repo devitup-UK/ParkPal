@@ -9,6 +9,7 @@ export default class Destination {
     parks: Array<Park> = new Array<Park>();
     hidden?: boolean;
     defaultOrder?: number;
+    visible = !this.hidden;
 
 
     constructor(data: Pick<Destination, "destinationId" | "name" | "image" | "location" | "parks" | "hidden" | "defaultOrder"> | null = null) {
@@ -19,6 +20,7 @@ export default class Destination {
             this.location = data.location;
             this.hidden = data.hidden;
             this.defaultOrder = data.defaultOrder;
+            this.visible = !data.hidden;
 
             data.parks?.forEach((park: Park) => {
                 this.parks.push(new Park(park))

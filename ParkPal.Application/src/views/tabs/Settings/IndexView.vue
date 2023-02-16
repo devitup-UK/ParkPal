@@ -39,10 +39,6 @@
           <FontAwesomeIcon icon="comments" color="#3f3f54" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>Leave Feedback</IonLabel>
         </IonItem>
-        <IonItem @click="rateApplication" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
-          <FontAwesomeIcon icon="star" color="#ede6a0" class="settings-icon" fixed-width></FontAwesomeIcon>
-          <IonLabel>Rate the App</IonLabel>
-        </IonItem>
       </IonList>
 
       <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">

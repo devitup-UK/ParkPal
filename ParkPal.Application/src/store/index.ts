@@ -362,14 +362,15 @@ const store: StoreOptions<RootState> = {
       commit('setNotificationsRequested', value);
     },
     setAdHeight({commit}, value: number) {
-      console.log('settingAdHeight through dispatch', value);
       commit('setAdHeight', value);
     },
-    enableAllDestinations({commit}) {
+    enableAllDestinations({state, commit}) {
       commit('enableAllDestinations');
+      storageHandler.storeSettingsInLocalStorage(state.settings);
     },
-    disableAllDestinations({commit}, destinations: Array<Destination>) {
+    disableAllDestinations({commit, state}, destinations: Array<Destination>) {
       commit('disableAllDestinations', destinations);
+      storageHandler.storeSettingsInLocalStorage(state.settings);
     },
     setVoucher({commit}, value: string) {
       commit('setVoucher', value);

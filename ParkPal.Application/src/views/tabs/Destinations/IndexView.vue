@@ -82,7 +82,7 @@ import {SwiperModule} from "swiper/types";
 import { Keyboard } from "@capacitor/keyboard";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import store from "@/store";
-import {hideBannerAdvertisement} from "@/handlers/advertisements.handler";
+import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
 import {deleteNotification} from "@/handlers/modals.handler";
 import {DestinationSort} from "@/models/enums/DestinationSort";
 import sortArray from "sort-array";
@@ -158,11 +158,16 @@ export default defineComponent({
       themeparkService.getDestinations().then((response: AxiosResponse<Array<Destination>>) => {
 
         let destinationStored = new Promise((resolve) => {
+          let defaultOrder = 1;
+
+
           response.data.forEach(destination => {
             let transformedDestination = new Destination(destination);
+            transformedDestination.defaultOrder = defaultOrder;
 
             if (this.settings.hiddenDestinations.includes(transformedDestination.destinationId)) {
               transformedDestination.hidden = true;
+              transformedDestination.visible = false;
             }
 
             this.destinations.push(transformedDestination);
@@ -171,8 +176,7 @@ export default defineComponent({
               resolve(true);
             }
 
-
-
+            defaultOrder++;
           })
         });
 
@@ -236,10 +240,16 @@ export default defineComponent({
                 this.sortDestinations();
               }
             },
-          ]
+          ],
         });
 
-        await actionSheet.present();
+        actionSheet.onDidDismiss().then(() => {
+          resumeBannerAdvertisement(this.settings.parkPalPlus);
+        })
+
+      hideBannerAdvertisement();
+
+      await actionSheet.present();
     },
     navigateToParksOrAttractions(destination: Destination) {
       this.$store.dispatch('setActiveDestination', destination);

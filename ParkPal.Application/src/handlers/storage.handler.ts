@@ -4,7 +4,7 @@ import Park from "@/models/api/Park";
 import Theme from "@/models/store/theme/Theme";
 
 function getSettingsFromLocalStorage(): Settings {
-    const settingsAsJson = localStorage.getItem(`${process.env}-settings`) ?? 'null';
+    const settingsAsJson = localStorage.getItem(`${process.env.VUE_APP_ENVIRONMENT}-settings`) ?? 'null';
     const settings: Settings = new Settings(JSON.parse(settingsAsJson));
     const originalTheme: Theme = settings.theme;
 
@@ -21,29 +21,29 @@ function getSettingsFromLocalStorage(): Settings {
 
 function storeSettingsInLocalStorage(settings: Settings) {
     const settingsAsJsonString = JSON.stringify(settings);
-    localStorage.setItem(`${process.env}-settings`, settingsAsJsonString);
+    localStorage.setItem(`${process.env.VUE_APP_ENVIRONMENT}-settings`, settingsAsJsonString);
 }
 
 function getActiveDestinationFromLocalStorage(): Destination {
-    const destinationAsJson = localStorage.getItem(`${process.env}-activeDestination`) ?? 'null';
+    const destinationAsJson = localStorage.getItem(`${process.env.VUE_APP_ENVIRONMENT}-activeDestination`) ?? 'null';
     const destination: Destination = new Destination(JSON.parse(destinationAsJson));
     return destination;
 }
 
 function storeActiveDestinationInLocalStorage(destination: Destination) {
     const destinationAsJsonString = JSON.stringify(destination);
-    localStorage.setItem(`${process.env}-activeDestination`, destinationAsJsonString);
+    localStorage.setItem(`${process.env.VUE_APP_ENVIRONMENT}-activeDestination`, destinationAsJsonString);
 }
 
 function getActiveParkFromLocalStorage(): Park {
-    const parkAsJson = localStorage.getItem(`${process.env}-activePark`) ?? 'null';
+    const parkAsJson = localStorage.getItem(`${process.env.VUE_APP_ENVIRONMENT}-activePark`) ?? 'null';
     const park: Park = new Park(JSON.parse(parkAsJson));
     return park;
 }
 
 function storeActiveParkInLocalStorage(park: Park) {
     const parkAsJsonString = JSON.stringify(park);
-    localStorage.setItem(`${process.env}-activePark`, parkAsJsonString);
+    localStorage.setItem(`${process.env.VUE_APP_ENVIRONMENT}-activePark`, parkAsJsonString);
 }
 
 export const storageHandler = {
