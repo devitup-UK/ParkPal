@@ -32,7 +32,7 @@
           <component :is="Component" />
         </transition>
       </RouterView>
-      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
+      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp && !this.keyboard" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
         <FontAwesomeIcon icon="spinner" spin fixed-width></FontAwesomeIcon>
         <p>Loading advertisements...</p>
       </div>
@@ -225,6 +225,17 @@ ion-content {
     font-size: 14px;
   }
 }
+
+.plt-android {
+  ion-title {
+    border-width: 0 !important;
+  }
+
+  ion-list {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
 </style>
 
 <script lang="ts">
@@ -250,6 +261,7 @@ import {PurchasesPackage} from "cordova-plugin-purchases";
 import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
 import {subscriptionService} from "@/services/subscription.service";
 import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
+import store from "@/store";
 
 
 export default defineComponent({
@@ -268,7 +280,7 @@ export default defineComponent({
     RouterView
   },
   computed: {
-    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight'])
+    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight', 'keyboard'])
   },
 
   methods: {

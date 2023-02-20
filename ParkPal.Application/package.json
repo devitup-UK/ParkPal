@@ -17,6 +17,7 @@
     "@capacitor-community/appcenter": "3.0.0",
     "@capacitor-community/appcenter-analytics": "3.0.0",
     "@capacitor-community/appcenter-crashes": "3.0.1",
+    "@capacitor/android": "^4.6.3",
     "@capacitor/app": "^4.1.0",
     "@capacitor/core": "^4.4.0",
     "@capacitor/haptics": "4.0.1",
