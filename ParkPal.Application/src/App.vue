@@ -280,7 +280,7 @@ export default defineComponent({
     RouterView
   },
   computed: {
-    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight', 'keyboard'])
+    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight', 'keyboard', 'advertisementsInitialised'])
   },
 
   methods: {
@@ -413,12 +413,6 @@ export default defineComponent({
 
 
 
-  },
-  mounted() {
-    // Setup our banner advertisements.
-    setTimeout(() => {
-      showBannerAdvertisement(this.settings.parkPalPlus);
-    }, 400);
   },
 });
 </script>

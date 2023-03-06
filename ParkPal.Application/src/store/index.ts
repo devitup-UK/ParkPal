@@ -44,7 +44,8 @@ const store: StoreOptions<RootState> = {
     destinationSearchTerm: '',
     modalOpen: false,
     adHeight: 60,
-    keyboard: false
+    keyboard: false,
+    advertisementsInitialised: true
   },
   getters: {
     favourites(state) {
@@ -203,6 +204,9 @@ const store: StoreOptions<RootState> = {
     },
     setKeyboardVisible(state, value: boolean) {
       state.keyboard = value;
+    },
+    setAdvertisementsInitialised(state, value: boolean) {
+      state.advertisementsInitialised = value;
     }
   },
   actions: {
@@ -385,6 +389,9 @@ const store: StoreOptions<RootState> = {
     },
     setKeyboardVisible({commit}, value: boolean) {
       commit('setKeyboardVisible', value);
+    },
+    setAdvertisementsInitialised({commit}, value: boolean) {
+      commit('setAdvertisementsInitialised', value);
     }
   },
 }

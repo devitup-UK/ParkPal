@@ -1,4 +1,4 @@
-package devitup.parkPal.application;
+package devitup.parkpal.application;
 
 import android.os.Bundle;
 

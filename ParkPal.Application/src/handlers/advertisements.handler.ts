@@ -7,29 +7,41 @@ export function initialiseAdvertisements() {
     if(store.state.isApp) {
         AdMob.initialize({
             requestTrackingAuthorization: true,
-            initializeForTesting: true
-        }).then()
+            initializeForTesting: false
+        }).then(() => {
 
-        AdMob.addListener(BannerAdPluginEvents.SizeChanged, (bannerSize) => {
-            // Whenever the banner size changes, we need to set our ad banner height in the store.
-            store.dispatch('setAdHeight', bannerSize.height).then();
+            store.dispatch('setAdvertisementsInitialised', true).then(() => {
+                console.log('Ads Initialised');
+
+                setTimeout(() => {
+                    console.log('Showing Banner Ad???');
+                    showBannerAdvertisement(store.state.settings.parkPalPlus);
+                }, 400);
+
+
+                AdMob.addListener(BannerAdPluginEvents.SizeChanged, (bannerSize) => {
+                    // Whenever the banner size changes, we need to set our ad banner height in the store.
+                    store.dispatch('setAdHeight', bannerSize.height).then();
+                })
+
+
+                // If we are on android, we need to hide and show advertisements when the keyboard is opened and closed.
+                if(Capacitor.getPlatform() == "android") {
+                    Keyboard.addListener('keyboardDidShow', () => {
+                        store.dispatch('setKeyboardVisible', true).then(() => {
+                            hideBannerAdvertisement();
+                        });
+                    })
+
+                    Keyboard.addListener('keyboardDidHide', () => {
+                        store.dispatch('setKeyboardVisible', false).then(() => {
+                            resumeBannerAdvertisement(store.state.settings.parkPalPlus);
+                        });
+                    })
+                }
+            });
+
         })
-
-
-        // If we are on android, we need to hide and show advertisements when the keyboard is opened and closed.
-        if(Capacitor.getPlatform() == "android") {
-            Keyboard.addListener('keyboardDidShow', () => {
-                store.dispatch('setKeyboardVisible', true).then(() => {
-                    hideBannerAdvertisement();
-                });
-            })
-
-            Keyboard.addListener('keyboardDidHide', () => {
-                store.dispatch('setKeyboardVisible', false).then(() => {
-                    resumeBannerAdvertisement(store.state.settings.parkPalPlus);
-                });
-            })
-        }
     }
 }
 
