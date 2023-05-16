@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkparkpal_application"]=self["webpackChunkparkpal_application"]||[]).push([[251],{1251:function(e,n,r){r.r(n),r.d(n,{NativeSettingsWeb:function(){return t}});var o=r(6933);class t extends o.Uw{async open(){return new Promise(((e,n)=>{n(new Error("Not implemented for web."))}))}async openAndroid(){return new Promise(((e,n)=>{n(new Error("Not implemented for web."))}))}async openIOS(){return new Promise(((e,n)=>{n(new Error("Not implemented for web."))}))}}}}]);
+//# sourceMappingURL=251.7c4bcf58.js.map
