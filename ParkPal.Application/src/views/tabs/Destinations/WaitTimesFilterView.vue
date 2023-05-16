@@ -6,7 +6,7 @@
           <IonButton @click="backToWaitTimes()">
             <FontAwesomeIcon icon="arrow-left" :color="settings.theme.header.icons" fixed-width></FontAwesomeIcon>
           </IonButton>
-        </IonButtons>
+        </IonButtons>x
         <IonTitle :style="'background: ' + settings.theme.header.background + ' !important; border-width: 0 0px 2px; border-style: solid;border-color: ' + settings.theme.header.border + ' !important; color: '+ settings.theme.header.text + ' !important;'">Wait Time Filters</IonTitle>
       </IonToolbar>
     </IonHeader>

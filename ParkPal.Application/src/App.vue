@@ -1,7 +1,7 @@
 <template>
 <!--  <nav>-->
   <IonApp>
-    <div class="notification-permissions-request" v-if="!settings.requestedNotifications">
+    <div class="notification-permissions-request" v-if="!settings.requestedNotifications && !isAndroid">
       <div class="notification-permissions-request__close" @click="denyPermissions">
         <FontAwesomeIcon icon="times-circle" color="#000" size="2x"></FontAwesomeIcon>
       </div>
@@ -81,6 +81,7 @@
    border-style: solid;
    border-color: var(--ion-color-primary);
    height: 82px;
+   display: flex;
  }
 
 ion-label {
@@ -262,14 +263,13 @@ import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
 import {subscriptionService} from "@/services/subscription.service";
 import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
 import store from "@/store";
+import {Capacitor} from "@capacitor/core";
 
 
 export default defineComponent({
   name: 'App',
   components: {
     IonApp,
-    // IonRouterOutlet,
-    // IonTabs,
     IonTabBar,
     IonTabButton,
     IonLabel,
@@ -277,10 +277,14 @@ export default defineComponent({
     IonButton,
     IonRow,
     IonCol,
+
     RouterView
   },
   computed: {
-    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight', 'keyboard', 'advertisementsInitialised'])
+    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight', 'keyboard', 'advertisementsInitialised']),
+    isAndroid() {
+      return Capacitor.getPlatform() === "android";
+    }
   },
 
   methods: {
@@ -350,22 +354,23 @@ export default defineComponent({
       parkpalplusHandler.initialisePurchases();
 
 
+      // This misbehaves massively on Android because app 'resume' is called when the app first opens, which is NOT good.
       // If the app has been resumed and PushNotifications are no longer granted, we can set the notifications flag to false.
       App.addListener('resume',() => {
-        // Check the permissions.
-        PushNotifications.checkPermissions().then((permissions) => {
-          if(permissions.receive == 'granted') {
-            setupOneSignal().then(() => {
-              saveSubscriptionToDatabase().then(() => {
-                this.$store.dispatch('setNotificationsEnabled', true);
-              }).catch(() => {
-                this.$store.dispatch('setNotificationsEnabled', false);
+          // Check the permissions.
+          PushNotifications.checkPermissions().then((permissions) => {
+            if (permissions.receive == 'granted') {
+              setupOneSignal().then(() => {
+                saveSubscriptionToDatabase().then(() => {
+                  this.$store.dispatch('setNotificationsEnabled', true);
+                }).catch(() => {
+                  this.$store.dispatch('setNotificationsEnabled', false);
+                });
               });
-            });
-          }else{
-            this.$store.dispatch('setNotificationsEnabled', false);
-          }
-        })
+            } else {
+              this.$store.dispatch('setNotificationsEnabled', false);
+            }
+          })
 
         // See if the user still has a subscription active.
         parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
