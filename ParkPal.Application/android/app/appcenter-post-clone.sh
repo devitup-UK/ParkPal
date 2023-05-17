@@ -17,6 +17,9 @@ nvm alias node16 "$NODE_VERSION"
 # go to root of project
 cd ../..
 
+# Print out the contents of the folder we are in
+ls
+
 # install dependencies
 npm install
 
