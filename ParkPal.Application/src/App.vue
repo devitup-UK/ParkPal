@@ -386,7 +386,7 @@ export default defineComponent({
       })
 
       // Initialise our advertisements right at the start of the application.
-      if(this.settings.requestedNotifications) {
+      if(this.settings.requestedNotifications || this.isAndroid) {
         initialiseAdvertisements();
       }
 
