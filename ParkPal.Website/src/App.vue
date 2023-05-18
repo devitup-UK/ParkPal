@@ -46,10 +46,20 @@
             <h1>ParkPal</h1>
             <h2>The last theme park wait time you’ll ever need.</h2>
             <p>Set target wait time notifications and view wait times for over 50+ destinations worldwide, all in a simple app so you can carry it with you all day while you visit your favourite theme park destination.</p>
-            <b-button href="https://apps.apple.com/us/app/parkpal-for-theme-parks/id6444361624" target="_blank" pill>
-              <font-awesome-icon :icon="['brands', 'apple']" fixed-width></font-awesome-icon>
-              <span>App Store</span>
-            </b-button>
+            <b-row class="w-100">
+              <b-col sm="12" lg="6" class="mb-4 mb-lg-0">
+                <b-button href="https://apps.apple.com/us/app/parkpal-for-theme-parks/id6444361624" target="_blank" pill>
+                  <font-awesome-icon :icon="['brands', 'apple']" fixed-width></font-awesome-icon>
+                  <span>App Store</span>
+                </b-button>
+              </b-col>
+              <b-col sm="12" lg="6">
+                <b-button href="https://play.google.com/store/apps/details?id=devitup.parkpal.application" target="_blank" pill>
+                  <font-awesome-icon :icon="['brands', 'android']" fixed-width></font-awesome-icon>
+                  <span>Play Store</span>
+                </b-button>
+              </b-col>
+            </b-row>
         </b-col>
       </b-row>
     </b-container>
