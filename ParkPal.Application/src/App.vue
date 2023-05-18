@@ -1,7 +1,7 @@
 <template>
 <!--  <nav>-->
   <IonApp>
-    <div class="notification-permissions-request" v-if="!settings.requestedNotifications">
+    <div class="notification-permissions-request" v-if="!settings.requestedNotifications && !isAndroid">
       <div class="notification-permissions-request__close" @click="denyPermissions">
         <FontAwesomeIcon icon="times-circle" color="#000" size="2x"></FontAwesomeIcon>
       </div>
@@ -32,7 +32,7 @@
           <component :is="Component" />
         </transition>
       </RouterView>
-      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
+      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp && !this.keyboard" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
         <FontAwesomeIcon icon="spinner" spin fixed-width></FontAwesomeIcon>
         <p>Loading advertisements...</p>
       </div>
@@ -81,6 +81,7 @@
    border-style: solid;
    border-color: var(--ion-color-primary);
    height: 82px;
+   display: flex;
  }
 
 ion-label {
@@ -225,6 +226,17 @@ ion-content {
     font-size: 14px;
   }
 }
+
+.plt-android {
+  ion-title {
+    border-width: 0 !important;
+  }
+
+  ion-list {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
 </style>
 
 <script lang="ts">
@@ -250,14 +262,14 @@ import {PurchasesPackage} from "cordova-plugin-purchases";
 import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
 import {subscriptionService} from "@/services/subscription.service";
 import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
+import store from "@/store";
+import {Capacitor} from "@capacitor/core";
 
 
 export default defineComponent({
   name: 'App',
   components: {
     IonApp,
-    // IonRouterOutlet,
-    // IonTabs,
     IonTabBar,
     IonTabButton,
     IonLabel,
@@ -265,10 +277,14 @@ export default defineComponent({
     IonButton,
     IonRow,
     IonCol,
+
     RouterView
   },
   computed: {
-    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight'])
+    ...mapState(['settings', 'isApp', 'notificationsEnabled', 'modalOpen', 'adHeight', 'keyboard', 'advertisementsInitialised']),
+    isAndroid() {
+      return Capacitor.getPlatform() === "android";
+    }
   },
 
   methods: {
@@ -338,22 +354,23 @@ export default defineComponent({
       parkpalplusHandler.initialisePurchases();
 
 
+      // This misbehaves massively on Android because app 'resume' is called when the app first opens, which is NOT good.
       // If the app has been resumed and PushNotifications are no longer granted, we can set the notifications flag to false.
       App.addListener('resume',() => {
-        // Check the permissions.
-        PushNotifications.checkPermissions().then((permissions) => {
-          if(permissions.receive == 'granted') {
-            setupOneSignal().then(() => {
-              saveSubscriptionToDatabase().then(() => {
-                this.$store.dispatch('setNotificationsEnabled', true);
-              }).catch(() => {
-                this.$store.dispatch('setNotificationsEnabled', false);
+          // Check the permissions.
+          PushNotifications.checkPermissions().then((permissions) => {
+            if (permissions.receive == 'granted') {
+              setupOneSignal().then(() => {
+                saveSubscriptionToDatabase().then(() => {
+                  this.$store.dispatch('setNotificationsEnabled', true);
+                }).catch(() => {
+                  this.$store.dispatch('setNotificationsEnabled', false);
+                });
               });
-            });
-          }else{
-            this.$store.dispatch('setNotificationsEnabled', false);
-          }
-        })
+            } else {
+              this.$store.dispatch('setNotificationsEnabled', false);
+            }
+          })
 
         // See if the user still has a subscription active.
         parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
@@ -369,7 +386,7 @@ export default defineComponent({
       })
 
       // Initialise our advertisements right at the start of the application.
-      if(this.settings.requestedNotifications) {
+      if(this.settings.requestedNotifications || this.isAndroid) {
         initialiseAdvertisements();
       }
 
@@ -401,12 +418,6 @@ export default defineComponent({
 
 
 
-  },
-  mounted() {
-    // Setup our banner advertisements.
-    setTimeout(() => {
-      showBannerAdvertisement(this.settings.parkPalPlus);
-    }, 400);
   },
 });
 </script>

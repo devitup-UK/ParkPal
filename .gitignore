@@ -26,3 +26,7 @@ ParkPal.API/ParkPal.API/bin/
 ParkPal.API/ParkPal.API/obj/
 
 ParkPal.Application/.env
+
+ParkPal.Application/android/.idea/deploymentTargetDropDown.xml
+
+ParkPal.Application/android/app/src/main/assets/appcenter-config.json

@@ -2,14 +2,21 @@ import {Purchases, PurchasesOfferings} from '@awesome-cordova-plugins/purchases'
 
 import store from "@/store";
 import {CustomerInfo, PurchasesPackage} from "cordova-plugin-purchases";
+import {Capacitor} from "@capacitor/core";
 
 function setDebugLogLevel(enabled = true) {
     Purchases.setDebugLogsEnabled(true);
 }
 
 function initialisePurchases() {
+    let apiKey = 'appl_JepMvmLMlmTIhyDKESvccQiEIpz';
+
+    if(Capacitor.getPlatform() == "android") {
+        apiKey = 'goog_ZWTNBWYpjUIEKPLbIqfAORHuaHy';
+    }
+
     Purchases.configureWith({
-        apiKey: 'appl_JepMvmLMlmTIhyDKESvccQiEIpz'
+        apiKey
     })
 
     Purchases.onCustomerInfoUpdated().subscribe((customerInfo: CustomerInfo) => {

@@ -27,4 +27,6 @@ export interface RootState {
     destinationSearchTerm: string;
     modalOpen: boolean;
     adHeight: number;
+    keyboard: boolean;
+    advertisementsInitialised: boolean;
 }

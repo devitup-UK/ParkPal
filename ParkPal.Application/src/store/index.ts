@@ -21,6 +21,7 @@ import Park from "@/models/api/Park";
 import Theme from "@/models/store/theme/Theme";
 import {PurchasesPackage} from "cordova-plugin-purchases";
 import EnableDisableNotificationRequest from "@/models/api/requests/notification/EnableDisableNotificationRequest";
+import {Capacitor} from "@capacitor/core";
 
 const store: StoreOptions<RootState> = {
   state: {
@@ -35,14 +36,16 @@ const store: StoreOptions<RootState> = {
     notificationHoldingArea: new NotificationHoldingArea(),
     loading: false,
     notifications: [],
-    isApp: !document.URL.startsWith('http'),
+    isApp: (Capacitor.getPlatform() != "web"),
     notificationsEnabled: false,
     serverError: false,
     products: [],
     destinationSlideIndex: 0,
     destinationSearchTerm: '',
     modalOpen: false,
-    adHeight: 60
+    adHeight: 60,
+    keyboard: false,
+    advertisementsInitialised: true
   },
   getters: {
     favourites(state) {
@@ -198,6 +201,12 @@ const store: StoreOptions<RootState> = {
     setVoucher(state, value: string | undefined) {
       state.settings.voucher = value;
       storageHandler.storeSettingsInLocalStorage(state.settings);
+    },
+    setKeyboardVisible(state, value: boolean) {
+      state.keyboard = value;
+    },
+    setAdvertisementsInitialised(state, value: boolean) {
+      state.advertisementsInitialised = value;
     }
   },
   actions: {
@@ -377,6 +386,12 @@ const store: StoreOptions<RootState> = {
     },
     removeVoucher({commit}) {
       commit('setVoucher', undefined);
+    },
+    setKeyboardVisible({commit}, value: boolean) {
+      commit('setKeyboardVisible', value);
+    },
+    setAdvertisementsInitialised({commit}, value: boolean) {
+      commit('setAdvertisementsInitialised', value);
     }
   },
 }

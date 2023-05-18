@@ -129,6 +129,8 @@ public class Destination
                     return "Montreal, Canada";
                 case "271f07d8-9dcc-4529-925e-8760be79ffcd":
                     return "Mexico, United States";
+                case "be4e3681-7e3c-43a5-89e6-bb4863d8fe35":
+                    return "California, United States";
             }
             return null;
         }
