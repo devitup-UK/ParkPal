@@ -37,6 +37,8 @@ import {
     faArrowDownWideShort
 } from '@fortawesome/free-solid-svg-icons';
 
+import {faFacebook, faInstagram, faTwitter} from "@fortawesome/free-brands-svg-icons";
+
 library.add(faMapMarkerAlt,
     faClock,
     faCog,
@@ -63,7 +65,10 @@ library.add(faMapMarkerAlt,
     faComments,
     faBook,
     faUserSecret,
-    faArrowDownWideShort)
+    faArrowDownWideShort,
+    faFacebook,
+    faTwitter,
+    faInstagram)
 
 
 
@@ -87,6 +92,7 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 
 import Vue3TouchEvents from "vue3-touch-events";
+
 
 const app = createApp(App).use(IonicVue).use(router).use(store).use(Vue3TouchEvents, {
     swipeTolerance: 3
