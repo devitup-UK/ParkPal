@@ -89,7 +89,7 @@
         </IonAccordion>
       </IonAccordionGroup>
       <div class="copyright" :style="`color: ${settings.theme.text} !important;`">
-        <p>&copy; 2022 DevItUp / ParkPal</p>
+        <p>&copy; 2023 DevItUp / ParkPal</p>
       </div>
     </IonContent>
   </IonPage>

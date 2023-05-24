@@ -52,6 +52,21 @@
         </IonItem>
       </IonList>
 
+      <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem href="https://www.facebook.com/profile.php?id=100092728901540" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon :icon="['fa-brands', 'facebook']" color="#4267B2" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Facebook</IonLabel>
+        </IonItem>
+        <IonItem href="https://twitter.com/ParkPalUK" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon :icon="['fa-brands','twitter']" color="#1DA1F2" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Twitter</IonLabel>
+        </IonItem>
+        <IonItem href="https://www.instagram.com/parkpalapp/" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon :icon="['fa-brands','instagram']" color="#E1306C" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Instagram</IonLabel>
+        </IonItem>
+      </IonList>
+
 
       <IonModal ref="modal" trigger="open-modal" :can-dismiss="true" :presenting-element="presentingElement">
         <IonHeader :style="'background: ' + settings.theme.header.background + ' !important;'">
