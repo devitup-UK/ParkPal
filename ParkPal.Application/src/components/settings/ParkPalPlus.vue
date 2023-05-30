@@ -74,7 +74,7 @@
         <span @click="changeProduct" :style="'color: ' + settings.theme.header.text + ' !important;'">{{ alternativeSubscriptionPeriod }}</span>
         <span @click="restorePurchase" :style="'color: ' + settings.theme.header.text + ' !important;'">Restore Purchases</span>
       </div>
-      <div class="parkpal-plus-purchase__voucher" v-if="!loading" :style="'color: ' + settings.theme.header.text + ' !important;'">
+      <div class="parkpal-plus-purchase__voucher" v-if="!loading && Capacitor().getPlatform() === 'ios'" :style="'color: ' + settings.theme.header.text + ' !important;'">
         <span @click="redeemVoucher" :style="'color: ' + settings.theme.header.text + ' !important;'">Redeem Voucher</span>
       </div>
     </div>
@@ -109,6 +109,7 @@ import {
 import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
 import {subscriptionService} from "@/services/subscription.service";
 import Voucher from "@/models/api/Voucher";
+import {Capacitor} from "@capacitor/core";
 
 export default defineComponent({
   name: "ParkPalPlus",
@@ -142,6 +143,9 @@ export default defineComponent({
     this.product = this.products.find((a: PurchasesPackage) => a.product.identifier == "parkpalplus_monthly");
   },
   methods: {
+    Capacitor() {
+      return Capacitor
+    },
     changeProduct() {
       if(this.product) {
         if(this.product.product.identifier == "parkpalplus_monthly") {
@@ -192,7 +196,7 @@ export default defineComponent({
       }
     },
     redeemVoucher() {
-      parkpalPlusHandler.presentVoucherAlert();
+        parkpalPlusHandler.presentVoucherAlert();
     }
   }
 })
