@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="parkpal-plus-card__footer" :style="`background: ${settings.theme.header.background} !important; color: ${settings.theme.header.text} !important;`">
-        <p>Enjoy wait time notifications below 20 minutes when you subscribe to ParkPal+.</p>
+        <p>Enjoy wait time notifications below 35 minutes when you subscribe to ParkPal+.</p>
       </div>
     </div>
     <div class="parkpal-plus-card">
