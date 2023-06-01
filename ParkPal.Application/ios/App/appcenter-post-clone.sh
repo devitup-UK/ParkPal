@@ -6,7 +6,7 @@ set -e
 set -x
 
 # Required nodeJS version
-NODE_VERSION=16.13.1
+NODE_VERSION=16.20.0
 
 # workaround to override the v8 alias
 npm config delete prefix
