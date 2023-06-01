@@ -18,7 +18,7 @@
         </IonItem>
         <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <IonLabel slot="start">Version</IonLabel>
-          <IonLabel slot="end">1.1.1</IonLabel>
+          <IonLabel slot="end">{{ data.appVersion }}</IonLabel>
         </IonItem>
       </IonList>
 
@@ -143,6 +143,8 @@ import { defineComponent } from "vue";
 import {mapState} from "vuex";
 import { IonPage, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonButtons, IonList, IonItem, IonLabel, IonAccordionGroup, IonAccordion } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {Capacitor} from "@capacitor/core";
+import {App} from "@capacitor/app";
 
 export default defineComponent({
   name: "SettingsAboutAndFAQsView",
@@ -162,13 +164,21 @@ export default defineComponent({
     FontAwesomeIcon
   },
   computed: {
-    ...mapState(['settings'])
+    ...mapState(['settings']),
   },
-  beforeMount() {
-    // Get all settings?
+  data() {
+    return {
+      data: {
+        appVersion: '1.0.0'
+      }
+    }
+  },
+  async beforeMount() {
+    // Get the app version.
+    const info = await App.getInfo();
+    this.data.appVersion = info.version;
   },
   methods: {
-    // Methods to go here.
     backToSettings() {
       this.$router.push({
         name: 'settings',
