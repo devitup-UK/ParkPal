@@ -159,8 +159,8 @@ const store: StoreOptions<RootState> = {
     setNotificationsEnabled(state, notificationsEnabled: boolean) {
       state.notificationsEnabled = notificationsEnabled;
     },
-    setParkPalPlus(state, value: boolean) {
-      state.settings.parkPalPlus = value;
+    setNoAds(state, value: boolean) {
+      state.settings.noAds = value;
     },
     setServerError(state, value: boolean) {
       state.serverError = value;
@@ -313,8 +313,8 @@ const store: StoreOptions<RootState> = {
     setNotificationsEnabled({commit}, notificationsEnabled: boolean) {
       commit('setNotificationsEnabled', notificationsEnabled);
     },
-    setParkPalPlus({commit}, value: boolean) {
-      commit('setParkPalPlus', value);
+    setNoAds({commit}, value: boolean) {
+      commit('setNoAds', value);
       storageHandler.storeSettingsInLocalStorage(this.state.settings);
     },
     setServerError({commit}, value: boolean) {

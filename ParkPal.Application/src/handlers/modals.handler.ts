@@ -50,7 +50,7 @@ export async function configureNotification(attraction: Attraction, park: Park, 
                         }
                     })
 
-                    resumeBannerAdvertisement(store.state.settings.parkPalPlus);
+                    resumeBannerAdvertisement(store.state.settings.noAds);
                 }
             })
         } else {
@@ -70,7 +70,7 @@ export async function configureNotification(attraction: Attraction, park: Park, 
                         }
                     })
                     await store.dispatch('setModalOpen', false);
-                    resumeBannerAdvertisement(store.state.settings.parkPalPlus);
+                    resumeBannerAdvertisement(store.state.settings.noAds);
                 }
             })
 
@@ -91,7 +91,7 @@ export async function configureNotification(attraction: Attraction, park: Park, 
             },
             handler: async () => {
                 await store.dispatch('setModalOpen', false);
-                resumeBannerAdvertisement(store.state.settings.parkPalPlus);
+                resumeBannerAdvertisement(store.state.settings.noAds);
             }
         });
 

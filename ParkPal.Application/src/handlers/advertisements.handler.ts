@@ -14,8 +14,7 @@ export function initialiseAdvertisements() {
                 console.log('Ads Initialised');
 
                 setTimeout(() => {
-                    console.log('Showing Banner Ad???');
-                    showBannerAdvertisement(store.state.settings.parkPalPlus);
+                    showBannerAdvertisement(store.state.settings.noAds);
                 }, 400);
 
 
@@ -35,7 +34,7 @@ export function initialiseAdvertisements() {
 
                     Keyboard.addListener('keyboardDidHide', () => {
                         store.dispatch('setKeyboardVisible', false).then(() => {
-                            resumeBannerAdvertisement(store.state.settings.parkPalPlus);
+                            resumeBannerAdvertisement(store.state.settings.noAds);
                         });
                     })
                 }
@@ -45,9 +44,9 @@ export function initialiseAdvertisements() {
     }
 }
 
-export function showBannerAdvertisement(parkPalPlus: boolean) {
+export function showBannerAdvertisement(noAds: boolean) {
     if(store.state.isApp) {
-        if (!parkPalPlus) {
+        if (!noAds) {
             setTimeout(() => {
                 const tabs: Element = document.getElementsByTagName('ion-tab-button')[0];
                 const margin = tabs.clientHeight + 2;
@@ -78,9 +77,9 @@ export function hideBannerAdvertisement() {
     }
 }
 
-export function resumeBannerAdvertisement(parkPalPlus: boolean) {
+export function resumeBannerAdvertisement(noAds: boolean) {
     if(store.state.isApp) {
-        if(!parkPalPlus) {
+        if(!noAds) {
             AdMob.resumeBanner().then();
         }
     }

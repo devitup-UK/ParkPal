@@ -24,7 +24,7 @@
       <template v-else>
         <template v-if="attractions.filter(a => !a.hidden).length">
           <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInAttractions" v-model="waitTimeSearch" @keyup.enter="dismissKeyboard" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
-          <IonRow v-if="settings.parkPalPlus">
+          <IonRow>
             <IonCol>
               <IonButton expand="block" class="park-notification-button" @click="createParkNotification" :style="`--background: ${settings.theme.actionButtonBackground}; --color: ${settings.theme.actionButtonText};`">Create Park Notification</IonButton>
             </IonCol>
@@ -145,10 +145,6 @@ import NotificationHoldingArea from "@/models/store/NotificationHoldingArea";
 import {NotificationType} from "@/models/enums/NotificationType";
 import router from "@/router";
 import {App} from "@capacitor/app";
-import {PushNotifications} from "@capacitor/push-notifications";
-import {saveSubscriptionToDatabase, setupOneSignal} from "@/handlers/notifications.handler";
-import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
-import {hideBannerAdvertisement, showBannerAdvertisement} from "@/handlers/advertisements.handler";
 
 export default defineComponent({
   name: "WaitTimesView",

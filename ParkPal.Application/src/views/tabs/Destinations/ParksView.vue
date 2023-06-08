@@ -18,8 +18,8 @@
       <ul class="parks" v-if="parks.filter(a => !a.hidden).length">
         <li v-for="park in parks.filter(a => !a.hidden)" :key="park.parkId" :style="'background: url(/img/' + park.image + ')'" @click="navigateToWaitTimes(park)">
           <div class="park-details">
-            <p :class="{ 'no-premium' : !settings.parkPalPlus }">{{ parkName(park.name) }}</p>
-            <div class="favourite" :class="{ 'favourite--active': isFavourite(park.parkId) }" v-if="settings.parkPalPlus">
+            <p>{{ parkName(park.name) }}</p>
+            <div class="favourite" :class="{ 'favourite--active': isFavourite(park.parkId) }">
               <FontAwesomeIcon icon="heart" size="2x" @click.stop="favouritePark(park.parkId)" fixed-width></FontAwesomeIcon>
             </div>
           </div>

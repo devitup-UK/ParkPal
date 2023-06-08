@@ -2,7 +2,7 @@
   <li class="attraction" :class="{ 'attraction--favourite': isFavourite, 'attraction--notification': this.notificationProperties, 'attraction--options': this.options }" @click="configureNotification(attraction, park)" :style="`background: ${settings.theme.waitTimes.background} !important; color: ${settings.theme.waitTimes.text} !important;`">
     <AttractionDetails class="attraction-details--wait-time" :attraction="attraction"></AttractionDetails>
     <AttractionFooter :attraction="this.attraction" :notificationProperties="this.notificationProperties" :isFavourite="isFavourite">
-      <AttractionFeature icon="clock" :class="`feature--notification ${this.notificationAttractionIds.includes(attraction.attractionId) ? 'feature--has-notification': ''}`" @click.stop="configureNotification(attraction, park)" v-if="(settings.parkPalPlus || (!settings.parkPalPlus && notifications.length < 3)) && !$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && !this.$route.fullPath.includes('notifications')"></AttractionFeature>
+      <AttractionFeature icon="clock" :class="`feature--notification ${this.notificationAttractionIds.includes(attraction.attractionId) ? 'feature--has-notification': ''}`" @click.stop="configureNotification(attraction, park)" v-if="!$route.fullPath.includes('edit') && !$route.fullPath.includes('create') && !this.$route.fullPath.includes('notifications')"></AttractionFeature>
     </AttractionFooter>
   </li>
 </template>
