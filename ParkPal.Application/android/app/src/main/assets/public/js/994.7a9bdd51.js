@@ -1,2 +1,0 @@
-"use strict";(self["webpackChunkparkpal_application"]=self["webpackChunkparkpal_application"]||[]).push([[994],{1994:function(a,e,p){p.r(e),p.d(e,{RateAppWeb:function(){return s}});var n=p(6933);class s extends n.Uw{async requestReview(){}}}}]);
-//# sourceMappingURL=994.7a9bdd51.js.map

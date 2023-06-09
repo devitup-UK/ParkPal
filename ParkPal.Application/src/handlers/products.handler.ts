@@ -1,10 +1,11 @@
-import {Purchases, PurchasesOfferings} from '@awesome-cordova-plugins/purchases';
+import {
+    IAPProduct,
+    InAppPurchase2
+} from "@awesome-cordova-plugins/in-app-purchase-2";
 
-import {IAPProduct, InAppPurchase2} from "@awesome-cordova-plugins/in-app-purchase-2";
+import "cordova-plugin-purchase";
 
 import store from "@/store";
-import {CustomerInfo, PurchasesPackage} from "cordova-plugin-purchases";
-import {Capacitor} from "@capacitor/core";
 
 function setDebugLogLevel(enabled = true) {
     InAppPurchase2.verbosity = InAppPurchase2.DEBUG;
@@ -16,9 +17,9 @@ function registerProducts() {
         type: InAppPurchase2.CONSUMABLE,
     });
 
-    InAppPurchase2.when("no_ads").approved((product: IAPProduct) => {
-        product.finish();
-    })
+    InAppPurchase2.when("no_ads")
+        .approved((p: IAPProduct) => p.verify())
+        .verified((p: IAPProduct) => p.finish());
 
     InAppPurchase2.refresh();
 }
@@ -40,14 +41,9 @@ function restorePurchases() {
     InAppPurchase2.refresh();
 }
 
-function presentVoucherAlert() {
-    Purchases.presentCodeRedemptionSheet();
-}
-
 export default {
     setDebugLogLevel,
     registerProducts,
     purchaseProduct,
-    restorePurchases,
-    presentVoucherAlert
+    restorePurchases
 }
