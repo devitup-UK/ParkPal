@@ -3,9 +3,7 @@ import {
     InAppPurchase2
 } from "@awesome-cordova-plugins/in-app-purchase-2";
 
-import "cordova-plugin-purchase";
-
-import store from "@/store";
+import appStore from "@/store";
 
 function setDebugLogLevel(enabled = true) {
     InAppPurchase2.verbosity = InAppPurchase2.DEBUG;
@@ -28,7 +26,7 @@ function purchaseProduct(product: string): PromiseLike<boolean> {
     return new Promise((resolve, reject) => {
         InAppPurchase2.order(product).then(() => {
                 resolve(true);
-                store.dispatch('setNoAds', true).then();
+                appStore.dispatch('setNoAds', true).then();
             },
             () => {
                 reject(false);
