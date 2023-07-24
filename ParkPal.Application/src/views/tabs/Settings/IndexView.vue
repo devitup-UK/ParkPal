@@ -25,8 +25,8 @@
           <IonLabel>Remove Ads</IonLabel>
         </IonItem>
         <IonItem @click="restorePurchases" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
-          <FontAwesomeIcon icon="plus" color="#F76C6C" class="settings-icon" fixed-width></FontAwesomeIcon>
-          <IonLabel>Restore Purchase</IonLabel>
+          <FontAwesomeIcon icon="cart-shopping" color="#F76C6C" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Restore Purchases</IonLabel>
         </IonItem>
       </IonList>
 

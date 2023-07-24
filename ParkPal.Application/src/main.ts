@@ -34,7 +34,8 @@ import {
     faComments,
     faBook,
     faUserSecret,
-    faArrowDownWideShort
+    faArrowDownWideShort,
+    faCartShopping
 } from '@fortawesome/free-solid-svg-icons';
 
 import {faFacebook, faInstagram, faTwitter} from "@fortawesome/free-brands-svg-icons";
@@ -68,7 +69,8 @@ library.add(faMapMarkerAlt,
     faArrowDownWideShort,
     faFacebook,
     faTwitter,
-    faInstagram)
+    faInstagram,
+    faCartShopping)
 
 
 
