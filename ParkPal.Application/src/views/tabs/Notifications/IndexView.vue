@@ -17,7 +17,6 @@
       <ConnectionError v-if="serverError" @retry="getAllNotifications(null)"></ConnectionError>
       <Loader v-if="loading && !serverError">Fetching Notifications...</Loader>
       <template v-else>
-        <AlertComponent v-if="!settings.parkPalPlus">You can only have a maximum of 3 notifications. Subscribe to ParkPal+ to set an unlimited amount of notifications.</AlertComponent>
         <template v-if="notifications.length">
           <IonSearchbar placeholder="Search" debounce="400" @ionChange="searchInNotifications" @keyup.enter="dismissKeyboard" v-model="waitTimeSearch" :style="`--background: ${settings.theme.searchBoxBackground}; --color: ${settings.theme.searchBoxText}; --icon-color: ${settings.theme.searchBoxIcons}; --clear-button-color: ${settings.theme.searchBoxIcons};`"></IonSearchbar>
           <ul class="attractions" v-if="!waitTimeSearch.length">
@@ -119,7 +118,6 @@ export default defineComponent({
   name: "NotificationsView",
   components: {
     NotificationComponent,
-    AlertComponent,
     IonButtons,
     IonButton,
     IonPage,

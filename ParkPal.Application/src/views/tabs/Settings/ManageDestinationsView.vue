@@ -274,7 +274,7 @@ export default defineComponent({
         });
 
         actionSheet.onDidDismiss().then(() => {
-          resumeBannerAdvertisement(this.settings.parkPalPlus);
+          resumeBannerAdvertisement(this.settings.noAds);
         })
 
         hideBannerAdvertisement();

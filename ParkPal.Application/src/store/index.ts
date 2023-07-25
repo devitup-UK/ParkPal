@@ -19,7 +19,6 @@ import NotificationsFilter from "@/models/store/NotificationsFilter";
 import EditNotificationRequest from "@/models/api/requests/notification/EditNotificationRequest";
 import Park from "@/models/api/Park";
 import Theme from "@/models/store/theme/Theme";
-import {PurchasesPackage} from "cordova-plugin-purchases";
 import EnableDisableNotificationRequest from "@/models/api/requests/notification/EnableDisableNotificationRequest";
 import {Capacitor} from "@capacitor/core";
 
@@ -39,7 +38,6 @@ const store: StoreOptions<RootState> = {
     isApp: (Capacitor.getPlatform() != "web"),
     notificationsEnabled: false,
     serverError: false,
-    products: [],
     destinationSlideIndex: 0,
     destinationSearchTerm: '',
     modalOpen: false,
@@ -159,14 +157,11 @@ const store: StoreOptions<RootState> = {
     setNotificationsEnabled(state, notificationsEnabled: boolean) {
       state.notificationsEnabled = notificationsEnabled;
     },
-    setParkPalPlus(state, value: boolean) {
-      state.settings.parkPalPlus = value;
+    setNoAds(state, value: boolean) {
+      state.settings.noAds = value;
     },
     setServerError(state, value: boolean) {
       state.serverError = value;
-    },
-    setProducts(state, products: Array<PurchasesPackage>) {
-      state.products = products;
     },
     setDarkMode(state) {
       state.settings.theme.setDarkTheme();
@@ -313,15 +308,12 @@ const store: StoreOptions<RootState> = {
     setNotificationsEnabled({commit}, notificationsEnabled: boolean) {
       commit('setNotificationsEnabled', notificationsEnabled);
     },
-    setParkPalPlus({commit}, value: boolean) {
-      commit('setParkPalPlus', value);
+    setNoAds({commit}, value: boolean) {
+      commit('setNoAds', value);
       storageHandler.storeSettingsInLocalStorage(this.state.settings);
     },
     setServerError({commit}, value: boolean) {
       commit('setServerError', value);
-    },
-    setProducts({commit}, products: Array<PurchasesPackage>) {
-      commit('setProducts', products);
     },
     setDarkMode({commit}) {
       commit('setDarkMode');

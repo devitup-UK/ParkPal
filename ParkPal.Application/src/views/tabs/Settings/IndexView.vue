@@ -7,12 +7,12 @@
     </IonHeader>
     <IonContent :style="`background:${settings.theme.background} !important;`">
       <IonList lines="full" class="ion-margin-top settings-list" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
-        <IonItem v-if="!settings.parkPalPlus" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <FontAwesomeIcon icon="moon" color="#EF86F4" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>Dark Mode</IonLabel>
           <IonToggle slot="end" v-model="darkMode" color="success"></IonToggle>
         </IonItem>
-        <IonItem button v-if="settings.parkPalPlus" @click="navigate('settingsCustomTheming')" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem button @click="navigate('settingsCustomTheming')" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <FontAwesomeIcon icon="paint-roller" color="#8b96cd" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>Custom Theming</IonLabel>
         </IonItem>
@@ -20,9 +20,13 @@
           <FontAwesomeIcon icon="filter" color="#FFB857" class="settings-icon" fixed-width></FontAwesomeIcon>
           <IonLabel>Manage Destinations</IonLabel>
         </IonItem>
-        <IonItem :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+        <IonItem v-if="!settings.noAds" @click="purchaseNoAds" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
           <FontAwesomeIcon icon="plus" color="#F76C6C" class="settings-icon" fixed-width></FontAwesomeIcon>
-          <IonLabel id="open-modal" @click="hideBannerAdvertisement">Subscribe to ParkPal+</IonLabel>
+          <IonLabel>Remove Ads</IonLabel>
+        </IonItem>
+        <IonItem @click="restorePurchases" :style="`background:${settings.theme.settings.settingBackground} !important; border-color: ${settings.theme.settings.settingBorder} !important;color: ${settings.theme.settings.settingText} !important;`">
+          <FontAwesomeIcon icon="cart-shopping" color="#F76C6C" class="settings-icon" fixed-width></FontAwesomeIcon>
+          <IonLabel>Restore Purchases</IonLabel>
         </IonItem>
       </IonList>
 
@@ -67,23 +71,6 @@
         </IonItem>
       </IonList>
 
-
-      <IonModal ref="modal" trigger="open-modal" :can-dismiss="true" :presenting-element="presentingElement">
-        <IonHeader :style="'background: ' + settings.theme.header.background + ' !important;'">
-          <IonToolbar color="transparent" :style="'background: ' + settings.theme.header.background + ' !important;'">
-            <IonTitle :style="'background: ' + settings.theme.header.background + ' !important; color: '+ settings.theme.header.text + ' !important;'">
-              <span v-if="!settings.parkPalPlus">Subscribe to </span>
-              <span v-else>Subscribed to </span>
-              <span style="color:#C44E4E;">P</span><span style="color:#757FC9;">a</span><span style="color:#71B16F;">r</span>
-              <span style="color:#E67AF4;">k</span><span style="color:#0A7266;">P</span><span style="color:#F59D24;">a</span><span style="color:#586DE2;">l</span><span style="color:#FF0000;">+</span></IonTitle>
-            <IonButtons slot="end">
-              <FontAwesomeIcon icon="times-circle" size="lg" :color="settings.theme.header.icons" @click="closeModal" fixed-width></FontAwesomeIcon>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <ParkPalPlus @closeTriggered="$refs.modal.dismiss"></ParkPalPlus>
-      </IonModal>
-
     </IonContent>
   </IonPage>
 </template>
@@ -119,7 +106,7 @@ ion-item::part(detail-icon) {
 }
 </style>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import {mapState} from "vuex";
 import {
@@ -128,25 +115,20 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
-  IonButtons,
   IonList,
   IonLabel,
   IonItem,
-  IonModal,
   IonToggle,
   alertController
 } from "@ionic/vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import ParkPalPlus from "@/components/settings/ParkPalPlus.vue";
-import {hideBannerAdvertisement, resumeBannerAdvertisement} from "@/handlers/advertisements.handler";
-import { RateApp } from 'capacitor-rate-app';
+import productsHandler from '@/handlers/products.handler';
 
 
 export default defineComponent({
   name: "SettingsIndexView",
   components: {
     IonLabel,
-    IonButtons,
     IonPage,
     IonContent,
     IonHeader,
@@ -155,8 +137,6 @@ export default defineComponent({
     IonItem,
     IonList,
     IonToggle,
-    IonModal,
-    ParkPalPlus,
     FontAwesomeIcon
   },
   computed: {
@@ -164,7 +144,6 @@ export default defineComponent({
   },
   data() {
     return {
-      presentingElement: undefined,
       darkMode: false
     }
   },
@@ -178,21 +157,11 @@ export default defineComponent({
     }
   },
   beforeMount() {
-    // Get all settings?
-    if(!this.settings.parkPalPlus) {
       this.darkMode = this.settings.theme.darkMode;
-    }
-  },
-  mounted() {
-    this.presentingElement = this.$refs.page.$el;
   },
   methods: {
-    hideBannerAdvertisement() {
-      this.$store.dispatch('setModalOpen', true);
-      hideBannerAdvertisement();
-    },
     // Methods to go here.
-    navigate(route) {
+    navigate(route: string) {
       this.$router.push({
         name: route,
         params: {
@@ -200,13 +169,11 @@ export default defineComponent({
         }
       })
     },
-    closeModal() {
-      this.$store.dispatch('setModalOpen', false);
-      resumeBannerAdvertisement(this.settings.parkPalPlus);
-      this.$refs.modal.$el.dismiss(null, 'cancel');
+    restorePurchases() {
+      productsHandler.restorePurchases();
     },
-    rateApplication() {
-      RateApp.requestReview();
+    purchaseNoAds() {
+      productsHandler.purchaseProduct("noAds").then();
     },
     async feedbackMessage() {
       const alert = await alertController.create({
@@ -221,7 +188,7 @@ export default defineComponent({
             text: 'OK',
             role: 'confirm',
             handler: () => {
-              window.location = 'https://parkpal.co.uk/#getintouch'
+              window.location.href =  'https://parkpal.co.uk/#getintouch';
             },
           },
         ],

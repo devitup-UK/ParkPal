@@ -62,7 +62,7 @@ export default defineComponent({
             this.internalValue = value.waitTime.value;
             this.$emit('update:modelValue', value.waitTime.value);
             this.$store.dispatch('setModalOpen', false)
-            resumeBannerAdvertisement(this.settings.parkPalPlus);
+            resumeBannerAdvertisement(this.settings.noAds);
           },
         },
       ];

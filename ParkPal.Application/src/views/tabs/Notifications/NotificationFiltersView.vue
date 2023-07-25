@@ -212,7 +212,7 @@ export default defineComponent({
 
     resumeAdvertisement() {
       this.$store.dispatch('setModalOpen', false);
-      showBannerAdvertisement(this.settings.parkPalPlus);
+      showBannerAdvertisement(this.settings.noAds);
     }
   }
 });

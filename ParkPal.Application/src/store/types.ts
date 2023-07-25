@@ -5,7 +5,6 @@ import Notification from "@/models/api/Notification";
 import Destination from "@/models/api/Destination";
 import NotificationsFilter from "@/models/store/NotificationsFilter";
 import Park from "@/models/api/Park";
-import {PurchasesPackage} from "cordova-plugin-purchases";
 
 export interface RootState {
     destinations: Array<Destination>;
@@ -22,7 +21,6 @@ export interface RootState {
     notificationsEnabled: boolean;
     notifications: Array<Notification>;
     serverError: boolean;
-    products: Array<PurchasesPackage>;
     destinationSlideIndex: number;
     destinationSearchTerm: string;
     modalOpen: boolean;

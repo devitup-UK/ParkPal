@@ -26,13 +26,13 @@
         </div>
       </div>
     </div>
-    <div class="content" :class="{ 'content--noads': this.settings.parkPalPlus }" :style="`margin-bottom: ${adHeight}px;`">
+    <div class="content" :class="{ 'content--noads': this.settings.noAds }" :style="`margin-bottom: ${adHeight}px;`">
       <RouterView v-slot="{ Component, route }">
         <transition :name="route.params.transition">
           <component :is="Component" />
         </transition>
       </RouterView>
-      <div class="advertisement-placeholder" v-if="!this.settings.parkPalPlus && this.isApp && !this.keyboard" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
+      <div class="advertisement-placeholder" v-if="!this.settings.noAds && this.isApp && !this.keyboard" :style="`bottom: -${adHeight}px; height: ${adHeight}px; background:${settings.theme.background} !important; color: ${settings.theme.text} !important;`">
         <FontAwesomeIcon icon="spinner" spin fixed-width></FontAwesomeIcon>
         <p>Loading advertisements...</p>
       </div>
@@ -256,14 +256,8 @@ import {
 } from "@/handlers/notifications.handler";
 import {App} from '@capacitor/app';
 import {StatusBar, Style} from "@capacitor/status-bar";
-import parkpalplusHandler from "@/handlers/parkpalPlus.handler";
-import {CapacitorPurchases, Package, PurchaserInfo} from "@capgo/capacitor-purchases";
-import {PurchasesPackage} from "cordova-plugin-purchases";
-import parkpalPlusHandler from "@/handlers/parkpalPlus.handler";
-import {subscriptionService} from "@/services/subscription.service";
-import VoucherRequest from "@/models/api/requests/subscription/VoucherRequest";
-import store from "@/store";
 import {Capacitor} from "@capacitor/core";
+import productsHandler from "@/handlers/products.handler";
 
 
 export default defineComponent({
@@ -350,8 +344,8 @@ export default defineComponent({
     // Setup our OneSignalProperties
     if(this.isApp) {
       ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
-      parkpalplusHandler.setDebugLogLevel();
-      parkpalplusHandler.initialisePurchases();
+      productsHandler.setDebugLogLevel();
+      productsHandler.registerProducts();
 
 
       // This misbehaves massively on Android because app 'resume' is called when the app first opens, which is NOT good.
@@ -371,44 +365,12 @@ export default defineComponent({
               this.$store.dispatch('setNotificationsEnabled', false);
             }
           })
-
-        // See if the user still has a subscription active.
-        parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
-          this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
-          if(activeSubscriptions.length) {
-            hideBannerAdvertisement();
-          }else{
-            if(!this.modalOpen) {
-              showBannerAdvertisement(activeSubscriptions.length > 0);
-            }
-          }
-        })
       })
 
       // Initialise our advertisements right at the start of the application.
       if(this.settings.requestedNotifications || this.isAndroid) {
         initialiseAdvertisements();
       }
-
-      parkpalplusHandler.getProducts().then((products: Array<PurchasesPackage>) => {
-        this.$store.dispatch('setProducts', products);
-      });
-
-      parkpalPlusHandler.getPurchases().then((activeSubscriptions) => {
-        this.$store.dispatch('setParkPalPlus', activeSubscriptions.length);
-      })
-
-      // If we have a voucher in our settings, we need to verify it.
-      // if(this.settings.voucher != undefined) {
-      //   subscriptionService.verifyVoucher({
-      //     code: this.settings.voucher
-      //   }).then(() => {
-      //     this.$store.dispatch('setParkPalPlus', true);
-      //     hideBannerAdvertisement();
-      //   }).catch(() => {
-      //     this.$store.dispatch('setParkPalPlus', false);
-      //   })
-      // }
 
       StatusBar.setStyle({
         style: Style.Light
