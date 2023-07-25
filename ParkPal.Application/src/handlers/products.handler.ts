@@ -11,11 +11,11 @@ function setDebugLogLevel(enabled = true) {
 
 function registerProducts() {
     InAppPurchase2.register({
-        id: 'remove_ads',
+        id: 'remove_advertisements',
         type: InAppPurchase2.CONSUMABLE,
     });
 
-    InAppPurchase2.when("remove_ads")
+    InAppPurchase2.when("remove_advertisements")
         .approved((p: IAPProduct) => p.verify())
         .verified((p: IAPProduct) => p.finish());
 
