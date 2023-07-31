@@ -1,42 +1,80 @@
-import {
-    IAPProduct,
-    InAppPurchase2
-} from "@awesome-cordova-plugins/in-app-purchase-2";
-
 import appStore from "@/store";
+import {hideBannerAdvertisement} from "@/handlers/advertisements.handler";
+import {alertController} from "@ionic/vue";
 
 function setDebugLogLevel(enabled = true) {
-    InAppPurchase2.verbosity = InAppPurchase2.DEBUG;
+    CdvPurchase.store.verbosity = CdvPurchase.LogLevel.DEBUG;
 }
 
 function registerProducts() {
-    InAppPurchase2.register({
+    CdvPurchase.store.register({
         id: 'remove_advertisements',
-        type: InAppPurchase2.CONSUMABLE,
+        type: CdvPurchase.ProductType.NON_CONSUMABLE,
+        platform: CdvPurchase.Platform.APPLE_APPSTORE
     });
 
-    InAppPurchase2.when("remove_advertisements")
-        .approved((p: IAPProduct) => p.verify())
-        .verified((p: IAPProduct) => p.finish());
+    CdvPurchase.store.when()
+        .approved((p) => p.verify())
+        .verified((p) => p.finish())
+        .finished(() => {
+            console.log('Store Finished');
+        });
 
-    InAppPurchase2.refresh();
+    CdvPurchase.store.initialize().then(() => {
+        console.log('Store Initialized');
+        CdvPurchase.store.ready(() => {
+            console.log('Store Ready');
+            const advertisementsOwned = CdvPurchase.store.owned({
+                id: "remove_advertisements",
+                platform: CdvPurchase.Platform.APPLE_APPSTORE
+            })
+
+            if(advertisementsOwned) {
+                appStore.dispatch('setNoAds', true).then();
+            }
+        })
+    });
 }
 
 function purchaseProduct(product: string): PromiseLike<boolean> {
     return new Promise((resolve, reject) => {
-        InAppPurchase2.order(product).then(() => {
-                resolve(true);
-                appStore.dispatch('setNoAds', true).then();
-            },
-            () => {
-                reject(false);
-            }
-        );
+        const storeProduct = CdvPurchase.store.get(product, CdvPurchase.Platform.APPLE_APPSTORE);
+        const productOffer = storeProduct?.getOffer();
+        if (productOffer) {
+            CdvPurchase.store.order(productOffer).then((errorReturned) => {
+                    if(!errorReturned) {
+                        resolve(true);
+                        appStore.dispatch('setNoAds', true).then();
+                        hideBannerAdvertisement();
+                    }else{
+                        resolve(false);
+                    }
+                }).catch(() => {
+                    console.log('Purchase Cancelled');
+                    reject(false);
+            });
+        }
     });
 }
 
 function restorePurchases() {
-    InAppPurchase2.refresh();
+    CdvPurchase.store.restorePurchases().then(async () => {
+        console.log('Purchases Restored');
+        const alert = await alertController.create({
+            header: 'Purchases Restored',
+            message: 'Your purchases have been restored successfully.',
+            buttons: [
+                {
+                    text: 'OK',
+                    role: 'confirm',
+                },
+            ],
+        });
+
+        await alert.present();
+    }).catch(() => {
+        console.log('Purchases Restore Failed');
+    });
 }
 
 export default {
