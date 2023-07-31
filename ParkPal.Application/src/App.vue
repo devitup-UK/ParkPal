@@ -307,27 +307,50 @@ export default defineComponent({
     requestPermissions() {
       // Setup OneSignal with all of our details, this could be a first ever launch of our app or a user opening the app after closing it.
       setupOneSignal().then(() => {
+        console.log('OneSignal was setup successfully.');
         // OneSignal setup complete and verified.
         requestNotificationPermissions().then(() => {
+          console.log('The user accepted the notification permission request.');
           // We have received word that they have accepted permissions, we will now save the OneSignal subscription to the database.
           saveSubscriptionToDatabase().then(() => {
+            console.log('The subscription was saved to the database.');
             this.$store.dispatch('setNotificationsEnabled', true);
             this.$store.dispatch('setNotificationsRequested', true);
             initialiseAdvertisements();
+            this.setupProducts();
           }).catch(() => {
+            console.error('There was an error saving the subscription to the database.');
             this.$store.dispatch('setNotificationsEnabled', false);
             initialiseAdvertisements();
+            this.setupProducts();
           });
         }).catch(() => {
+          console.error('The user denied the notification permission request.');
           this.$store.dispatch('setNotificationsEnabled', false);
           initialiseAdvertisements();
+          this.setupProducts();
         })
+      }).catch(() => {
+        console.error('OneSignal failed to be setup successfully.');
       });
     },
 
     denyPermissions() {
       this.$store.dispatch('setNotificationsRequested', true);
       initialiseAdvertisements();
+      this.setupProducts();
+    },
+
+    configureDeviceReadyListener() {
+      document.addEventListener("deviceready", () => {
+        this.setupProducts();
+        initialiseAdvertisements();
+      }, false);
+    },
+
+    setupProducts() {
+      productsHandler.setDebugLogLevel();
+      productsHandler.registerProducts();
     }
   },
 
@@ -344,8 +367,7 @@ export default defineComponent({
     // Setup our OneSignalProperties
     if(this.isApp) {
       ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
-      productsHandler.setDebugLogLevel();
-      productsHandler.registerProducts();
+
 
 
       // This misbehaves massively on Android because app 'resume' is called when the app first opens, which is NOT good.
@@ -369,7 +391,7 @@ export default defineComponent({
 
       // Initialise our advertisements right at the start of the application.
       if(this.settings.requestedNotifications || this.isAndroid) {
-        initialiseAdvertisements();
+        this.configureDeviceReadyListener();
       }
 
       StatusBar.setStyle({

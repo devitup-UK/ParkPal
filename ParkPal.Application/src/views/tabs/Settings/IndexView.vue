@@ -173,7 +173,7 @@ export default defineComponent({
       productsHandler.restorePurchases();
     },
     purchaseNoAds() {
-      productsHandler.purchaseProduct("noAds").then();
+      productsHandler.purchaseProduct("remove_advertisements").then();
     },
     async feedbackMessage() {
       const alert = await alertController.create({

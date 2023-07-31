@@ -7,6 +7,8 @@ import { BrowserTracing } from "@sentry/tracing";
 
 import { IonicVue } from '@ionic/vue';
 
+import "cordova-plugin-purchase";
+
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
     faMapMarkerAlt,
