@@ -2,6 +2,15 @@
   cordova.define('cordova/plugin_list', function(require, exports, module) {
     module.exports = [
       {
+          "id": "cordova-plugin-purchase.CdvPurchase",
+          "file": "plugins/cordova-plugin-purchase/www/store.js",
+          "pluginId": "cordova-plugin-purchase",
+        "clobbers": [
+          "store",
+          "CdvPurchase"
+        ]
+        },
+      {
           "id": "cordova-plugin-screen-orientation.screenorientation",
           "file": "plugins/cordova-plugin-screen-orientation/www/screenorientation.js",
           "pluginId": "cordova-plugin-screen-orientation",
@@ -18,12 +27,10 @@
         ]
         },
       {
-          "id": "cordova-plugin-purchases.plugin",
-          "file": "plugins/cordova-plugin-purchases/www/plugin.js",
-          "pluginId": "cordova-plugin-purchases",
-        "clobbers": [
-          "Purchases"
-        ]
+          "id": "es6-promise-plugin.Promise",
+          "file": "plugins/es6-promise-plugin/www/promise.js",
+          "pluginId": "es6-promise-plugin",
+        "runs": true
         },
       {
           "id": "onesignal-cordova-plugin.NotificationReceivedEvent",
@@ -45,8 +52,9 @@
     // TOP OF METADATA
     {
       "cordova-annotated-plugin-android": "1.0.4",
-      "cordova-plugin-purchases": "3.3.2",
+      "cordova-plugin-purchase": "13.6.0",
       "cordova-plugin-screen-orientation": "3.0.2",
+      "es6-promise-plugin": "4.2.2",
       "onesignal-cordova-plugin": "3.2.0"
     };
     // BOTTOM OF METADATA

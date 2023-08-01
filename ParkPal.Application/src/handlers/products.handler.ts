@@ -1,16 +1,24 @@
 import appStore from "@/store";
 import {hideBannerAdvertisement} from "@/handlers/advertisements.handler";
 import {alertController} from "@ionic/vue";
+import Platform = CdvPurchase.Platform;
+import {Capacitor} from "@capacitor/core";
 
 function setDebugLogLevel(enabled = true) {
     CdvPurchase.store.verbosity = CdvPurchase.LogLevel.DEBUG;
 }
 
 function registerProducts() {
+    let platform = CdvPurchase.Platform.APPLE_APPSTORE;
+
+    if(Capacitor.getPlatform() === "android") {
+        platform = CdvPurchase.Platform.GOOGLE_PLAY;
+    }
+
     CdvPurchase.store.register({
         id: 'remove_advertisements',
         type: CdvPurchase.ProductType.NON_CONSUMABLE,
-        platform: CdvPurchase.Platform.APPLE_APPSTORE
+        platform
     });
 
     CdvPurchase.store.when()
@@ -26,7 +34,7 @@ function registerProducts() {
             console.log('Store Ready');
             const advertisementsOwned = CdvPurchase.store.owned({
                 id: "remove_advertisements",
-                platform: CdvPurchase.Platform.APPLE_APPSTORE
+                platform
             })
 
             if(advertisementsOwned) {
@@ -38,7 +46,11 @@ function registerProducts() {
 
 function purchaseProduct(product: string): PromiseLike<boolean> {
     return new Promise((resolve, reject) => {
-        const storeProduct = CdvPurchase.store.get(product, CdvPurchase.Platform.APPLE_APPSTORE);
+        let platform = CdvPurchase.Platform.APPLE_APPSTORE;
+        if(Capacitor.getPlatform() === "android") {
+            platform = CdvPurchase.Platform.GOOGLE_PLAY;
+        }
+        const storeProduct = CdvPurchase.store.get(product, platform);
         const productOffer = storeProduct?.getOffer();
         if (productOffer) {
             CdvPurchase.store.order(productOffer).then((errorReturned) => {
