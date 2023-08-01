@@ -22,8 +22,7 @@ dependencies {
     implementation project(':capgo-capacitor-purchases')
     implementation project(':capacitor-native-settings')
     implementation project(':capacitor-rate-app')
-    implementation "com.revenuecat.purchases:purchases-hybrid-common:4.4.3"
-    implementation "androidx.annotation:annotation:[1.4.0]"
+    implementation "com.android.billingclient:billing:5.0.0"
     implementation "com.onesignal:OneSignal:4.8.2"
 }
 apply from: "../../node_modules/cordova-annotated-plugin-android/build.gradle"
