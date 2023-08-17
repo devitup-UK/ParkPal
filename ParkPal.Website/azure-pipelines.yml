@@ -9,7 +9,7 @@ trigger:
       - ParkPal.Website/*
 
 pool:
-  name: 'Linux Pool'
+  name: 'Windows Pool'
 
 steps:
 - task: CmdLine@2
@@ -38,8 +38,8 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.Website/dist/'
+    SourceFolder: '$(Build.SourcesDirectory)\ParkPal.Website\dist\'
     Contents: '**'
-    TargetFolder: '/staging/ParkPal.Website/'
+    TargetFolder: 'C:\staging\ParkPal.Website\'
     OverWrite: true
     CleanTargetFolder: true
