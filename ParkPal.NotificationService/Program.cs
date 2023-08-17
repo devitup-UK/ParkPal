@@ -27,6 +27,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IOneSignalService, OneSignalService>();
         services.AddHostedService<TimerService>();
     })
+    .UseWindowsService()
     .Build();
 
 await host.RunAsync();
