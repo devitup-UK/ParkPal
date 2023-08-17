@@ -39,13 +39,13 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
-    arguments: '-c Release --sc'
+    arguments: '-c Release --sc -r win-x64'
     publishWebProjects: false
     projects: '$(Build.SourcesDirectory)\ParkPal.NotificationService\ParkPal.NotificationService.sln'
     
 - task: ExtractFiles@1
   inputs:
-    archiveFilePatterns: '$(Build.SourcesDirectory)\ParkPal.NotificationService\ParkPal.NotificationService\bin\Release\**\**\publish.zip'
+    archiveFilePatterns: '$(Build.SourcesDirectory)/ParkPal.NotificationService/bin/Release/**/**/publish.zip'
     destinationFolder: 'C:\staging\ParkPal.NotificationService\'
     cleanDestinationFolder: true
     overwriteExistingFiles: true
