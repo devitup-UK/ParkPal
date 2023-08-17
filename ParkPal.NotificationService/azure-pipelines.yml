@@ -45,7 +45,7 @@ steps:
     
 - task: ExtractFiles@1
   inputs:
-    archiveFilePatterns: '$(Build.SourcesDirectory)\ParkPal.NotificationService\ParkPal.NotificationService\bin\Release\**\**\publish.zip'
+    archiveFilePatterns: '$(Build.SourcesDirectory)/ParkPal.NotificationService/ParkPal.NotificationService/bin/Release/**/**/publish.zip'
     destinationFolder: 'C:\staging\ParkPal.NotificationService\'
     cleanDestinationFolder: true
     overwriteExistingFiles: true
