@@ -74,7 +74,7 @@ public class TimerService : IHostedService, IDisposable
                         a.Id == notification.AttractionId && a.Status != LiveStatusType.DOWN &&
                         a.Status != LiveStatusType.CLOSED && a.Status != LiveStatusType.REFURBISHMENT);
 
-                if (attractionData != null)
+                if (attractionData != null && notification.AttractionId != null)
                 {
                     // Get the wait time of the attraction that this notification is for.
                     int? attractionWaitTime =
