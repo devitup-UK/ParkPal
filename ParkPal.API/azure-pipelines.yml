@@ -9,7 +9,7 @@ trigger:
     - ParkPal.API/*
 
 pool:
-  name: 'Linux Pool'
+  name: 'Windows Pool'
 
 
 variables:
@@ -25,21 +25,25 @@ steps:
 
 - task: NuGetToolInstaller@1
 
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '7.0.400'
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)/ParkPal.API/ParkPal.API.sln'
+    projects: '$(Build.SourcesDirectory)\ParkPal.API\ParkPal.API.sln'
     
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
-    arguments: '-c Release --os linux'
-    projects: '$(Build.SourcesDirectory)/ParkPal.API/ParkPal.API.sln'
+    arguments: '-c Release --sc'
+    projects: '$(Build.SourcesDirectory)\ParkPal.API\ParkPal.API.sln'
 
-- task: CopyFiles@2
+- task: ExtractFiles@1
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.API/ParkPal.API/bin/Release/net6.0/linux-x64/'
-    Contents: '**'
-    TargetFolder: '/staging/ParkPal.API/'
-    OverWrite: true
-    CleanTargetFolder: true
+    archiveFilePatterns: '$(Build.SourcesDirectory)/ParkPal.API/ParkPal.API/bin/Release/**/**/publish.zip'
+    destinationFolder: 'C:\staging\ParkPal.API\'
+    cleanDestinationFolder: true
+    overwriteExistingFiles: true
