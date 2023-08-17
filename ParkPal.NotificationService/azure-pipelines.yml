@@ -29,6 +29,11 @@ steps:
     packageType: 'sdk'
     version: '7.0.400'
 
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '7.0.400'
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
@@ -38,7 +43,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
-    arguments: '-c Release --sc'
+    arguments: '-c Release --sc -r win-x64'
     publishWebProjects: false
     projects: '$(Build.SourcesDirectory)\ParkPal.NotificationService\ParkPal.NotificationService.sln'
     
