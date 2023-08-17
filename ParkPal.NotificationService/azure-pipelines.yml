@@ -9,7 +9,7 @@ trigger:
     - ParkPal.NotificationService/*
 
 pool:
-  name: 'Linux Pool'
+  name: 'Windows Pool'
 
 
 variables:
@@ -25,23 +25,27 @@ steps:
 
 - task: NuGetToolInstaller@1
 
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '7.0.400'
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)/ParkPal.NotificationService/ParkPal.NotificationService.sln'
+    projects: '$(Build.SourcesDirectory)\ParkPal.NotificationService\ParkPal.NotificationService.sln'
 
     
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
-    arguments: '-c Release --os linux'
+    arguments: '-c Release --sc'
     publishWebProjects: false
-    projects: '$(Build.SourcesDirectory)/ParkPal.NotificationService/ParkPal.NotificationService.sln'
+    projects: '$(Build.SourcesDirectory)\ParkPal.NotificationService\ParkPal.NotificationService.sln'
     
-- task: CopyFiles@2
+- task: ExtractFiles@1
   inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/ParkPal.NotificationService/bin/Release/net6.0/linux-x64/'
-    Contents: '**'
-    TargetFolder: '/staging/ParkPal.NotificationService/'
-    OverWrite: true
-    CleanTargetFolder: true
+    archiveFilePatterns: '$(Build.SourcesDirectory)\ParkPal.NotificationService\ParkPal.NotificationService\bin\Release\**\**\publish.zip'
+    destinationFolder: 'C:\staging\ParkPal.NotificationService\'
+    cleanDestinationFolder: true
+    overwriteExistingFiles: true
