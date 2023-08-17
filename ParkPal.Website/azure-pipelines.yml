@@ -12,11 +12,6 @@ pool:
   name: 'Windows Pool'
 
 steps:
-- task: CmdLine@2
-  inputs:
-    script: |
-      ls
-
 - task: NodeTool@0
   inputs:
     versionSpec: '16.x'
