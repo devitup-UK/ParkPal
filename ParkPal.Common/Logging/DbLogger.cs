@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ParkPal.Common.Database.Contexts;
 using ParkPal.Common.Logging.Providers;
@@ -11,12 +13,12 @@ namespace ParkPal.Common.Logging;
 public class DbLogger: ILogger
 {
     private readonly DbLoggerProvider _dbLoggerProvider;
-    private DatabaseContext _dbContext;
+    private readonly IConfiguration _configuration;
 
-    public DbLogger([NotNull] DbLoggerProvider dbLoggerProvider, DatabaseContext dbContext)
+    public DbLogger([NotNull] DbLoggerProvider dbLoggerProvider, IConfiguration configuration)
     {
         _dbLoggerProvider = dbLoggerProvider;
-        _dbContext = dbContext;
+        _configuration = configuration;
     }
 
     public IDisposable BeginScope<TState>(TState state)
@@ -35,7 +37,8 @@ public class DbLogger: ILogger
         {
             return;
         }
-        
+
+        using DatabaseContext databaseContext = new(_configuration);
         int threadId = Thread.CurrentThread.ManagedThreadId; 
 
         Item logItem = new()
@@ -54,7 +57,7 @@ public class DbLogger: ILogger
             Modified = DateTime.Now
         };
         
-        _dbContext.LogItems?.Add(logItem);
-        _dbContext.SaveChanges();
+        databaseContext.LogItems?.Add(logItem);
+        databaseContext.SaveChanges();
     }
 }
