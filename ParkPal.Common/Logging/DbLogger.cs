@@ -55,5 +55,6 @@ public class DbLogger: ILogger
         };
         
         _dbContext.LogItems?.Add(logItem);
+        _dbContext.SaveChanges();
     }
 }

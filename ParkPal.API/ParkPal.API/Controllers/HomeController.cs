@@ -28,6 +28,7 @@ namespace ParkPal.API.Controllers
         public IActionResult IsAlive()
         {
             // Very basic endpoint that we can call to know if the service is alive or not.
+            _logger.LogInformation("The IsAlive endpoint was called.");
             return Ok(true);
         }
     }

@@ -42,13 +42,13 @@ public class BaseApi
         _headers.Add("Authorization", token);
     }
 
-    public T? GetRequest<T>(string endpoint, string? content = null) where T : class
+    protected T? GetRequest<T>(string endpoint, string? content = null) where T : class
     {
         RestRequest request = new RestRequest(endpoint, Method.Get);
         return SendRequest<T>(request, content);
     }
-    
-    public T? PostRequest<T>(string endpoint, string content) where T : class
+
+    protected T? PostRequest<T>(string endpoint, string content) where T : class
     {
         RestRequest request = new RestRequest(endpoint, Method.Post);
         return SendRequest<T>(request, content);

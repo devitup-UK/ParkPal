@@ -10,8 +10,14 @@ public class KeyVaultApi: BaseApi
 
     public List<Key> GetAllKeys(string environment, string token)
     {
-        // TODO - Get the token from the AppSettings to.
         SetHeader("x-client-token", token);
-        return GetRequest<List<Key>>("/KeyVault/GetAllEnvironmentKeys?environment=" + environment);
+        List<Key>? returnedKeys = GetRequest<List<Key>>("/KeyVault/GetAllEnvironmentKeys?environment=" + environment);
+        
+        if (returnedKeys != null)
+        {
+            return returnedKeys;
+        }
+
+        return new List<Key>();
     }
 }

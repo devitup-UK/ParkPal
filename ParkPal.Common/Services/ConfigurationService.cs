@@ -19,6 +19,6 @@ public class ConfigurationService
 
     public void ConfigureSettings()
     {
-        Settings.keys = _api.GetAllKeys(_appSettings.HostEnvironment, _appSettings.ClientToken);
+        Settings.Keys = _api.GetAllKeys(_appSettings.HostEnvironment, _appSettings.ClientToken);
     }
 }
