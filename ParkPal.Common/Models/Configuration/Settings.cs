@@ -1,16 +1,17 @@
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using ParkPal.Common.API.Models.KeyVaultApi;
 
 namespace ParkPal.Common.Models.Configuration;
 
 public static class Settings
 {
-    public static List<Key> keys { get; set; }
+    public static List<Key> Keys = new List<Key>();
 
     public static string? HostEnvironment;
     
-    public static string? Secret => GetKeyValueByName("Secret");
+    public static string Secret => GetKeyValueByName("Secret");
 
-    public static string? SQLConnectionString => GetKeyValueByName("SQLConnectionString");
+    public static string SQLConnectionString => GetKeyValueByName("SQLConnectionString");
 
     public static string ThemeParkWaitTimeUrl => GetKeyValueByName("ThemeParkWaitTimeUrl");
 
@@ -18,9 +19,16 @@ public static class Settings
 
     public static string OneSignalAppId => GetKeyValueByName("OneSignalAppId");
 
-    private static string? GetKeyValueByName(string name)
+    private static string GetKeyValueByName(string name)
     {
         HostEnvironment = name;
-        return keys.FirstOrDefault(a => a.Name == name)?.Value;
+        Key? key = Keys.FirstOrDefault(a => a.Name == name);
+
+        if (key != null)
+        {
+            return key.Value;
+        }
+
+        return "";
     }
 }
