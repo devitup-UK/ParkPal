@@ -5,17 +5,19 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ParkPal.PushEngine.csproj", "./"]
-RUN dotnet restore "ParkPal.PushEngine.csproj"
+
+COPY ["ParkPal.PushEngine/ParkPal.PushEngine.csproj", "ParkPal.PushEngine/"]
+RUN dotnet restore "ParkPal.PushEngine/ParkPal.PushEngine.csproj"
 COPY . .
-WORKDIR "/src/"
-RUN dotnet build "./ParkPal.PushEngine.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/ParkPal.PushEngine"
+RUN dotnet build "ParkPal.PushEngine.csproj" -c Release -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ParkPal.PushEngine.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ParkPal.PushEngine.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "ParkPal.PushEngine.dll"]
+
