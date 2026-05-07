@@ -1,17 +1,30 @@
 using Npgsql;
 using ParkPal.Common.Models.Enums;
+using ParkPal.PushEngine.Models;
 using ParkPal.PushEngine.Services;
 
 namespace ParkPal.PushEngine.Workers;
 
-public class LiveActivityWorker(ILogger<LiveActivityWorker> logger, IConfiguration config) : BackgroundService
+public class LiveActivityWorker : BackgroundService
 {
-    private readonly string _connString = config.GetConnectionString("DatabaseConnection")!;
-    private readonly ApnsWrapper _apns = new();
+    private readonly ILogger<AlertEvaluationWorker> _logger;
+    private IConfiguration _config;
+    private readonly string _connString;
+    private readonly ApplePushSettings _applePushSettings;
+    private readonly ApnsWrapper _apns;
+
+    public LiveActivityWorker(ILogger<AlertEvaluationWorker> logger, IConfiguration config)
+    {
+        _logger = logger;
+        _config = config;
+        _connString = _config.GetConnectionString("DatabaseConnection")!;
+        _applePushSettings = _config.GetSection("ApplePush").Get<ApplePushSettings>();
+        _apns = new ApnsWrapper(_applePushSettings);
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("🏝️ ParkPal Live Activity Engine Started!");
+        _logger.LogInformation("🏝️ ParkPal Live Activity Engine Started!");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -23,12 +36,12 @@ public class LiveActivityWorker(ILogger<LiveActivityWorker> logger, IConfigurati
             {
                 // ⭐️ Dig into the InnerException!
                 var realError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                logger.LogError($"❌ Live Activity Engine misfire: {realError}");
+                _logger.LogError($"❌ Live Activity Engine misfire: {realError}");
                 
                 // If it's a socket exception, this will print the exact network code
                 if (ex.InnerException?.InnerException != null)
                 {
-                    logger.LogError($"🔍 Deep inner: {ex.InnerException.InnerException.Message}");
+                    _logger.LogError($"🔍 Deep inner: {ex.InnerException.InnerException.Message}");
                 }
             }
 
@@ -77,7 +90,7 @@ public class LiveActivityWorker(ILogger<LiveActivityWorker> logger, IConfigurati
 
         if (!updatesToSend.Any()) return;
 
-        logger.LogInformation($"📱 Pushing {updatesToSend.Count} Live Activity updates to Apple...");
+        _logger.LogInformation($"📱 Pushing {updatesToSend.Count} Live Activity updates to Apple...");
 
         const string updateTrackerSql = @"
             UPDATE ""Alerts"".""LiveActivityMonitor"" 

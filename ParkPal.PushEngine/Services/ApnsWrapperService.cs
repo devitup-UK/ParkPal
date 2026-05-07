@@ -3,8 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Options; // ⭐️ Required for IOptions
 using CorePush.Apple;
 using ParkPal.PushEngine.Models;
 
@@ -12,34 +11,27 @@ namespace ParkPal.PushEngine.Services;
 
 public class ApnsWrapper
 {
-    private const string P8PrivateKey = "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg26hYLoiD1lzE244Vfs0iUc/f71icHYz/0XBF2Nn8UdagCgYIKoZIzj0DAQehRANCAAT/sUNlk+QowBEZ5EdtrfApTmNE3zvCEKkAVUUq2ShKMIo8QaGIj/JaJvDIsphx5W/WyAMXaPNMUD2zrMfNOL/W";
-    private const string P8KeyId = "3WN46MZD2H";
-    private const string TeamId = "8Q972PMJ52";
-    private const string AppBundleId = "DevItUp.App.ParkPal";
-
-    // 1. The CorePush Sender (For Alerts)
+    private readonly ApplePushSettings _settings; // ⭐️ Holds our dynamic secrets
     private readonly ApnSender _alertSender;
-    
-    // 2. The Raw HTTP Client (For Live Activities)
     private readonly HttpClient _liveActivityClient;
-    
-    // 3. The JWT Cache
     private string _cachedJwt = string.Empty;
     private DateTime _jwtGeneratedAt = DateTime.MinValue;
 
-    public ApnsWrapper()
+    // ⭐️ Inject the settings via the constructor
+    public ApnsWrapper(ApplePushSettings options)
     {
         var sharedHttp = new HttpClient(); 
         
         // Setup CorePush for Standard Alerts
         var alertSettings = new ApnSettings
         {
-            AppBundleIdentifier = AppBundleId,
-            P8PrivateKey = P8PrivateKey,
-            P8PrivateKeyId = P8KeyId,
-            TeamId = TeamId,
-            ServerType = ApnServerType.Development 
+            AppBundleIdentifier = options.AppBundleId,
+            P8PrivateKey = options.P8PrivateKey,
+            P8PrivateKeyId = options.P8KeyId,
+            TeamId = options.TeamId,
+            ServerType = options.UseProductionServers ? ApnServerType.Production : ApnServerType.Development 
         };
+        
         _alertSender = new ApnSender(alertSettings, sharedHttp);
 
         var handler = new SocketsHttpHandler
@@ -48,7 +40,6 @@ public class ApnsWrapper
             KeepAlivePingDelay = TimeSpan.FromSeconds(60),
             KeepAlivePingTimeout = TimeSpan.FromSeconds(30),
             EnableMultipleHttp2Connections = true,
-            // 🚨 THE FIX: Force TLS 1.2 or 1.3! If it tries anything lower, Apple hangs up.
             SslOptions = new System.Net.Security.SslClientAuthenticationOptions
             {
                 EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13
@@ -100,21 +91,20 @@ public class ApnsWrapper
             }
         };
 
-        // 🚨 THE FIX: Use Port 2197!
-        var request = new HttpRequestMessage(HttpMethod.Post, $"https://api.sandbox.push.apple.com:2197/3/device/{deviceToken.Trim()}");
+        // ⭐️ Dynamically swap the URL between Sandbox and Production
+        var appleDomain = _settings.UseProductionServers ? "api.push.apple.com" : "api.sandbox.push.apple.com";
+        var request = new HttpRequestMessage(HttpMethod.Post, $"https://{appleDomain}:2197/3/device/{deviceToken.Trim()}");
 
-        // 🚨 THE FIX: Force HTTP/2 on the Request itself, not just the client!
         request.Version = new Version(2, 0);
         request.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
 
         request.Headers.Add("apns-push-type", "liveactivity");
-        request.Headers.Add("apns-topic", $"{AppBundleId}.push-type.liveactivity"); 
+        request.Headers.Add("apns-topic", $"{_settings.AppBundleId}.push-type.liveactivity"); 
         request.Headers.Add("apns-priority", "10"); 
         
         request.Headers.Authorization = new AuthenticationHeaderValue("bearer", GetOrGenerateJwt());
         var jsonPayload = JsonSerializer.Serialize(payload);
-        var jsonBytes = Encoding.UTF8.GetBytes(jsonPayload);
-        var httpContent = new ByteArrayContent(jsonBytes);
+        var httpContent = new ByteArrayContent(Encoding.UTF8.GetBytes(jsonPayload));
         request.Content = httpContent;
 
         var response = await _liveActivityClient.SendAsync(request);
@@ -133,23 +123,17 @@ public class ApnsWrapper
     // ====================================================================
     private string GetOrGenerateJwt()
     {
-        if (!string.IsNullOrEmpty(_cachedJwt) && (DateTime.UtcNow - _jwtGeneratedAt).TotalMinutes < 45)
-        {
-            return _cachedJwt;
-        }
+        if (!string.IsNullOrEmpty(_cachedJwt) && (DateTime.UtcNow - _jwtGeneratedAt).TotalMinutes < 45) return _cachedJwt;
 
-        // 1. Apple strictly forbids ANY claims other than 'iss' and 'iat'
-        var header = new { alg = "ES256", kid = P8KeyId };
-        var payload = new { iss = TeamId, iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds() };
+        var header = new { alg = "ES256", kid = _settings.P8KeyId };
+        var payload = new { iss = _settings.TeamId, iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds() };
 
         var headerBase64 = Base64UrlEncode(JsonSerializer.Serialize(header));
         var payloadBase64 = Base64UrlEncode(JsonSerializer.Serialize(payload));
-
         var unsignedJwt = $"{headerBase64}.{payloadBase64}";
 
-        // 2. Sign it directly with the curve Apple demands
         using var ecdsa = ECDsa.Create();
-        ecdsa.ImportPkcs8PrivateKey(Convert.FromBase64String(P8PrivateKey), out _);
+        ecdsa.ImportPkcs8PrivateKey(Convert.FromBase64String(_settings.P8PrivateKey), out _);
         
         var signatureBytes = ecdsa.SignData(Encoding.UTF8.GetBytes(unsignedJwt), HashAlgorithmName.SHA256);
         var signatureBase64 = Base64UrlEncode(signatureBytes);
@@ -160,16 +144,8 @@ public class ApnsWrapper
         return _cachedJwt;
     }
 
-    // Standard base64 URL encoding required for JWTs!
     private static string Base64UrlEncode(string input) => Base64UrlEncode(Encoding.UTF8.GetBytes(input));
-    
-    private static string Base64UrlEncode(byte[] input)
-    {
-        return Convert.ToBase64String(input)
-            .Replace("+", "-")
-            .Replace("/", "_")
-            .TrimEnd('=');
-    }
+    private static string Base64UrlEncode(byte[] input) => Convert.ToBase64String(input).Replace("+", "-").Replace("/", "_").TrimEnd('=');
 }
 
 // ====================================================================

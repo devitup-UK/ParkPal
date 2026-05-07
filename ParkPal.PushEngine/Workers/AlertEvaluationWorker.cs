@@ -1,17 +1,30 @@
 using Npgsql;
 using ParkPal.Common.Models.Enums;
+using ParkPal.PushEngine.Models;
 using ParkPal.PushEngine.Services;
 
 namespace ParkPal.PushEngine.Workers;
 
-public class AlertEvaluationWorker(ILogger<AlertEvaluationWorker> logger, IConfiguration config) : BackgroundService
+public class AlertEvaluationWorker : BackgroundService
 {
-    private readonly string _connString = config.GetConnectionString("DatabaseConnection")!;
-    private readonly ApnsWrapper _apns = new();
+    private readonly ILogger<AlertEvaluationWorker> _logger;
+    private IConfiguration _config;
+    private readonly string _connString;
+    private readonly ApplePushSettings _applePushSettings;
+    private readonly ApnsWrapper _apns;
+
+    public AlertEvaluationWorker(ILogger<AlertEvaluationWorker> logger, IConfiguration config)
+    {
+        _logger = logger;
+        _config = config;
+        _connString = _config.GetConnectionString("DatabaseConnection")!;
+        _applePushSettings = _config.GetSection("ApplePush").Get<ApplePushSettings>();
+        _apns = new ApnsWrapper(_applePushSettings);
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("🚀 ParkPal Push Engine Started!");
+        _logger.LogInformation("🚀 ParkPal Push Engine Started!");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -21,7 +34,7 @@ public class AlertEvaluationWorker(ILogger<AlertEvaluationWorker> logger, IConfi
             }
             catch (Exception ex)
             {
-                logger.LogError($"❌ Engine misfire: {ex.Message}");
+                _logger.LogError($"❌ Engine misfire: {ex.Message}");
             }
 
             // Rest for 60 seconds so we don't hammer the database
@@ -144,7 +157,7 @@ public class AlertEvaluationWorker(ILogger<AlertEvaluationWorker> logger, IConfi
         
         foreach (var summary in triggeredCounts)
         {
-            logger.LogInformation($"🎯 {summary.Value} alerts triggered for {summary.Key}!");
+            _logger.LogInformation($"🎯 {summary.Value} alerts triggered for {summary.Key}!");
         }
     }
 
