@@ -45,6 +45,7 @@ services:
       - ConnectionStrings__DatabaseConnection=Host=parkpal-db;Username=${DB_USER};Password=${DB_PASSWORD};Database=${DB_NAME}
       - ConnectionStrings__LoggingConnection=http://seq:5341
       - Configuration__Secret=${JWT_SECRET}
+      - Configuration__CdnBaseUrl=${CDN_BASE_URL}
     restart: unless-stopped
     depends_on:
       parkpal-db-deployer:
