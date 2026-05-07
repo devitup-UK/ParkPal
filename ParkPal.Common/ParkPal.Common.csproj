@@ -16,7 +16,6 @@
   <ItemGroup>
     <OpenApiReference Include="API\Spec\v1.yaml">
       <CodeGenerator>NSwagCSharp</CodeGenerator>
-      <SourceUrl>https://api.themeparks.wiki/docs/v1.yaml</SourceUrl>
     </OpenApiReference>
   </ItemGroup>
 </Project>

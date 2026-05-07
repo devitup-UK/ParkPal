@@ -185,6 +185,7 @@ components:
           properties:
             waitTime:
               type: number
+              nullable: true
         SINGLE_RIDER:
           type: object
           properties:
