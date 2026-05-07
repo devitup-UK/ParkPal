@@ -1,54 +1,47 @@
+using System.Text.Json;
 using ParkPal.Common.API;
-using ParkPal.Common.API.Models.ThemeParkApi;
-using ParkPal.Common.API.Models.ThemeParkApi.Enums;
 using ParkPal.Common.Models;
-using ParkPal.Common.Models.Configuration;
 using ParkPal.Common.Models.Enums;
 using ParkPal.Common.Services.Interfaces;
 
 namespace ParkPal.Common.Services;
 
-public class ThemeParkService: IThemeParkService
+public class ThemeParkService(ThemeParkApi _api) : IThemeParkService
 {
-    private readonly ThemeParkApi _api;
-    
-    public ThemeParkService()
+    public async Task<List<Destination>> GetDestinationsAsync()
     {
-        _api = new ThemeParkApi(Settings.ThemeParkWaitTimeUrl);
-    }
-    
-    public List<Destination> GetDestinations()
-    {
-        List<Destination> destinations = new();
+        List<Destination> destinations = []; 
         
-        ThemeParkApi api = new(Settings.ThemeParkWaitTimeUrl);
-        
-        // This returns a list of destinations back from the API.
-        DestinationsResponse? destinationsResponse = api.GetDestinations();
+        var response = await _api.GetDestinationsAsync();
 
-        if (destinationsResponse != null)
+        if (response?.Destinations != null)
         {
-            foreach (DestinationEntry destination in destinationsResponse.Destinations)
+            foreach (var destination in response.Destinations)
             {
-                if (destination.Parks.Any())
+                var destinationEntityData = await _api.GetEntityDataAsync(destination.Id);
+                
+                if (destination.Parks != null && destination.Parks.Any() && destinationEntityData != null)
                 {
-                    Destination destinationToAdd =
-                        new(destination.Id, destination.Name);
-
-                    if (!destinationToAdd.Hidden)
+                    Destination destinationToAdd = new(destination.Id, destination.Name)
                     {
+                        Timezone = destinationEntityData.Timezone,
+                        Longitude = destinationEntityData.Location.Longitude, 
+                        Latitude = destinationEntityData.Location.Latitude
+                    };
 
-                        foreach (DestinationParkEntry park in destination.Parks)
+                    foreach (var park in destination.Parks)
+                    {
+                        var parkEntityData = await _api.GetEntityDataAsync(park.Id);
+
+                        Park parkToAdd = new(park.Id, park.Name)
                         {
-                            Park parkToAdd = new Park(park.Id, park.Name);
-                            if (!parkToAdd.Hidden)
-                            {
-                                destinationToAdd.Parks.Add(parkToAdd);
-                            }
-                        }
-
-                        destinations.Add(destinationToAdd);
+                            Latitude = parkEntityData?.Location.Latitude,
+                            Longitude = parkEntityData?.Location.Longitude,
+                        };
+                        
+                        destinationToAdd.Parks.Add(parkToAdd);
                     }
+                    destinations.Add(destinationToAdd);
                 }
             }
         }
@@ -56,15 +49,14 @@ public class ThemeParkService: IThemeParkService
         return destinations;
     }
     
-    public List<Park> GetDestinationsParks(string destinationId)
+    public async Task<List<Park>> GetDestinationsParksAsync(string destinationId)
     {
-        List<Park> parks = new();
-        
-        EntityChildrenResponse? childrenResponse = _api.GetChildren(destinationId);
+        List<Park> parks = [];
+        var childrenResponse = await _api.GetChildrenAsync(destinationId);
 
-        if (childrenResponse != null)
+        if (childrenResponse?.Children != null)
         {
-            foreach (EntityChild park in childrenResponse.Children.Where(a => a.EntityType == EntityType.PARK))
+            foreach (var park in childrenResponse.Children.Where(a => a.EntityType == EntityType.PARK)) 
             {
                 parks.Add(new Park(park.Id, park.Name));
             }
@@ -73,18 +65,20 @@ public class ThemeParkService: IThemeParkService
         return parks;
     }
     
-    public Destination? GetDestinationWithParks(string destinationId)
+    public async Task<Destination?> GetDestinationWithParksAsync(string destinationId)
     {
-        EntityChildrenResponse? childrenResponse = _api.GetChildren(destinationId);
+        var childrenResponse = await _api.GetChildrenAsync(destinationId);
 
         if (childrenResponse != null)
         {
+            Destination destination = new(childrenResponse.Id, childrenResponse.Name);
 
-            Destination destination = new Destination(childrenResponse.Id, childrenResponse.Name);
-
-            foreach (EntityChild park in childrenResponse.Children.Where(a => a.EntityType == EntityType.PARK))
+            if (childrenResponse.Children != null)
             {
-                destination.Parks.Add(new Park(park.Id, park.Name));
+                foreach (var park in childrenResponse.Children.Where(a => a.EntityType == EntityType.PARK))
+                {
+                    destination.Parks.Add(new Park(park.Id, park.Name));
+                }
             }
 
             return destination;
@@ -93,61 +87,109 @@ public class ThemeParkService: IThemeParkService
         return null;
     }
     
-    public EntityLiveDataResponse? GetParkWaitTimes(string parkId)
+    public async Task<EntityLiveDataResponse?> GetParkWaitTimesAsync(string parkId)
     {
-        return _api.GetWaitTimes(parkId);
+        return await _api.GetWaitTimesAsync(parkId);
+    }
+    
+    public async Task<EntityChildrenResponse?> GetParkChildrenAttractionsAsync(string parkId)
+    {
+        return await _api.GetChildrenAsync(parkId);
     }
 
-    public Park? GetParkWithAttractions(string parkId)
+    public async Task<Park?> GetParkWithAttractionsAsync(string parkId)
     {
-        EntityLiveDataResponse? parkDataFromApi = GetParkWaitTimes(parkId);
+        var parkDataFromApi = await GetParkWaitTimesAsync(parkId);
+        var parkChildrenResponse = await GetParkChildrenAttractionsAsync(parkId);
+        var parkChildren = parkChildrenResponse?.Children;
 
-        if (parkDataFromApi != null)
+        if (parkChildren == null) return null;
+
+        var park = new Park(parkId, parkDataFromApi?.Name ?? "Unknown Park");
+
+        // ⭐️ Loop over CHILDREN, not LiveData!
+        foreach (var child in parkChildren)
         {
+            // Try to find matching live data (might be null for restaurants!)
+            var liveData = parkDataFromApi?.LiveData?.FirstOrDefault(l => l.Id == child.Id);
 
-            Park park = new(parkDataFromApi.Id, parkDataFromApi.Name);
+            var rawStandby = liveData?.Queue?.STANDBY?.WaitTime;
+            var safeStandby = rawStandby.HasValue ? (int)rawStandby.Value : (int?)null;
+            var safeType = child.EntityType;
+            
+            // If there's no live data (e.g. Restaurant), default to Operating
+            var status = liveData != null 
+                ? DetermineParkPalStatus(liveData.Status, rawStandby.HasValue, safeType) 
+                : ParkPalAttractionStatus.Operating;
 
-            foreach (EntityLiveData attractionData in parkDataFromApi.LiveData)
+            // Serialize showtimes if they exist
+            var showtimesJson = liveData?.Showtimes != null 
+                ? JsonSerializer.Serialize(liveData.Showtimes) 
+                : null;
+            
+            // We need to be storing the live data as JSON, rather than 
+            var liveDataJson = liveData != null ? JsonSerializer.Serialize(liveData) : null;
+
+            var parkPalAttraction = new AttractionDto(child.Id, child.Name, child.EntityType, status)
             {
-                if (attractionData.EntityType == EntityType.ATTRACTION &&
-                    attractionData.Status != LiveStatusType.REFURBISHMENT)
-                {
-                    AttractionStatus status = (AttractionStatus)(int)attractionData.Status;
+                WaitTime = safeStandby,
+                LastUpdated = liveData?.LastUpdated,
+                SingleRiderWaitTime = liveData?.Queue?.SINGLE_RIDER?.WaitTime.HasValue == true 
+                    ? (int)liveData.Queue.SINGLE_RIDER.WaitTime.Value : null,
+                LightningLaneReturnStart = liveData?.Queue?.PAID_RETURN_TIME?.ReturnStart 
+                                        ?? liveData?.Queue?.RETURN_TIME?.ReturnStart,
+                IsVirtualQueueOnly = liveData?.Queue is { BOARDING_GROUP: not null, STANDBY: null },
+                HasActiveAlert = false,
+                
+                // The new data!
+                ExternalId = child.ExternalId,
+                Latitude = child.Location?.Latitude,
+                Longitude = child.Location?.Longitude,
+                ShowtimesJson = showtimesJson,
+                // We will store the live data JSON in the history table for the attraction.  
+                LiveDataJson = liveDataJson,
+            };
 
-                    if (attractionData.Status == LiveStatusType.OPERATING &&
-                        attractionData.Queue?.STANDBY?.WaitTime == null)
-                    {
-                        status = AttractionStatus.Closed;
-                    }
-
-                    park.Attractions.Add(new Attraction(attractionData.Id, attractionData.Name,
-                        status, attractionData.Queue?.STANDBY?.WaitTime));
-                }
-            }
-
-            return park;
+            park.Attractions.Add(parkPalAttraction);
         }
 
-        return null;
+        return park;
     }
 
-    public List<Attraction> GetParkAttractions(string parkId)
+    // ⭐️ THE UPGRADED HELPER: Now it knows about Entity Types!
+    private ParkPalAttractionStatus DetermineParkPalStatus(LiveStatusType apiStatus, bool hasStandbyTime, EntityType entityType)
     {
-        List<Attraction> attractions = new();
-        
-        EntityLiveDataResponse? parkDataFromApi = GetParkWaitTimes(parkId);
+        if (apiStatus == LiveStatusType.DOWN) return ParkPalAttractionStatus.Down;
+        if (apiStatus == LiveStatusType.CLOSED) return ParkPalAttractionStatus.Closed;
 
-        if (parkDataFromApi != null)
+        // ⭐️ The "Ghost Ride" Rule: ONLY applies to RIDES!
+        if (entityType == EntityType.ATTRACTION && apiStatus == LiveStatusType.OPERATING && !hasStandbyTime)
+            return ParkPalAttractionStatus.Closed;
+
+        return ParkPalAttractionStatus.Operating;
+    }
+
+    public async Task<List<AttractionDto>> GetParkAttractionsAsync(string parkId)
+    {
+        List<AttractionDto> attractions = [];
+        var parkDataFromApi = await GetParkWaitTimesAsync(parkId);
+
+        if (parkDataFromApi?.LiveData != null)
         {
-
-            foreach (EntityLiveData attractionData in parkDataFromApi.LiveData)
+            foreach (var attractionData in parkDataFromApi.LiveData)
             {
-                if (attractionData.Queue?.STANDBY?.WaitTime != null &&
-                    attractionData.EntityType == EntityType.ATTRACTION &&
-                    attractionData.Status != LiveStatusType.REFURBISHMENT)
+                double? rawWaitTime = attractionData.Queue?.STANDBY?.WaitTime;
+
+                // ⭐️ Check HasValue here so we know it's safe to cast inside the block
+                if (rawWaitTime.HasValue && attractionData.EntityType == EntityType.ATTRACTION && attractionData.Status != LiveStatusType.REFURBISHMENT)
                 {
-                    attractions.Add(new Attraction(attractionData.Id, attractionData.Name,
-                        (AttractionStatus)(int)attractionData.Status, attractionData.Queue.STANDBY.WaitTime.Value));
+                    var status = ParkPalAttractionStatus.Operating;
+                    int safeWaitTime = (int)rawWaitTime.Value;
+                    
+                    attractions.Add(new AttractionDto(attractionData.Id, attractionData.Name, EntityType.ATTRACTION, status)
+                    {
+                        WaitTime =  safeWaitTime,
+                    });
                 }
             }
         }
@@ -155,22 +197,14 @@ public class ThemeParkService: IThemeParkService
         return attractions;
     }
     
-    public List<EntityLiveData> GetAttractionWaitTimes(string parkId, string attractionId)
+    // ⭐️ Returning an int? so your background worker has clean data
+    public async Task<int?> GetAttractionWaitTimeAsync(string parkId, string attractionId)
     {
-        EntityLiveDataResponse? response = GetParkWaitTimes(parkId);
-
-        if (response != null)
-        {
-            return response.LiveData.Where(a => a.Id == attractionId).ToList();
-        }
-
-        return new List<EntityLiveData>();
-    }
-
-    public int? GetAttractionWaitTime(string attractionId, List<EntityLiveData> listOfAttractionDetails)
-    {
-        EntityLiveData? attractionQueue = listOfAttractionDetails.FirstOrDefault(a => a.Id == attractionId);
-
-        return attractionQueue?.Queue?.STANDBY?.WaitTime;
+        var response = await GetParkWaitTimesAsync(parkId);
+        var attraction = response?.LiveData?.FirstOrDefault(a => a.Id == attractionId);
+        
+        double? rawWaitTime = attraction?.Queue?.STANDBY?.WaitTime;
+        
+        return rawWaitTime.HasValue ? (int)rawWaitTime.Value : null;
     }
 }

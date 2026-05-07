@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">ParkPal</string>
-    <string name="title_activity_main">ParkPal</string>
-    <string name="package_name">devitup.parkpal.application</string>
-    <string name="custom_url_scheme">devitup.parkpal.application</string>
-    <string name="admob_app_id">ca-app-pub-1263240325581067~1181327913</string>
-</resources>

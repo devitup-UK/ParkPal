@@ -1,0 +1,1 @@
+ALTER TABLE "History"."Attraction" ALTER COLUMN "WaitTime" DROP NOT NULL;

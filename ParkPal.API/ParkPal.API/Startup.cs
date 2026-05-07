@@ -1,161 +1,147 @@
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System;
-using System.Diagnostics;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using ParkPal.API.Middleware;
 using ParkPal.API.Models;
 using ParkPal.API.Services;
 using ParkPal.API.Services.Interfaces;
-using ParkPal.Common.Database.Contexts;
-using ParkPal.Common.Logging.Providers;
-using ParkPal.Common.Models.Configuration;
+using ParkPal.Common.API;
+using ParkPal.Common.Data;
+using ParkPal.Common.Data.Interfaces;
 using ParkPal.Common.Services;
 using ParkPal.Common.Services.Interfaces;
+using Serilog;
 
-namespace ParkPal.API
+var builder = WebApplication.CreateBuilder(args);
+
+// ==========================================
+// 1. CONFIGURATION & APP SETTINGS
+// ==========================================
+var configurationSection = builder.Configuration.GetSection("Configuration");
+builder.Services.Configure<AppSettingsConfiguration>(configurationSection);
+
+var configuration = configurationSection.Get<AppSettingsConfiguration>();
+
+// ==========================================
+// 2. DATABASE (Upgraded to PostgreSQL! 🐘)
+// ==========================================
+var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection") ?? throw new InvalidOperationException("Database connection string is missing!");
+
+// ==========================================
+// 3. AUTHENTICATION & JWT
+// ==========================================
+var secret = configuration?.Secret ?? throw new InvalidOperationException("Secret is missing!");
+var key = Encoding.ASCII.GetBytes(secret);
+
+builder.Services.AddAuthentication(x =>
 {
-    public class Startup
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(x =>
+{
+    x.Events = new JwtBearerEvents
     {
-        private readonly IWebHostEnvironment _env;
-        private readonly IConfiguration _configuration;
 
-        public Startup(IWebHostEnvironment env, IConfiguration configuration)
+        OnTokenValidated = context =>
         {
-            _env = env;
-            _configuration = configuration;
-        }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<DatabaseContext>();
-
-            services.AddCors();
-            services.AddControllers();
-
-            // configure strongly typed settings objects
-            var appSettingsSection = _configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            // configure jwt authentication
-            AppSettings appSettings = appSettingsSection.Get<AppSettings>();
-            ConfigurationService configurationService = new(appSettings);
-            configurationService.ConfigureSettings();
+            var tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
             
-            var key = Encoding.ASCII.GetBytes(Settings.Secret);
-
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        string authorization = context.Request.Headers["x-token"];
-
-                        // If no authorization header found, nothing to process further
-                        if (string.IsNullOrEmpty(authorization))
-                        {
-                            context.NoResult();
-                            return Task.CompletedTask;
-                        }
-
-                        if (authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                        {
-                            context.Token = authorization.Substring("Bearer ".Length).Trim();
-                        }
-
-                        // If no token found, no further work possible
-                        if (string.IsNullOrEmpty(context.Token))
-                        {
-                            context.NoResult();
-                            return Task.CompletedTask;
-                        }
-
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = context =>
-                    {
-                        ITokenService tokenService = context.HttpContext.RequestServices.GetRequiredService<ITokenService>();
-                        string token = context.Principal.Identity.Name;
-                        bool tokenValid = tokenService.Verify(token);
-                        if (!tokenValid)
-                        {
-                            // return unauthorized if user no longer exists
-                            context.Fail("Unauthorized");
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
-
-            // configure DI for application services
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<ISubscriptionService, SubscriptionService>();
-            services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<IThemeParkService, ThemeParkService>();
+            var appUserId = context.Principal?.Identity?.Name;
             
-            services.AddMvc().AddJsonOptions(o =>
+            if (appUserId == null || !tokenService.Verify(appUserId))
             {
-                o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            });
-
-            services.AddLogging();
-
-            services.AddSwaggerGen();
+                context.Fail("Unauthorized");
+            }
+            return Task.CompletedTask;
         }
+    };
+    
+    x.RequireHttpsMetadata = false; 
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DatabaseContext dataContext, ILoggerFactory loggerFactory)
-        {
-            AppSettings appSettings = _configuration.GetSection("AppSettings").Get<AppSettings>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails(); // Required for the handler to work
 
-            // Check database version and see if it is the latest, if it is not, then upgrade the database to the latest version with our upgrade scripts.
-            DatabaseUpgradeService upgradeService = new DatabaseUpgradeService(Settings.SQLConnectionString, "Database/Scripts");
-            upgradeService.UpgradeDatabase();
-            
-            loggerFactory.AddProvider(new DbLoggerProvider(_configuration));
+// 2. Register Health Checks (including a ping to Postgres!)
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionString, name: "postgres_db");
 
-            app.UseRouting();
+// ==========================================
+// 4. DEPENDENCY INJECTION
+// ==========================================
+builder.Services.AddScoped<IThemeParkService, ThemeParkService>();
+builder.Services.AddScoped<IParkRepository>(_ => new ParkRepository(connectionString, configuration.CdnBaseUrl));
+builder.Services.AddScoped<IAlertRepository>(_ => new AlertRepository(connectionString));
+builder.Services.AddScoped<IDeviceRepository>(_ => new DeviceRepository(connectionString));
+builder.Services.AddScoped<ICrowdSourceRepository>(_ => new CrowdSourceRepository(connectionString));
+builder.Services.AddScoped<IUsersRepository, UsersRepository>(_ => new UsersRepository(connectionString));
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAttractionHistoryRepository>(_ => new AttractionHistoryRepository(connectionString));
+builder.Services.AddScoped<IItineraryRepository>(_ => new ItineraryRepository(connectionString));
+builder.Services.AddScoped<ILiveActivityRepository>(_ => new LiveActivityRepository(connectionString));
+builder.Services.AddScoped<IPlanningService, PlanningService>();
 
-            // global cors policy
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+// Registers the HTTP Client, sets the base URL for themeparks.wiki, and wires up the ThemeParkApi!
+builder.Services.AddHttpClient<ThemeParkApi>(client =>
+{
+    client.BaseAddress = new Uri(configuration.ThemeParkApiBaseUrl);
+})
+.AddStandardResilienceHandler();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+// ==========================================
+// 5. MVC, CORS & SWAGGER
+// ==========================================
+builder.Services.AddCors();
+builder.Services.AddControllers().AddJsonOptions(o =>
+{
+    o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
-            app.UseSwagger();  
-            app.UseSwaggerUI(c => {  
-                c.SwaggerEndpoint("v1/swagger.json", "ParkPal.API");  
-            });  
+// ==========================================
+// 6. LOGGING
+// ==========================================
+var loggingConnectionString = builder.Configuration.GetConnectionString("LoggingConnection") ?? throw new InvalidOperationException("Logging connection string is missing!");
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.Seq(loggingConnectionString) // Points to the Docker container
+    .CreateLogger();
+builder.Host.UseSerilog();
 
-        }
-    }
-}
+// ==========================================
+// 🚀 BUILD THE APP
+// ==========================================
+var app = builder.Build();
+
+// ==========================================
+// 8. HTTP REQUEST PIPELINE
+// ==========================================
+app.UseCors(x => x
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI(c => 
+{  
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkPal.API");  
+});  
+
+app.MapControllers();
+
+app.Run();

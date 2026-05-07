@@ -1,33 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.10" />
-      <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-      <PackageReference Include="RestSharp" Version="108.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Database\Scripts\UpgradeScript_1.0.0.dbu">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Database\Scripts\UpgradeScript_1.0.1.dbu">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Database\Scripts\UpgradeScript_1.0.2.dbu">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Database\Scripts\UpgradeScript_1.0.4.dbu">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+    <PackageReference Include="NSwag.ApiDescription.Client" Version="13.0.5" />
+    <PackageReference Include="RestSharp" Version="114.0.0" />
+    <PackageReference Include="System.Threading.RateLimiting" Version="10.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <OpenApiReference Include="API\Spec\v1.yaml">
+      <CodeGenerator>NSwagCSharp</CodeGenerator>
+      <SourceUrl>https://api.themeparks.wiki/docs/v1.yaml</SourceUrl>
+    </OpenApiReference>
+  </ItemGroup>
 </Project>

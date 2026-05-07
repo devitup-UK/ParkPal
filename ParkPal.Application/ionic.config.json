@@ -1,7 +1,0 @@
-{
-  "name": "parkpal",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "vue"
-}

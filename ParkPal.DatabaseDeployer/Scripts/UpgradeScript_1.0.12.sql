@@ -1,0 +1,1 @@
+ALTER TABLE "Static"."Destination" ADD COLUMN "TimeZone" TEXT DEFAULT 'UTC' NOT NULL;

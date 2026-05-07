@@ -1,26 +1,25 @@
-using ParkPal.Common.API.Enums;
-using ParkPal.Common.API.Models.ThemeParkApi;
-
 namespace ParkPal.Common.API;
 
-public class ThemeParkApi: BaseApi
+// ⭐️ Primary constructor passes the injected HttpClient down to the BaseApi
+public class ThemeParkApi(HttpClient client) : BaseApi(client)
 {
-    public ThemeParkApi(string baseUrl) : base(baseUrl)
+    public async Task<DestinationsResponse?> GetDestinationsAsync()
     {
+        return await GetRequestAsync<DestinationsResponse>("destinations");
+    }
+    
+    public async Task<EntityData?> GetEntityDataAsync(string entityIdOrSlug)
+    {
+        return await GetRequestAsync<EntityData>($"entity/{entityIdOrSlug}");
     }
 
-    public DestinationsResponse? GetDestinations()
+    public async Task<EntityChildrenResponse?> GetChildrenAsync(string entityIdOrSlug)
     {
-        return GetRequest<DestinationsResponse>("/destinations");
+        return await GetRequestAsync<EntityChildrenResponse>($"entity/{entityIdOrSlug}/children");
     }
 
-    public EntityChildrenResponse? GetChildren(string entityIdOrSlug)
+    public async Task<EntityLiveDataResponse?> GetWaitTimesAsync(string entityIdOrSlug)
     {
-        return GetRequest<EntityChildrenResponse>($"/entity/{entityIdOrSlug}/children");
-    }
-
-    public EntityLiveDataResponse? GetWaitTimes(string entityIdOrSlug)
-    {
-        return GetRequest<EntityLiveDataResponse>($"/entity/{entityIdOrSlug}/live");
+        return await GetRequestAsync<EntityLiveDataResponse>($"entity/{entityIdOrSlug}/live");
     }
 }

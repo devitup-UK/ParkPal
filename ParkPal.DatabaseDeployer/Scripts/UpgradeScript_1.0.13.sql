@@ -1,0 +1,2 @@
+ALTER TABLE "Static"."Destination" ADD COLUMN "Longitude" DOUBLE PRECISION NULL;
+ALTER TABLE "Static"."Destination" ADD COLUMN "Latitude" DOUBLE PRECISION NULL;

@@ -1,68 +1,43 @@
-using System.Text.RegularExpressions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using ParkPal.API.Models;
 using ParkPal.API.Services.Interfaces;
-using ParkPal.Common.Database.Contexts;
-using ParkPal.Common.Models.Database.Entities.Device;
 
-namespace ParkPal.API.Services
+namespace ParkPal.API.Services;
+
+public class TokenService(IOptions<AppSettingsConfiguration> appSettings) : ITokenService
 {
+    private readonly string _secret = appSettings.Value.Secret;
 
-    public class TokenService : ITokenService
+    public string GenerateToken(string appUserId)
     {
-        private DatabaseContext _context;
-
-        public TokenService(DatabaseContext context)
-        {
-            _context = context;
-        }
-
-        public bool Verify(string token)
-        {
-            return _context.Tokens.Any(a => a.Value == token);
-        }
-
-        public Token? GetByToken(string token)
-        {
-            return _context.Tokens.FirstOrDefault(a => a.Value == token);
-        }
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_secret);
         
-        public Token? Generate()
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            string tokenString = Guid.NewGuid().ToString();
-            Token? existingToken = GetByToken(tokenString);
-
-            while (existingToken != null)
+            Subject = new ClaimsIdentity(new[] 
             {
-                tokenString = Guid.NewGuid().ToString();
-                existingToken = GetByToken(tokenString);
-            }
-            
-            Token createdToken = new Token()
-            {
-                Value = tokenString
-            };
-
-            _context.Tokens.Add(createdToken);
-            _context.SaveChanges();
-
-            return createdToken;
-        }
+                // ⭐️ Storing the AppUserId in the "Name" claim so your Startup.cs can read it!
+                new Claim(ClaimTypes.Name, appUserId)
+            }),
+            Expires = DateTime.UtcNow.AddYears(1), // Long lived for the app
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(key), 
+                SecurityAlgorithms.HmacSha256Signature)
+        };
         
-        public string? GetOrGenerateToken(ClaimsPrincipal user)
-        {
-            string token = user.FindFirstValue(ClaimTypes.Name);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
 
-            if (token != null && !string.IsNullOrEmpty(token))
-            {
-                return token;
-            }
-
-            Token? generatedToken = Generate();
-
-            return generatedToken is { Value: not null } ? generatedToken.Value : null;
-        }
+    public bool Verify(string token)
+    {
+        // For a stateless JWT, if the signature passes in Startup.cs, it's valid!
+        // If you ever want to ban a specific user, you'd check a DB blacklist here.
+        return true; 
     }
 }

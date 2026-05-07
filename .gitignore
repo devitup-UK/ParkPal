@@ -1,32 +1,45 @@
+# Ignore local environment configurations and secrets
+appsettings.Development.json
+appsettings.Production.json
+.env
 
-ParkPal.Tests/obj/
+# Ignore Mac specific hidden files
+.DS_Store
+.idea
+ParkPal.API/ParkPal.API/bin/
 
-ParkPal.Tests/bin/
+ParkPal.API/ParkPal.API/obj/
 
-ParkPal.NotificationServiceTests/bin/
-
-ParkPal.NotificationServiceTests/obj/
-
-ParkPal.NotificationService/.idea/
-
-ParkPal.NotificationService/bin/
-
-ParkPal.NotificationService/obj/
-
-ParkPal.Common/.idea/
+ParkPal.API/ParkPal.API.sln.DotSettings.user
 
 ParkPal.Common/bin/
 
 ParkPal.Common/obj/
 
-ParkPal.API/.idea/
+ParkPal.Tests/bin/
 
-ParkPal.API/ParkPal.API/bin/
+ParkPal.Tests/obj/
 
-ParkPal.API/ParkPal.API/obj/
+ParkPal.SyncService/bin/
 
-ParkPal.Application/.env
+ParkPal.SyncService/obj/
 
-ParkPal.Application/android/.idea/deploymentTargetDropDown.xml
+ParkPal.PushEngine/bin/
 
-ParkPal.Application/android/app/src/main/assets/appcenter-config.json
+ParkPal.PushEngine/obj/
+
+ParkPal.ImageProcessor/bin/
+
+ParkPal.ImageProcessor/obj/
+
+ParkPal.API/global.json
+
+ParkPal.DatabaseDeployer/bin/
+
+ParkPal.DatabaseDeployer/obj/
+
+ParkPal.ImageProcessor/ImagesProcessed/
+
+ParkPal.ImageProcessor/ImagesProcessed-2/
+
+ParkPal.ImageProcessor/ImagesProcessed-3/

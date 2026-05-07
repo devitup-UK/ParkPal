@@ -1,80 +1,53 @@
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json;
-using ParkPal.Common.API.Enums;
-using RestSharp;
 
 namespace ParkPal.Common.API;
 
 public class BaseApi
 {
-    private RestClient _client;
-    private Dictionary<string, string> _headers;
+    // ⭐️ Use native HttpClient! 
+    protected readonly HttpClient _client;
+    protected readonly JsonSerializerOptions _jsonOptions;
 
-    public BaseApi()
+    // ⭐️ Dependency Injection friendly constructor
+    public BaseApi(HttpClient client)
     {
-        _headers = new Dictionary<string, string>();
-    }
-    
-    public BaseApi(string baseUrl)
-    {
-        _client = new RestClient(baseUrl);
-        _headers = new Dictionary<string, string>();
-    }
-
-    public BaseApi(string baseUrl, Dictionary<string, string> headers)
-    {
-        _client = new RestClient(baseUrl);
-        _headers = headers;
-    }
-
-    public void SetBaseUrl(string baseUrl)
-    {
-        _client = new RestClient(baseUrl);
-    }
-
-    public void SetHeader(string name, string value)
-    {
-        _headers.Add(name, value);
-    }
-
-    public void SetToken(string token)
-    {
-        _headers.Add("Authorization", token);
-    }
-
-    protected T? GetRequest<T>(string endpoint, string? content = null) where T : class
-    {
-        RestRequest request = new RestRequest(endpoint, Method.Get);
-        return SendRequest<T>(request, content);
-    }
-
-    protected T? PostRequest<T>(string endpoint, string content) where T : class
-    {
-        RestRequest request = new RestRequest(endpoint, Method.Post);
-        return SendRequest<T>(request, content);
-    }
-    
-    public T? PutRequest<T>(string endpoint, string content) where T : class
-    {
-        RestRequest request = new RestRequest(endpoint, Method.Put);
-        return SendRequest<T>(request, content);
-    }
-
-    private T? SendRequest<T>(RestRequest request, string? content) where T : class
-    {
-        request.AddHeaders(_headers);
+        _client = client;
         
-        if (content != null)
+        // This is crucial: APIs send lowercase JSON (e.g. "name"), but C# uses PascalCase ("Name").
+        // This tells System.Text.Json to ignore the case differences automatically.
+        _jsonOptions = new JsonSerializerOptions
         {
-            request.AddParameter("application/json", content, ParameterType.RequestBody);
-        }
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() } // ⭐️ THIS IS THE MAGIC BULLET!
+        };
+    }
 
-        string? responseString = _client.Execute(request).Content;
-        if (responseString != null)
+    protected async Task<T?> GetRequestAsync<T>(string endpoint) where T : class
+    {
+        try
         {
-            return JsonConvert.DeserializeObject<T>(responseString);
+            // ⭐️ ONE line to fetch and deserialize! 
+            return await _client.GetFromJsonAsync<T>(endpoint, _jsonOptions);
         }
+        catch (HttpRequestException ex)
+        {
+            // TODO: Log with Serilog! Log.Error(ex, "API Call Failed");
+            return null;
+        }
+    }
 
+    // For future-proofing your POSTs
+    protected async Task<T?> PostRequestAsync<T>(string endpoint, object payload) where T : class
+    {
+        var response = await _client.PostAsJsonAsync(endpoint, payload, _jsonOptions);
+        
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
+        }
+        
         return null;
     }
 }

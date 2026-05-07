@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # 🐘 The PostgreSQL Database
+  parkpal-db:
+    image: postgres:15-alpine
+    container_name: parkpal_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432" # Consider restricting this via a firewall later!
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - parkpal_db_data:/var/lib/postgresql/data
+    
+  parkpal-db-deployer:
+    container_name: parkpal_db_deployer
+    build:
+      context: .
+      dockerfile: ParkPal.DatabaseDeployer/Dockerfile
+    environment:
+      - ConnectionStrings__DatabaseConnection=Host=parkpal-db;Username=${DB_USER};Password=${DB_PASSWORD};Database=${DB_NAME}
+    depends_on:
+      parkpal-db:
+        condition: service_healthy
+
+  # 🚀 Your C# API
+  parkpal-api:
+    container_name: parkpal_api
+    build:
+      context: .
+      dockerfile: ParkPal.API/Dockerfile
+    ports:
+      - "5001:8080" 
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # ⭐️ Injecting settings directly into .NET!
+      - ConnectionStrings__DatabaseConnection=Host=parkpal-db;Username=${DB_USER};Password=${DB_PASSWORD};Database=${DB_NAME}
+      - PushKeys__AppleTeamId=${APPLE_TEAM_ID}
+    depends_on:
+      parkpal-db-deployer:
+        condition: service_completed_successfully
+
+  # 📝 Seq (Centralized Logging)
+  seq:
+    image: datalust/seq:latest
+    container_name: parkpal_seq
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=${SEQ_PASSWORD}
+    ports:
+      - "8081:80"    
+      - "5341:5341"  
+
+  parkpal-sync:
+    container_name: parkpal_sync
+    build:
+      context: .
+      dockerfile: ParkPal.SyncService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production 
+      - ConnectionStrings__DatabaseConnection=Host=parkpal-db;Username=${DB_USER};Password=${DB_PASSWORD};Database=${DB_NAME}
+    restart: unless-stopped
+    depends_on:
+      parkpal-db-deployer:
+        condition: service_completed_successfully 
+
+  # 🚂 The Push Notification Engine
+  parkpal-pushengine:
+    container_name: parkpal_pushengine
+    build:
+      context: .
+      dockerfile: ParkPal.PushEngine/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production 
+      - ConnectionStrings__DatabaseConnection=Host=parkpal-db;Username=${DB_USER};Password=${DB_PASSWORD};Database=${DB_NAME}
+    restart: unless-stopped
+    depends_on:
+      parkpal-db-deployer:
+        condition: service_completed_successfully
+
+volumes:
+  parkpal_db_data:

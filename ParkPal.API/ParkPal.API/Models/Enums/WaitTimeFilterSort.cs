@@ -5,5 +5,7 @@ public enum WaitTimeFilterSort
     LowestWaitTime,
     HighestWaitTime,
     ThrillRides,
-    TameRides
+    TameRides,
+    StartingSoon,
+    Alphabetical
 }
