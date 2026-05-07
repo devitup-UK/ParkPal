@@ -5,10 +5,10 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ParkPal.SyncService.csproj", "./"]
-RUN dotnet restore "ParkPal.SyncService.csproj"
+COPY ["ParkPal.SyncService/ParkPal.SyncService.csproj", "ParkPal.SyncService/"]
+RUN dotnet restore "ParkPal.SyncService/ParkPal.SyncService.csproj"
 COPY . .
-WORKDIR "/src/"
+WORKDIR "/src/ParkPal.SyncService"
 RUN dotnet build "./ParkPal.SyncService.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
