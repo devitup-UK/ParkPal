@@ -16,10 +16,12 @@ public class ApnsWrapper
     private readonly HttpClient _liveActivityClient;
     private string _cachedJwt = string.Empty;
     private DateTime _jwtGeneratedAt = DateTime.MinValue;
+    private ILogger _logger;
 
     // ⭐️ Inject the settings via the constructor
-    public ApnsWrapper(ApplePushSettings settings)
+    public ApnsWrapper(ILogger logger, ApplePushSettings settings)
     {
+        _logger = logger;
         _settings = settings;
         var sharedHttp = new HttpClient(); 
         
@@ -70,6 +72,17 @@ public class ApnsWrapper
         };
 
         var response = await _alertSender.SendAsync(payload, deviceToken);
+        // ⭐️ THE PHANTOM PUSH CATCHER
+        if (!response.IsSuccessStatusCode)
+        {
+            // This will tell us exactly why TestFlight is failing! (e.g., BadDeviceToken)
+            _logger.LogError("❌ Apple APNs Rejected Standard Push! Reason: {Reason}", response.Error);
+        }
+        else
+        {
+            _logger.LogInformation("🚀 Apple APNs Accepted Standard Push!");
+        }
+
         return response.IsSuccessStatusCode;
     }
 

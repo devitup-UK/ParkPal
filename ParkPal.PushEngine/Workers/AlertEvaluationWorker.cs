@@ -19,7 +19,7 @@ public class AlertEvaluationWorker : BackgroundService
         _config = config;
         _connString = _config.GetConnectionString("DatabaseConnection")!;
         _applePushSettings = _config.GetSection("ApplePush").Get<ApplePushSettings>();
-        _apns = new ApnsWrapper(_applePushSettings);
+        _apns = new ApnsWrapper(logger, _applePushSettings);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
