@@ -15,6 +15,7 @@ var apiBaseUrl = builder.Configuration["Configuration:ThemeParkApiBaseUrl"];
 builder.Services.AddSerilog((services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "ParkPal.SyncService")
     .WriteTo.Console()
     .WriteTo.Seq(builder.Configuration.GetConnectionString("LoggingConnection") ?? "http://localhost:5341")
 );

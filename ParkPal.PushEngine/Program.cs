@@ -7,6 +7,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddSerilog((services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "ParkPal.PushEngine")
     .WriteTo.Console()
     .WriteTo.Seq(builder.Configuration.GetConnectionString("LoggingConnection") ?? "http://localhost:5341")
 );

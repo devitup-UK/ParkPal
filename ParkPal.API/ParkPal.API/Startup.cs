@@ -117,6 +117,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
     .WriteTo.Seq(loggingConnectionString) // Points to the Docker container
+    .Enrich.WithProperty("Application", "ParkPal.API")
     .CreateLogger();
 builder.Host.UseSerilog();
 
