@@ -18,18 +18,19 @@ public class ApnsWrapper
     private DateTime _jwtGeneratedAt = DateTime.MinValue;
 
     // ⭐️ Inject the settings via the constructor
-    public ApnsWrapper(ApplePushSettings options)
+    public ApnsWrapper(ApplePushSettings settings)
     {
+        _settings = settings;
         var sharedHttp = new HttpClient(); 
         
         // Setup CorePush for Standard Alerts
         var alertSettings = new ApnSettings
         {
-            AppBundleIdentifier = options.AppBundleId,
-            P8PrivateKey = options.P8PrivateKey,
-            P8PrivateKeyId = options.P8KeyId,
-            TeamId = options.TeamId,
-            ServerType = options.UseProductionServers ? ApnServerType.Production : ApnServerType.Development 
+            AppBundleIdentifier = settings.AppBundleId,
+            P8PrivateKey = settings.P8PrivateKey,
+            P8PrivateKeyId = settings.P8KeyId,
+            TeamId = settings.TeamId,
+            ServerType = settings.UseProductionServers ? ApnServerType.Production : ApnServerType.Development 
         };
         
         _alertSender = new ApnSender(alertSettings, sharedHttp);
