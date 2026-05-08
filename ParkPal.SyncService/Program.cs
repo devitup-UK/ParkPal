@@ -4,12 +4,20 @@ using ParkPal.Common.Data.Interfaces;
 using ParkPal.Common.Services;
 using ParkPal.Common.Services.Interfaces;
 using ParkPal.SyncService;
+using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 // 1. Grab the Configuration
 var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection")!;
 var apiBaseUrl = builder.Configuration["Configuration:ThemeParkApiBaseUrl"];
+
+builder.Services.AddSerilog((services, loggerConfiguration) => loggerConfiguration
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.Seq(builder.Configuration.GetConnectionString("LoggingConnection") ?? "http://localhost:5341")
+);
 
 // 2. Register the Database Repository
 // We use AddScoped so that every time the 5-minute timer triggers and calls CreateScope(), 
