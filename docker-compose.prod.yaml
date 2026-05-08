@@ -92,6 +92,7 @@ services:
       - ApplePush__P8PrivateKey=${APPLE_P8_KEY}
       - ApplePush__P8KeyId=${APPLE_KEY_ID}
       - ApplePush__TeamId=${APPLE_TEAM_ID}
+      - ApplePush__UseProductionServers=true
     restart: unless-stopped
     depends_on:
       parkpal-db-deployer:
