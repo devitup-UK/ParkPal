@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ParkPal.API.Services.Interfaces;
 using ParkPal.Common.API.Models.Dtos;
 using ParkPal.Common.Data.Interfaces;
+using ParkPal.Common.Models;
 
 namespace ParkPal.API.Controllers;
 
@@ -19,19 +20,56 @@ public class UsersController(ILogger<UsersController> _logger, IUsersRepository 
     {
         try 
         {
-            if (string.IsNullOrEmpty(registration.DeviceToken)) 
-                return BadRequest("Device token is required.");
+            // 1. Ensure we at least have an AppUserId (from RevenueCat or generated UUID)
+            if (string.IsNullOrEmpty(registration.AppUserId)) 
+                return BadRequest("AppUserId is required.");
 
-            // ⭐️ Clean separation of concerns!
-            await usersRepository.RegisterDeviceHandshakeAsync(registration);
+            // 2. ALWAYS create the Profile, regardless of push notifications!
+            await usersRepository.RegisterProfileAsync(registration.AppUserId);
+
+            // 3. ONLY register the device token if they actually gave us one
+            if (!string.IsNullOrEmpty(registration.DeviceToken))
+            {
+                await usersRepository.RegisterDeviceTokenAsync(registration);
+            }
+
+            // 4. ALWAYS give them a JWT so they can use the app!
             var signedToken = tokenService.GenerateToken(registration.AppUserId);
-
-            // 3. Return it to iOS
             return Ok(new { token = signedToken });
         }
         catch (Exception ex) 
         {
             Console.WriteLine($"❌ Handshake failed: {ex.Message}");
+            return StatusCode(500);
+        }
+    }
+    
+    [HttpPost("device-token")]
+    public async Task<IActionResult> UpdateDeviceToken([FromBody] UpdateTokenDto request)
+    {
+        try
+        {
+            // Extract the AppUserId securely from the JWT claim we set earlier
+            var userId = User.Identity?.Name; 
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            if (string.IsNullOrEmpty(request.DeviceToken))
+                return BadRequest("Token is required.");
+
+            // We can reuse the exact same repository method from the registration flow!
+            var registration = new UserRegistrationDto 
+            { 
+                AppUserId = userId, 
+                DeviceToken = request.DeviceToken 
+            };
+        
+            await usersRepository.RegisterDeviceTokenAsync(registration);
+        
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Token update failed: {ex.Message}");
             return StatusCode(500);
         }
     }

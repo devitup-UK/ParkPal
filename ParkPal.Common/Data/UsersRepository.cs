@@ -6,19 +6,12 @@ namespace ParkPal.Common.Data;
 
 public class UsersRepository(string connectionString) : IUsersRepository
 {
-    public async Task RegisterDeviceHandshakeAsync(UserRegistrationDto registration)
+    public async Task RegisterDeviceTokenAsync(UserRegistrationDto registration)
     {
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
         const string sql = @"
-        -- ⭐️ FIX 1: Lazy Profile Creation (Solves the 500 Error!)
-        -- If they don't exist, create them with default 0 TrustScore. If they do, ignore.
-        INSERT INTO ""Users"".""Profile"" (""AppUserId"") 
-        VALUES (@userId) 
-        ON CONFLICT (""AppUserId"") DO NOTHING;
-
-        -- ⭐️ FIX 2: Your existing APNS Device handshake
         INSERT INTO ""Users"".""Device"" (""DeviceToken"", ""AppUserId"", ""LastActiveAt"") 
         VALUES (@token, @userId, now()) 
         ON CONFLICT (""DeviceToken"") DO UPDATE SET 
@@ -28,6 +21,22 @@ public class UsersRepository(string connectionString) : IUsersRepository
         await using var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("token", registration.DeviceToken);
         cmd.Parameters.AddWithValue("userId", registration.AppUserId);
+    
+        await cmd.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RegisterProfileAsync(string appUserId)
+    {
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        const string sql = @"
+        INSERT INTO ""Users"".""Profile"" (""AppUserId"") 
+        VALUES (@userId) 
+        ON CONFLICT (""AppUserId"") DO NOTHING;";
+
+        await using var cmd = new NpgsqlCommand(sql, conn);
+        cmd.Parameters.AddWithValue("userId", appUserId);
     
         await cmd.ExecuteNonQueryAsync();
     }
